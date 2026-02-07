@@ -110,7 +110,7 @@ export async function POST(request) {
 
     if (tenantError || !tenant) {
       // Allow demo mode without a real tenant
-      if (tenantSlug === 'demo' && isDemoMode()) {
+      if (tenantSlug === 'demo') {
         tenant = { id: 'demo', slug: 'demo', monthly_gen_limit: 999, plan: 'demo' };
       } else {
         releaseRateLimit(tenantSlug);

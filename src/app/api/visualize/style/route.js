@@ -43,7 +43,7 @@ export async function POST(request) {
       .single();
 
     if (!tenant) {
-      if (tenantSlug === 'demo' && isDemoMode()) {
+      if (tenantSlug === 'demo') {
         tenant = { id: 'demo', slug: 'demo', monthly_gen_limit: 999 };
       } else {
         return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });

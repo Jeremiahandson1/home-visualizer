@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { stripe, PLANS } from '@/lib/stripe';
+import { getStripe, PLANS } from '@/lib/stripe';
 
 // POST /api/billing/checkout — create checkout session (subscription or one-time)
 export async function POST(request) {
@@ -63,7 +63,7 @@ export async function POST(request) {
       };
     }
 
-    const session = await stripe.checkout.sessions.create(sessionConfig);
+    const session = await getStripe().checkout.sessions.create(sessionConfig);
 
     return NextResponse.json({ url: session.url });
   } catch (err) {

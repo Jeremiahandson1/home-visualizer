@@ -4,9 +4,25 @@
 
 import Stripe from 'stripe';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia',
-});
+// Lazy initialization — Stripe SDK crashes if no key is provided,
+// but Next.js tries to evaluate this at build time when env vars aren't available.
+let _stripe = null;
+export function getStripe() {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is not set');
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2024-12-18.acacia',
+    });
+  }
+  return _stripe;
+}
+
+// Keep backward compat — but only use in runtime code
+export const stripe = typeof process !== 'undefined' && process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' })
+  : null;
 
 // ─── PLAN DEFINITIONS ────────────────────────────────
 // After creating products in Stripe Dashboard, paste price IDs here.

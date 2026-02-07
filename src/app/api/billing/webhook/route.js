@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { stripe, getPlanByPriceId } from '@/lib/stripe';
+import { getStripe, getPlanByPriceId } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { sendWelcomeEmail } from '@/lib/email';
 
@@ -15,7 +15,7 @@ export async function POST(request) {
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET

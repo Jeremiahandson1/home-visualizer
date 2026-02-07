@@ -39,7 +39,6 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
   formData.append('image', new Blob([processedImage], { type: 'image/png' }), 'home.png');
   formData.append('prompt', prompt);
   formData.append('model', 'gpt-image-1');
-  formData.append('quality', 'high');
   formData.append('size', '1536x1024');
   formData.append('response_format', 'b64_json');
 

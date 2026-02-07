@@ -52,6 +52,19 @@ CREATE TABLE IF NOT EXISTS tenants (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ─── DESIGN SESSIONS (homeowner journey persistence) ──
+CREATE TABLE IF NOT EXISTS design_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  session_token TEXT UNIQUE NOT NULL,
+  original_photo_url TEXT,
+  original_photo_base64_hash TEXT,  -- for matching uploads
+  metadata JSONB DEFAULT '{}',      -- browser info, source, etc.
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '30 days')
+);
+
 -- ─── LEADS (homeowner submissions) ───────────────────
 CREATE TABLE IF NOT EXISTS leads (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -72,19 +85,6 @@ CREATE TABLE IF NOT EXISTS leads (
   utm JSONB DEFAULT '{}',              -- { source, medium, campaign, term, content }
   referrer TEXT DEFAULT '',             -- document.referrer from embed page
   created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- ─── DESIGN SESSIONS (homeowner journey persistence) ──
-CREATE TABLE IF NOT EXISTS design_sessions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  session_token TEXT UNIQUE NOT NULL,
-  original_photo_url TEXT,
-  original_photo_base64_hash TEXT,  -- for matching uploads
-  metadata JSONB DEFAULT '{}',      -- browser info, source, etc.
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '30 days')
 );
 
 -- ─── DESIGN VARIATIONS (each generated image in a session)

@@ -1,14 +1,12 @@
 // ═══════════════════════════════════════════════════════════════
-// OPENAI PROVIDER — Primary
-// Uses Images Edit API for generation, Responses API for refinement
+// OPENAI PROVIDER — Uses Responses API for both generation & refinement
 // ═══════════════════════════════════════════════════════════════
 
 import sharp from 'sharp';
 import { buildPrompt, buildRefinementPrompt } from '../ai';
 
-const EDIT_URL = 'https://api.openai.com/v1/images/edits';
 const RESPONSES_URL = 'https://api.openai.com/v1/responses';
-const COST = { low: 2, medium: 5, high: 10, refine: 12 };
+const COST = { generate: 8, refine: 12 };
 
 async function preprocessImage(imageBuffer) {
   return await sharp(imageBuffer)
@@ -18,11 +16,13 @@ async function preprocessImage(imageBuffer) {
 }
 
 /**
- * Standard generation via Images Edit endpoint.
+ * Standard generation via Responses API with image_generation tool.
+ * Sends the original photo + prompt, gets back a transformed image.
  */
 export async function generateWithOpenAI({ imageBuffer, project, material, overridePrompt }) {
   const { instruction } = buildPrompt(project, material, overridePrompt);
   const processedImage = await preprocessImage(imageBuffer);
+  const imageBase64 = processedImage.toString('base64');
 
   const prompt = [
     instruction,
@@ -33,19 +33,35 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
     '- Lighting and shadows consistent with original.',
     '- Show realistic material texture and depth.',
     '- Professional architectural photography quality.',
+    '- This is the photo of the house to transform. Apply the changes to THIS exact house.',
   ].join('\n');
 
-  const formData = new FormData();
-  formData.append('image', new Blob([processedImage], { type: 'image/png' }), 'home.png');
-  formData.append('prompt', prompt);
-  formData.append('model', 'gpt-image-1');
-  formData.append('size', '1536x1024');
-  formData.append('response_format', 'b64_json');
-
-  const response = await fetch(EDIT_URL, {
+  const response = await fetch(RESPONSES_URL, {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` },
-    body: formData,
+    headers: {
+      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      input: [{
+        role: 'user',
+        content: [
+          {
+            type: 'input_image',
+            image_url: `data:image/png;base64,${imageBase64}`,
+          },
+          {
+            type: 'input_text',
+            text: prompt,
+          },
+        ],
+      }],
+      tools: [{
+        type: 'image_generation',
+        size: '1536x1024',
+      }],
+    }),
   });
 
   if (!response.ok) {
@@ -54,25 +70,19 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
   }
 
   const result = await response.json();
-  if (!result.data?.[0]?.b64_json) throw new Error('No image returned from OpenAI');
+  const imageOutput = result.output?.find(o => o.type === 'image_generation_call');
+  if (!imageOutput?.result) throw new Error('No image returned from OpenAI');
 
   return {
-    imageBase64: result.data[0].b64_json,
+    imageBase64: imageOutput.result,
     prompt,
-    model: 'gpt-image-1',
-    costCents: COST.high,
+    model: 'gpt-4o-image',
+    costCents: COST.generate,
   };
 }
 
 /**
  * Refinement via Responses API — multi-turn image editing.
- * Takes a previously generated image and applies an adjustment.
- *
- * @param {Object} opts
- * @param {Buffer} opts.imageBuffer     - The GENERATED image to refine (not original)
- * @param {string} opts.instruction     - Natural language refinement ("make trim darker")
- * @param {Object} opts.context         - { project, materialName, materialBrand }
- * @param {Buffer} [opts.originalImage] - Optional original photo for reference
  */
 export async function refineWithOpenAI({ imageBuffer, instruction, context, originalImage }) {
   const processedImage = await preprocessImage(imageBuffer);
@@ -115,7 +125,6 @@ export async function refineWithOpenAI({ imageBuffer, instruction, context, orig
       input: [{ role: 'user', content: inputContent }],
       tools: [{
         type: 'image_generation',
-        quality: 'high',
         size: '1536x1024',
       }],
     }),

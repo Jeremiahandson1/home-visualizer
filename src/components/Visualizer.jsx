@@ -588,7 +588,7 @@ export default function Visualizer({ config }) {
                 onClick={(e) => { e.stopPropagation(); fileRef.current?.click(); }}
               >Choose Photo</button>
             </div>
-            <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden"
+            <input ref={fileRef} type="file" accept="image/*" className="hidden"
               onChange={(e) => handleFile(e.target.files[0])} />
             {uploadError && <p className="mt-3 text-sm text-red-600 font-medium">{uploadError}</p>}
             <p className="text-xs mt-4" style={{ color: muted + '80' }}>JPG, PNG · Max 10MB · Straight-on photos work best</p>

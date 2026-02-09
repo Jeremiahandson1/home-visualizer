@@ -87,6 +87,7 @@ export default function Visualizer({ config }) {
   const [project, setProject] = useState(null);
   const [material, setMaterial] = useState(null);
   const [materials, setMaterials] = useState([]);
+  const [selections, setSelections] = useState({}); // { categoryId: material }
   const [loadingMaterials, setLoadingMaterials] = useState(false);
   const [filterBrand, setFilterBrand] = useState('');
   const [filterColor, setFilterColor] = useState('');
@@ -325,8 +326,66 @@ export default function Visualizer({ config }) {
     setStep('design');
   };
 
-  const handleStyleTap = (style) => { setSelectedStyle(style); setMaterial(null); setProject(null); generate(style); };
-  const handleMaterialTap = (mat) => { setMaterial(mat); setSelectedStyle(null); generate(null, mat); };
+  const handleStyleTap = (style) => { setSelectedStyle(style); setMaterial(null); setProject(null); setSelections({}); generate(style); };
+  const handleMaterialTap = (mat, categoryOverride) => {
+    const cat = categoryOverride || project?.id;
+    if (!cat) return;
+    setSelections(prev => ({ ...prev, [cat]: mat }));
+    setMaterial(mat); // keep for display purposes
+  };
+  const removeSelection = (cat) => {
+    setSelections(prev => { const next = { ...prev }; delete next[cat]; return next; });
+  };
+  const generateFromSelections = () => {
+    const sels = Object.entries(selections).map(([category, mat]) => ({
+      category, materialId: mat.id,
+    }));
+    if (sels.length === 0) return;
+    setSelectedStyle(null);
+    setStep('generating');
+    setGenError(null); setShowLeadForm(false);
+    trackEvent('generate', config.tenantId, {
+      mode: 'multi', count: sels.length,
+      categories: sels.map(s => s.category).join('+'),
+    });
+    generateMultiApi(sels);
+  };
+  const generateMultiApi = async (sels) => {
+    let lastError = 'Generation failed';
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        if (attempt > 0) {
+          setProgressLabel(`Retrying... (attempt ${attempt + 1})`);
+          await new Promise(r => setTimeout(r, 1500 * attempt));
+        }
+        const response = await fetch('/api/visualize', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64: imageRaw, selections: sels, tenantSlug: config.slug }),
+        });
+        const data = await response.json();
+        if (response.status === 422 || response.status === 400) {
+          throw { message: data.error || 'Invalid request', noRetry: true };
+        }
+        if (!response.ok) throw { message: data.error || 'Generation failed', noRetry: false };
+
+        setGeneratedImage(`data:image/jpeg;base64,${data.generatedBase64}`);
+        setGeneratedBase64(data.generatedBase64);
+        setOriginalUrl(data.originalUrl);
+        setGeneratedUrl(data.generatedUrl);
+        setGenTime(data.generationTimeMs);
+        trackEvent('generate_complete', config.tenantId, { time_ms: data.generationTimeMs, mode: 'multi', attempts: attempt + 1 });
+        setStep('result');
+        setResultRevealed(false);
+        setTimeout(() => setResultRevealed(true), 100);
+        return;
+      } catch (err) {
+        lastError = err.message || 'Generation failed';
+        if (err.noRetry) break;
+      }
+    }
+    setGenError(lastError);
+    setStep('design');
+  };
 
   // ─── Refinement ────────────────────────────────────
   const refine = async () => {
@@ -402,17 +461,21 @@ export default function Visualizer({ config }) {
   const tryAnother = () => {
     setGeneratedImage(null); setGeneratedBase64(null); setGenError(null);
     setRefineText(''); setSelectedStyle(null); setMaterial(null); setShowLeadForm(false);
+    setSelections({});
     setStep('design');
   };
 
   const startOver = () => {
     tryAnother(); setImage(null); setImageRaw(null); setProject(null);
-    setMode('styles'); setFavorites([]);
+    setMode('styles'); setFavorites([]); setSelections({});
     setLead({ name: '', email: '', phone: '', address: '' });
     setLeadSubmitted(false); setStep('upload');
   };
 
-  const selectionLabel = material ? `${material.brand} ${material.name}` : selectedStyle?.name || '';
+  const selectionLabel = selectedStyle?.name
+    || (Object.keys(selections).length > 1
+      ? Object.values(selections).map(m => m.name).join(' + ')
+      : material ? `${material.brand} ${material.name}` : '');
 
   // ═══════════════════════════════════════════════════════
   // RENDER
@@ -511,7 +574,7 @@ export default function Visualizer({ config }) {
               <img src={image} alt="" className="w-14 h-14 rounded-xl object-cover shadow-sm flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg sm:text-xl font-bold leading-tight">
-                  {mode === 'styles' ? 'Tap a style to see it' : project ? `${project.icon} ${project.label}` : 'Pick a category'}
+                  {mode === 'styles' ? 'Pick a style makeover' : project ? `${project.icon} ${project.label}` : 'Build your design'}
                 </h2>
                 <button onClick={startOver} className="text-xs underline" style={{ color: muted }}>Change photo</button>
               </div>
@@ -522,7 +585,7 @@ export default function Visualizer({ config }) {
               <button onClick={() => { setMode('styles'); setProject(null); setMaterial(null); }}
                 className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
                 style={{ background: mode === 'styles' ? primary : text + '06', color: mode === 'styles' ? '#fff' : muted }}>
-                ✨ Instant Styles
+                🏠 Style Makeover
               </button>
               <button onClick={() => { setMode('products'); setSelectedStyle(null); }}
                 className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
@@ -538,6 +601,7 @@ export default function Visualizer({ config }) {
                   <button onClick={() => {
                     setGenError(null);
                     if (selectedStyle) generate(selectedStyle);
+                    else if (Object.keys(selections).length > 0) generateFromSelections();
                     else if (material) generate(null, material);
                   }} className="underline font-semibold whitespace-nowrap">Retry</button>
                   <button onClick={() => setGenError(null)} className="underline whitespace-nowrap">Dismiss</button>
@@ -545,9 +609,14 @@ export default function Visualizer({ config }) {
               </div>
             )}
 
-            {/* ── STYLES — tap = instant generate ──── */}
+            {/* ── STYLES — full architectural transformations ──── */}
             {mode === 'styles' && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <>
+                <p className="text-xs mb-3 px-1" style={{ color: muted }}>
+                  These reimagine your home&apos;s entire look — architecture, materials, and colors.
+                  For material-only changes, use <button onClick={() => { setMode('products'); setSelectedStyle(null); }} className="underline font-semibold" style={{ color: primary }}>By Product</button>.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {STYLE_PRESETS.map(style => {
                   const badge = getPopularityBadge(style.id);
                   return (
@@ -583,31 +652,66 @@ export default function Visualizer({ config }) {
                   );
                 })}
               </div>
+              </>
             )}
 
             {/* ── PRODUCTS — popular first, then browse by category ── */}
             {mode === 'products' && (
               <>
-                {/* Popular products — 1 tap to generate */}
+                {/* Popular products — tap to add to your design */}
                 {!project && (
                   <>
-                    <p className="text-xs font-semibold mb-2" style={{ color: muted }}>Popular Products — tap to see it on your home</p>
+                    {/* Selections summary */}
+                    {Object.keys(selections).length > 0 && (
+                      <div className="mb-4 p-3 rounded-xl border" style={{ borderColor: primary + '40', background: primary + '08' }}>
+                        <p className="text-xs font-bold mb-2" style={{ color: primary }}>
+                          Your selections ({Object.keys(selections).length})
+                        </p>
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {Object.entries(selections).map(([cat, mat]) => {
+                            const proj = enabledProjects.find(p => p.id === cat);
+                            return (
+                              <div key={cat} className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs border"
+                                style={{ borderColor: border, background: surface }}>
+                                <div className="w-4 h-4 rounded" style={{ background: mat.color || mat.colorHex || '#888' }} />
+                                <span className="font-medium">{proj?.icon} {mat.name}</span>
+                                <button onClick={() => removeSelection(cat)} className="ml-1 opacity-50 hover:opacity-100">✕</button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <button onClick={generateFromSelections}
+                          className="w-full py-2.5 rounded-lg font-bold text-sm text-white transition hover:opacity-90"
+                          style={{ background: primary }}>
+                          Generate Visualization →
+                        </button>
+                      </div>
+                    )}
+
+                    <p className="text-xs font-semibold mb-2" style={{ color: muted }}>Popular Products — tap to add to your design</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
-                      {POPULAR_PRODUCTS.map(m => (
+                      {POPULAR_PRODUCTS.map(m => {
+                        const isSelected = selections[m.category]?.id === m.id;
+                        return (
                         <button key={m.id} onClick={() => {
-                          // Set project from category for API call
                           const proj = enabledProjects.find(p => p.id === m.category);
-                          if (proj) setProject(proj);
-                          handleMaterialTap(m);
+                          if (proj) setProject(null); // stay on overview
+                          handleMaterialTap(m, m.category);
                         }}
-                          className="rounded-lg border p-2.5 text-left transition-all hover:shadow-md active:scale-[0.97]"
-                          style={{ borderColor: border, background: surface }}>
+                          className="rounded-lg border p-2.5 text-left transition-all hover:shadow-md active:scale-[0.97] relative"
+                          style={{ borderColor: isSelected ? primary : border, background: surface,
+                            boxShadow: isSelected ? `0 0 0 2px ${primary}` : 'none' }}>
+                          {isSelected && (
+                            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-white text-xs flex items-center justify-center"
+                              style={{ background: primary }}>✓</span>
+                          )}
                           <div className="w-full h-8 rounded mb-1.5 border"
                             style={{ background: m.color || m.colorHex || '#888', borderColor: text + '10' }} />
                           <p className="font-semibold text-xs leading-tight truncate">{m.name}</p>
                           <p className="text-xs truncate" style={{ color: muted }}>{m.brand}</p>
                         </button>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {/* Browse all categories */}
@@ -664,19 +768,58 @@ export default function Visualizer({ config }) {
                       <div className="text-center py-12" style={{ color: muted }}>Loading products...</div>
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                        {filteredMaterials.map(m => (
+                        {filteredMaterials.map(m => {
+                          const isSelected = selections[project.id]?.id === m.id;
+                          return (
                           <button key={m.id} onClick={() => handleMaterialTap(m)}
-                            className="rounded-lg border p-2.5 text-left transition-all hover:shadow-md active:scale-[0.97]"
-                            style={{ borderColor: border, background: surface }}>
+                            className="rounded-lg border p-2.5 text-left transition-all hover:shadow-md active:scale-[0.97] relative"
+                            style={{ borderColor: isSelected ? primary : border, background: surface,
+                              boxShadow: isSelected ? `0 0 0 2px ${primary}` : 'none' }}>
+                            {isSelected && (
+                              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-white text-xs flex items-center justify-center"
+                                style={{ background: primary }}>✓</span>
+                            )}
                             <div className="w-full h-8 rounded mb-1.5 border"
                               style={{ background: m.color || m.colorHex || '#888', borderColor: text + '10' }} />
                             <p className="font-semibold text-xs leading-tight truncate">{m.name}</p>
                             <p className="text-xs truncate" style={{ color: muted }}>{m.brand}</p>
                           </button>
-                        ))}
+                          );
+                        })}
                         {filteredMaterials.length === 0 && (
                           <div className="col-span-full text-center py-8 text-sm" style={{ color: muted }}>No products match</div>
                         )}
+                      </div>
+                    )}
+
+                    {/* Selections tray inside category */}
+                    {Object.keys(selections).length > 0 && (
+                      <div className="mt-4 p-3 rounded-xl border" style={{ borderColor: primary + '40', background: primary + '08' }}>
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {Object.entries(selections).map(([cat, mat]) => {
+                            const proj = enabledProjects.find(p => p.id === cat);
+                            return (
+                              <div key={cat} className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs border"
+                                style={{ borderColor: border, background: surface }}>
+                                <div className="w-4 h-4 rounded" style={{ background: mat.color || mat.colorHex || '#888' }} />
+                                <span className="font-medium">{proj?.icon} {mat.name}</span>
+                                <button onClick={() => removeSelection(cat)} className="ml-1 opacity-50 hover:opacity-100">✕</button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => { setProject(null); setMaterial(null); setMaterials([]); }}
+                            className="flex-1 py-2 rounded-lg text-xs font-semibold border transition"
+                            style={{ borderColor: border, color: muted }}>
+                            + Add more
+                          </button>
+                          <button onClick={generateFromSelections}
+                            className="flex-1 py-2 rounded-lg font-bold text-sm text-white transition hover:opacity-90"
+                            style={{ background: primary }}>
+                            Generate →
+                          </button>
+                        </div>
                       </div>
                     )}
                   </>
@@ -705,7 +848,10 @@ export default function Visualizer({ config }) {
 
             <h3 className="text-base font-bold mb-1">{progressLabel || 'Starting...'}</h3>
             <p className="text-sm" style={{ color: muted }}>
-              {selectedStyle ? selectedStyle.name : `${material?.brand} ${material?.name}`}
+              {selectedStyle ? selectedStyle.name
+                : Object.keys(selections).length > 1
+                  ? `${Object.keys(selections).length} changes`
+                  : `${material?.brand} ${material?.name}`}
             </p>
 
             {/* Elapsed timer */}
@@ -732,6 +878,22 @@ export default function Visualizer({ config }) {
                     <div key={i} className="w-8 h-4 rounded" style={{ background: col, border: `1px solid ${text}15` }} />
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Multi-material preview */}
+            {!selectedStyle && Object.keys(selections).length > 0 && (
+              <div className="mt-4 p-3 rounded-xl border text-left" style={{ borderColor: border, background: surface }}>
+                <p className="text-xs font-semibold mb-1" style={{ color: muted }}>Applying {Object.keys(selections).length} changes</p>
+                {Object.entries(selections).map(([cat, mat]) => {
+                  const proj = enabledProjects.find(p => p.id === cat);
+                  return (
+                    <div key={cat} className="flex items-center gap-2 mt-1.5">
+                      <div className="w-4 h-4 rounded" style={{ background: mat.color || mat.colorHex || '#888' }} />
+                      <span className="text-xs" style={{ color: muted }}>{proj?.icon} {mat.brand} {mat.name}</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -170,6 +170,43 @@ export function buildPrompt(project, material, overridePrompt) {
   return { instruction: prompt, style: STYLE_DIRECTIVE, negative: NEGATIVE_PROMPT };
 }
 
+/**
+ * Build a combined prompt for multiple material selections.
+ * @param {Array} selections - [{ category: 'siding', material: {...} }, ...]
+ */
+export function buildMultiPrompt(selections) {
+  if (!selections || selections.length === 0) throw new Error('No selections provided');
+
+  // Single selection — use standard prompt
+  if (selections.length === 1) {
+    const s = selections[0];
+    return buildPrompt(s.category, s.material);
+  }
+
+  // Multiple selections — build combined prompt
+  const changes = selections.map(s => {
+    const mat = s.material;
+    const desc = `${mat.brand} ${mat.name}${mat.type ? ` (${mat.type})` : ''}`;
+    const promptFn = PROJECT_PROMPTS[s.category];
+    if (!promptFn) return `Change ${s.category} to ${desc}.`;
+    // Get just the material-specific instruction (first line area)
+    const full = promptFn(mat, desc);
+    return full;
+  });
+
+  const combinedPrompt = [
+    'Make the following changes to this house simultaneously:',
+    '',
+    ...changes.map((c, i) => `CHANGE ${i + 1}:\n${c}`),
+    '',
+    'Apply ALL changes in a single result.',
+    'Every change listed above must be visible in the output.',
+    'Only change what is listed. Everything else stays identical.',
+  ].join('\n') + PHOTO_RULES;
+
+  return { instruction: combinedPrompt, style: STYLE_DIRECTIVE, negative: NEGATIVE_PROMPT };
+}
+
 const STYLE_DIRECTIVE = 'Professional architectural photography, photorealistic, natural daylight, high resolution DSLR, subtle HDR, real estate photography quality';
 
 const NEGATIVE_PROMPT = 'blurry, distorted, cartoon, drawing, sketch, painting, unrealistic, oversaturated, artifacts, text, watermark, low quality, deformed, AI-looking, plastic, CGI render, video game screenshot, illustration';

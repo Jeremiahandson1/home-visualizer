@@ -244,13 +244,31 @@ The paint should look freshly applied but realistic — not glossy CGI. Show app
 Maintain all architectural details, just change the color. Keep unpainted materials (stone, brick, natural wood) as they are.
 Keep roof, windows, doors, landscaping, and surroundings exactly as they are unless they are painted surfaces.`,
 
-  windows: (mat, desc) =>
-    `Replace the windows on this house with ${desc}.
-New windows should have ${mat.name} colored frames in ${mat.type || 'double-hung'} style.
+  windows: (mat, desc) => {
+    const sub = mat.subcategory || 'windows';
+    const prompts = {
+      windows: `Replace the WINDOWS on this house with ${desc}.
+Install ${mat.type || 'double-hung'} style windows with ${mat.name} frames throughout.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
 Show proper window installation with appropriate casing, sill, and trim.
 Glass should show realistic reflections consistent with the environment.
 Keep the exact same window openings/sizes, just update the window units.
 Keep siding, roof, doors, and all other elements exactly as they are.`,
+      entry_doors: `Replace the FRONT DOOR with ${desc}.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show the new door properly fitted in the existing doorway with appropriate hardware, hinges, and weatherstripping.
+Include any sidelights or transom if described. Door hardware should complement the style.
+Keep windows, siding, roof, and all other elements exactly as they are.
+Only change the front entry door.`,
+      patio_doors: `Replace the PATIO DOOR / BACK DOOR with ${desc}.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show the new patio door system properly installed in the rear or side of the house.
+Include appropriate tracks, handles, and weather sealing.
+Show the door's relationship to the deck/patio area if visible.
+Keep windows, siding, roof, front door, and all other elements exactly as they are.`,
+    };
+    return prompts[sub] || prompts.windows;
+  },
 
   deck: (mat, desc) =>
     `Add a new ${desc} deck to this house.
@@ -342,8 +360,9 @@ Keep wall tile, vanity, shower, fixtures, and other elements exactly as they are
   },
 
   flooring: (mat, desc) =>
-    `Replace the flooring with ${desc}.
+    `Replace the FLOORING with ${desc}.
 Install ${mat.type || 'hardwood'} flooring in ${mat.name} throughout the visible floor area.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
 Show realistic plank/tile pattern, proper transitions at doorways, and appropriate baseboard molding.
 Keep all walls, furniture, fixtures, and other elements exactly as they are.`,
 

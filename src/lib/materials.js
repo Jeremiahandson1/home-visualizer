@@ -164,24 +164,55 @@ const PAINT = [
 ];
 
 // ─── WINDOWS & DOORS ───────────────────────────────────
+// ─── WINDOWS & DOORS ───────────────────────────────────
+// Subcategories: windows, entry_doors, patio_doors
 const WINDOWS = [
-  // Andersen
-  { id: 'andersen-black',       name: 'Black',              color: '#1C1917', accent: '#0C0A09', brand: 'Andersen 400 Series',   type: 'Double-Hung',   colorFamily: 'black', aiHint: 'black exterior frame double-hung windows, modern contrast, clean lines' },
-  { id: 'andersen-white',       name: 'White',              color: '#FAFAF9', accent: '#E7E5E4', brand: 'Andersen 400 Series',   type: 'Double-Hung',   colorFamily: 'white', aiHint: 'white frame double-hung windows, traditional clean look' },
-  { id: 'andersen-sandtone',    name: 'Sandtone',           color: '#C8B898', accent: '#A89E78', brand: 'Andersen 400 Series',   type: 'Double-Hung',   colorFamily: 'beige', aiHint: 'warm sandtone beige frame windows, soft neutral' },
-  { id: 'andersen-dark-bronze', name: 'Dark Bronze',        color: '#3E3420', accent: '#2A2218', brand: 'Andersen E-Series',     type: 'Casement',      colorFamily: 'brown', aiHint: 'dark bronze aluminum-clad casement windows, upscale' },
-  // Pella
-  { id: 'pella-black',          name: 'Black',              color: '#1C1917', accent: '#0C0A09', brand: 'Pella Lifestyle',       type: 'Casement',      colorFamily: 'black', aiHint: 'black frame casement windows, contemporary, operable' },
-  { id: 'pella-putty',          name: 'Putty',              color: '#C4B8A0', accent: '#A89C82', brand: 'Pella 250 Series',      type: 'Double-Hung',   colorFamily: 'beige', aiHint: 'warm putty beige frame double-hung windows, classic' },
-  { id: 'pella-hartford-green', name: 'Hartford Green',     color: '#2E4A35', accent: '#1C3225', brand: 'Pella Architect',       type: 'Casement',      colorFamily: 'green', aiHint: 'deep green window frames, traditional colonial green' },
-  // Marvin
-  { id: 'marvin-ebony',         name: 'Ebony',              color: '#292524', accent: '#1C1917', brand: 'Marvin Ultimate',       type: 'Picture Window', colorFamily: 'black', aiHint: 'ebony black large picture window, expansive glass, modern' },
-  { id: 'marvin-stone-white',   name: 'Stone White',        color: '#E8E0D0', accent: '#D4C8B5', brand: 'Marvin Essential',      type: 'Slider',        colorFamily: 'white', aiHint: 'soft stone white slider windows, contemporary clean' },
-  // Doors
-  { id: 'door-black-modern',    name: 'Black Modern Entry',  color: '#1C1917', accent: '#0C0A09', brand: 'Therma-Tru',          type: 'Entry Door',    colorFamily: 'black', aiHint: 'modern black fiberglass entry door with glass sidelights and clean hardware' },
-  { id: 'door-craftsman',       name: 'Craftsman Stained',   color: '#6B4E37', accent: '#4D3825', brand: 'Therma-Tru',          type: 'Entry Door',    colorFamily: 'brown', aiHint: 'stained wood grain craftsman door with glass panels, warm mahogany' },
-  { id: 'door-red',             name: 'Classic Red',         color: '#8B2222', accent: '#6B1515', brand: 'Therma-Tru',          type: 'Entry Door',    colorFamily: 'red',   aiHint: 'bold red front door, classic traditional statement, colonial style' },
-  { id: 'door-navy',            name: 'Navy Blue',           color: '#2B3850', accent: '#1C2840', brand: 'Therma-Tru',          type: 'Entry Door',    colorFamily: 'blue',  aiHint: 'deep navy blue front door, coastal sophisticated, modern classic' },
+  // ── Window Styles ─────────────────────────
+  // Double-Hung
+  { id: 'w-dh-black',           name: 'Black Double-Hung',       color: '#1C1917', accent: '#0C0A09', brand: 'Andersen 400',    type: 'Double-Hung',   subcategory: 'windows', colorFamily: 'black', aiHint: 'black exterior frame double-hung windows, traditional two-sash style, modern dark contrast, both sashes operable' },
+  { id: 'w-dh-white',           name: 'White Double-Hung',       color: '#FAFAF9', accent: '#E7E5E4', brand: 'Andersen 400',    type: 'Double-Hung',   subcategory: 'windows', colorFamily: 'white', aiHint: 'white frame double-hung windows, classic traditional style, clean bright frames' },
+  { id: 'w-dh-sandtone',        name: 'Sandtone Double-Hung',    color: '#C8B898', accent: '#A89E78', brand: 'Pella 250',       type: 'Double-Hung',   subcategory: 'windows', colorFamily: 'beige', aiHint: 'warm sandtone beige frame double-hung windows, neutral classic' },
+  { id: 'w-dh-bronze',          name: 'Dark Bronze Double-Hung', color: '#3E3420', accent: '#2A2218', brand: 'Andersen E-Series',type: 'Double-Hung',   subcategory: 'windows', colorFamily: 'brown', aiHint: 'dark bronze aluminum-clad double-hung windows, upscale traditional, rich metallic finish' },
+  // Casement
+  { id: 'w-cas-black',          name: 'Black Casement',          color: '#1C1917', accent: '#0C0A09', brand: 'Pella Lifestyle', type: 'Casement',      subcategory: 'windows', colorFamily: 'black', aiHint: 'black frame casement windows that crank open outward, modern contemporary, full ventilation' },
+  { id: 'w-cas-white',          name: 'White Casement',          color: '#FAFAF9', accent: '#E7E5E4', brand: 'Marvin Essential',type: 'Casement',      subcategory: 'windows', colorFamily: 'white', aiHint: 'white frame casement windows, side-hinged crank-open, clean modern lines' },
+  { id: 'w-cas-green',          name: 'Hartford Green Casement', color: '#2E4A35', accent: '#1C3225', brand: 'Pella Architect', type: 'Casement',      subcategory: 'windows', colorFamily: 'green', aiHint: 'deep colonial green casement window frames, traditional New England, crank-operated' },
+  // Picture / Fixed
+  { id: 'w-pic-black',          name: 'Black Picture Window',    color: '#1C1917', accent: '#0C0A09', brand: 'Marvin Ultimate', type: 'Picture',       subcategory: 'windows', colorFamily: 'black', aiHint: 'large black frame fixed picture window, expansive glass, maximum natural light, modern dramatic' },
+  { id: 'w-pic-white-floor',    name: 'Floor-to-Ceiling Picture',color: '#FAFAF9', accent: '#E7E5E4', brand: 'Marvin Modern',   type: 'Picture',       subcategory: 'windows', colorFamily: 'white', aiHint: 'floor-to-ceiling white frame picture windows, wall of glass, contemporary open feel' },
+  // Bay & Bow
+  { id: 'w-bay-white',          name: 'White Bay Window',        color: '#FAFAF9', accent: '#E7E5E4', brand: 'Andersen',        type: 'Bay Window',    subcategory: 'windows', colorFamily: 'white', aiHint: 'white frame bay window projecting outward with angled side panels, adds depth and light, traditional' },
+  { id: 'w-bay-black',          name: 'Black Bay Window',        color: '#1C1917', accent: '#0C0A09', brand: 'Pella',           type: 'Bay Window',    subcategory: 'windows', colorFamily: 'black', aiHint: 'black frame bay window with three-panel projection, modern take on classic style' },
+  { id: 'w-bow-white',          name: 'White Bow Window',        color: '#FAFAF9', accent: '#E7E5E4', brand: 'Andersen',        type: 'Bow Window',    subcategory: 'windows', colorFamily: 'white', aiHint: 'white frame bow window with 4-5 curved panels, gentle arc projection, elegant panoramic view' },
+  // Sliding
+  { id: 'w-sl-black',           name: 'Black Slider',            color: '#1C1917', accent: '#0C0A09', brand: 'Milgard Trinsic', type: 'Slider',        subcategory: 'windows', colorFamily: 'black', aiHint: 'black frame horizontal sliding windows, contemporary slim profile, smooth glide operation' },
+  { id: 'w-sl-white',           name: 'White Slider',            color: '#FAFAF9', accent: '#E7E5E4', brand: 'Milgard',         type: 'Slider',        subcategory: 'windows', colorFamily: 'white', aiHint: 'white frame horizontal sliding windows, easy operation, wide view, modern clean' },
+  // Awning
+  { id: 'w-awn-black',          name: 'Black Awning',            color: '#1C1917', accent: '#0C0A09', brand: 'Andersen E-Series',type:'Awning',        subcategory: 'windows', colorFamily: 'black', aiHint: 'black frame awning windows that hinge at top and open outward, modern accent, ventilation even in rain' },
+  // Grid Patterns
+  { id: 'w-grid-colonial',      name: 'Colonial Grid (6-over-6)',color: '#FAFAF9', accent: '#E7E5E4', brand: 'Andersen',        type: 'Grille Pattern',subcategory: 'windows', colorFamily: 'white', aiHint: 'white double-hung windows with 6-over-6 colonial grid muntins, traditional divided light pattern' },
+  { id: 'w-grid-prairie',       name: 'Prairie Grid (Black)',    color: '#1C1917', accent: '#0C0A09', brand: 'Pella',           type: 'Grille Pattern',subcategory: 'windows', colorFamily: 'black', aiHint: 'black frame windows with prairie-style grille pattern, border grid only around edges, craftsman arts & crafts' },
+  { id: 'w-grid-farmhouse',     name: 'Farmhouse Grid',          color: '#1C1917', accent: '#0C0A09', brand: 'Andersen',        type: 'Grille Pattern',subcategory: 'windows', colorFamily: 'black', aiHint: 'black frame windows with simple top-only divided light grid, modern farmhouse, 2 or 3 panes on top sash' },
+
+  // ── Entry Doors ───────────────────────────
+  { id: 'w-door-modern-black',  name: 'Modern Black Pivot',      color: '#1C1917', accent: '#0C0A09', brand: 'Therma-Tru',     type: 'Entry Door',    subcategory: 'entry_doors', colorFamily: 'black', aiHint: 'modern black entry door, flat panel or glass sidelights, clean contemporary hardware, bold statement' },
+  { id: 'w-door-craftsman',     name: 'Craftsman Stained',       color: '#6B4E37', accent: '#4D3825', brand: 'Therma-Tru',     type: 'Entry Door',    subcategory: 'entry_doors', colorFamily: 'brown', aiHint: 'stained mahogany craftsman front door with glass panels and dentil shelf, warm wood grain, arts & crafts style' },
+  { id: 'w-door-red-classic',   name: 'Classic Red',             color: '#8B2222', accent: '#6B1515', brand: 'Therma-Tru',     type: 'Entry Door',    subcategory: 'entry_doors', colorFamily: 'red',   aiHint: 'bold red front door, 6-panel traditional, colonial classic, welcoming statement' },
+  { id: 'w-door-navy',          name: 'Navy Blue',               color: '#2B3850', accent: '#1C2840', brand: 'Therma-Tru',     type: 'Entry Door',    subcategory: 'entry_doors', colorFamily: 'blue',  aiHint: 'deep navy blue front door, sophisticated coastal, shaker panel style' },
+  { id: 'w-door-farmhouse',     name: 'Farmhouse White Dutch',   color: '#F5F5F0', accent: '#E0E0DB', brand: 'Therma-Tru',     type: 'Entry Door',    subcategory: 'entry_doors', colorFamily: 'white', aiHint: 'white farmhouse Dutch door (splits in half), board-and-batten style, charming rustic, black hardware' },
+  { id: 'w-door-double-black',  name: 'Double Door Iron & Glass',color: '#1C1917', accent: '#404040', brand: 'Iron Doors Plus', type: 'Entry Door',   subcategory: 'entry_doors', colorFamily: 'black', aiHint: 'black wrought iron and glass double entry doors, arched transom, Mediterranean or modern luxury' },
+  { id: 'w-door-sage-green',    name: 'Sage Green',              color: '#8A9A7A', accent: '#6E8060', brand: 'Therma-Tru',     type: 'Entry Door',    subcategory: 'entry_doors', colorFamily: 'green', aiHint: 'sage green painted front door, soft muted green, cottage charming, brass hardware' },
+  { id: 'w-door-yellow',        name: 'Cheerful Yellow',         color: '#E8C840', accent: '#C8A828', brand: 'Therma-Tru',     type: 'Entry Door',    subcategory: 'entry_doors', colorFamily: 'yellow', aiHint: 'bright cheerful yellow front door, happy welcoming statement, works with white or gray homes' },
+  { id: 'w-door-black-glass',   name: 'Modern Glass Panel',      color: '#1C1917', accent: '#404040', brand: 'Therma-Tru',     type: 'Entry Door',    subcategory: 'entry_doors', colorFamily: 'black', aiHint: 'black modern entry door with large frosted or clear glass panel, minimal hardware, contemporary clean' },
+  { id: 'w-door-walnut-modern', name: 'Walnut Modern',           color: '#5A3D28', accent: '#3E2818', brand: 'Simpson Door',   type: 'Entry Door',    subcategory: 'entry_doors', colorFamily: 'brown', aiHint: 'rich walnut stained solid wood modern entry door, horizontal wood grain, warm luxury contemporary' },
+
+  // ── Patio Doors ───────────────────────────
+  { id: 'w-patio-french-white', name: 'White French Doors',      color: '#FAFAF9', accent: '#E7E5E4', brand: 'Andersen',       type: 'Patio Door',    subcategory: 'patio_doors', colorFamily: 'white', aiHint: 'white frame French patio doors, double-swing with glass panes, traditional elegant, opens to deck/patio' },
+  { id: 'w-patio-french-black', name: 'Black French Doors',      color: '#1C1917', accent: '#0C0A09', brand: 'Pella',          type: 'Patio Door',    subcategory: 'patio_doors', colorFamily: 'black', aiHint: 'black frame French patio doors, modern with divided lites, dramatic indoor-outdoor transition' },
+  { id: 'w-patio-slide-black',  name: 'Black Sliding Glass',     color: '#1C1917', accent: '#0C0A09', brand: 'Milgard',        type: 'Patio Door',    subcategory: 'patio_doors', colorFamily: 'black', aiHint: 'black frame large sliding glass patio door, slim profile, maximum glass, modern contemporary' },
+  { id: 'w-patio-slide-white',  name: 'White Sliding Glass',     color: '#FAFAF9', accent: '#E7E5E4', brand: 'Andersen',       type: 'Patio Door',    subcategory: 'patio_doors', colorFamily: 'white', aiHint: 'white frame wide sliding glass patio door, clean bright, smooth operation, opens to backyard' },
+  { id: 'w-patio-bifolding',    name: 'Bi-Fold Wall of Glass',   color: '#1C1917', accent: '#0C0A09', brand: 'Marvin Modern',  type: 'Patio Door',    subcategory: 'patio_doors', colorFamily: 'black', aiHint: 'black frame bi-folding glass wall patio doors, accordion fold-open, entire wall opens, indoor-outdoor living' },
+  { id: 'w-patio-multi-slide',  name: 'Multi-Slide Panel',       color: '#1C1917', accent: '#0C0A09', brand: 'Milgard Moving Glass', type: 'Patio Door', subcategory: 'patio_doors', colorFamily: 'black', aiHint: 'multi-slide oversized glass panel doors, panels stack and slide, floor-to-ceiling glass wall, ultra-modern' },
 ];
 
 // ─── DECK & PATIO ──────────────────────────────────────
@@ -207,12 +238,16 @@ const DECK = [
 
 // ─── GARAGE DOORS ──────────────────────────────────────
 const GARAGE = [
-  { id: 'clopay-white-raised',  name: 'White Raised Panel', color: '#F5F5F0', accent: '#E0E0DB', brand: 'Clopay',               type: 'Steel Raised Panel', colorFamily: 'white', aiHint: 'white steel raised panel garage door, traditional 3-section, clean' },
-  { id: 'clopay-black-modern',  name: 'Black Modern',       color: '#1C1917', accent: '#0C0A09', brand: 'Clopay',               type: 'Steel Flush',       colorFamily: 'black', aiHint: 'full-view modern black garage door with frosted glass panels, contemporary' },
-  { id: 'clopay-walnut',        name: 'Walnut Carriage',    color: '#6B4E37', accent: '#4D3825', brand: 'Clopay Canyon Ridge',   type: 'Faux Wood Carriage',colorFamily: 'brown', aiHint: 'faux wood walnut stained carriage-style garage door with crossbuck design and hardware' },
-  { id: 'amarr-oak',            name: 'Medium Oak',         color: '#8B6B42', accent: '#6B5030', brand: 'Amarr Classica',        type: 'Faux Wood Carriage',colorFamily: 'brown', aiHint: 'medium oak stain carriage garage door, arched top panels, rustic elegance' },
-  { id: 'chi-glass-black',      name: 'Black Full View',    color: '#1C1917', accent: '#0C0A09', brand: 'C.H.I.',               type: 'Aluminum & Glass',  colorFamily: 'black', aiHint: 'modern full-view aluminum and clear glass garage door, black frame, industrial modern' },
-  { id: 'chi-white-carriage',   name: 'White Carriage',     color: '#F5F5F0', accent: '#E0E0DB', brand: 'C.H.I.',               type: 'Steel Carriage',    colorFamily: 'white', aiHint: 'white steel carriage-style garage door with decorative hardware and window inserts' },
+  { id: 'clopay-white-raised',  name: 'White Raised Panel', color: '#F5F5F0', accent: '#E0E0DB', brand: 'Clopay',               type: 'Steel Raised Panel', colorFamily: 'white', aiHint: 'white steel raised panel garage door, traditional 3-section, clean classic' },
+  { id: 'clopay-black-modern',  name: 'Black Modern Flush', color: '#1C1917', accent: '#0C0A09', brand: 'Clopay',               type: 'Steel Flush',       colorFamily: 'black', aiHint: 'sleek flat flush-panel black steel garage door, no raised sections, modern minimalist contemporary' },
+  { id: 'clopay-walnut',        name: 'Walnut Carriage',    color: '#6B4E37', accent: '#4D3825', brand: 'Clopay Canyon Ridge',   type: 'Faux Wood Carriage',colorFamily: 'brown', aiHint: 'faux wood walnut stained carriage-style garage door with crossbuck design, iron strap hardware, rustic' },
+  { id: 'amarr-oak',            name: 'Medium Oak Carriage', color: '#8B6B42', accent: '#6B5030', brand: 'Amarr Classica',       type: 'Faux Wood Carriage',colorFamily: 'brown', aiHint: 'medium oak stain carriage garage door, arched top panels, decorative hardware, rustic elegance' },
+  { id: 'chi-glass-black',      name: 'Black Full-View Glass',color:'#1C1917', accent: '#0C0A09', brand: 'C.H.I.',              type: 'Aluminum & Glass',  colorFamily: 'black', aiHint: 'modern full-view aluminum and clear glass garage door, black frame, industrial modern, maximum light' },
+  { id: 'chi-white-carriage',   name: 'White Carriage',     color: '#F5F5F0', accent: '#E0E0DB', brand: 'C.H.I.',               type: 'Steel Carriage',    colorFamily: 'white', aiHint: 'white steel carriage-style garage door with decorative hardware and arched window inserts' },
+  { id: 'garage-frosted-white', name: 'White Frosted Glass', color: '#F5F5F0', accent: '#D0D0D0', brand: 'Clopay Avante',       type: 'Aluminum & Glass',  colorFamily: 'white', aiHint: 'white aluminum frame garage door with frosted/obscure glass panels, contemporary, diffused light' },
+  { id: 'garage-cedar-swing',   name: 'Real Cedar Swing-Out',color: '#B08050', accent: '#8A6038', brand: 'Real Carriage Door',  type: 'Wood Swing',        colorFamily: 'brown', aiHint: 'real cedar wood swing-out carriage garage doors with iron hardware, authentic hinged operation, premium craftsmanship' },
+  { id: 'garage-black-raised',  name: 'Black Raised Panel',  color: '#1C1917', accent: '#2A2725', brand: 'Amarr',               type: 'Steel Raised Panel',colorFamily: 'black', aiHint: 'black steel raised panel garage door with windows across top section, bold modern traditional' },
+  { id: 'garage-gray-modern',   name: 'Slate Gray Flush',    color: '#6B7280', accent: '#4B5563', brand: 'Clopay Modern Steel', type: 'Steel Flush',       colorFamily: 'gray',  aiHint: 'slate gray smooth flush steel garage door with narrow horizontal grooves, clean contemporary, mid-tone gray' },
 ];
 
 // ─── GUTTERS & TRIM ────────────────────────────────────
@@ -341,13 +376,42 @@ const BATHROOM = [
 ];
 
 // ─── FLOORING ──────────────────────────────────────────
+// Subcategories: hardwood, lvp, tile, carpet
 const FLOORING = [
-  { id: 'floor-white-oak',      name: 'White Oak Hardwood', color: '#D4C4A0', accent: '#BEB08A', brand: 'Mixed',                 type: 'Hardwood',      colorFamily: 'beige', aiHint: 'natural white oak hardwood floors, light warm tone, wide plank, satin finish' },
-  { id: 'floor-dark-walnut',    name: 'Dark Walnut',        color: '#4A3728', accent: '#2E2218', brand: 'Mixed',                 type: 'Hardwood',      colorFamily: 'brown', aiHint: 'dark walnut stained hardwood floors, rich deep brown, classic elegance' },
-  { id: 'floor-gray-lvp',       name: 'Gray Oak LVP',       color: '#9A9590', accent: '#7A7570', brand: 'COREtec',               type: 'LVP',           colorFamily: 'gray',  aiHint: 'gray-washed luxury vinyl plank flooring, modern farmhouse, waterproof, realistic wood grain' },
-  { id: 'floor-herringbone',    name: 'Herringbone Oak',    color: '#C4A878', accent: '#A88A60', brand: 'Mixed',                 type: 'Hardwood',      colorFamily: 'brown', aiHint: 'light oak herringbone pattern hardwood floor, elegant European style' },
-  { id: 'floor-marble-tile',    name: 'White Marble Tile',  color: '#E8E0E0', accent: '#C8C0C0', brand: 'Mixed',                 type: 'Tile',          colorFamily: 'white', aiHint: 'large format white marble tile floor, subtle gray veining, polished, luxury' },
-  { id: 'floor-slate',          name: 'Natural Slate',      color: '#5A6068', accent: '#404850', brand: 'Mixed',                 type: 'Tile',          colorFamily: 'gray',  aiHint: 'natural slate stone tile floor, dark gray-blue, cleft texture, rustic-modern' },
+  // ── Hardwood ──────────────────────────────
+  { id: 'fl-hw-white-oak',      name: 'White Oak Natural',       color: '#D4C4A0', accent: '#BEB08A', brand: 'Bruce',           type: 'Hardwood', subcategory: 'hardwood', colorFamily: 'beige', aiHint: 'natural white oak hardwood floors, light warm honey tone, wide plank 5-inch, satin finish, popular modern choice' },
+  { id: 'fl-hw-white-oak-wire', name: 'White Oak Wire-Brushed',  color: '#C8B898', accent: '#B0A078', brand: 'Hallmark',        type: 'Hardwood', subcategory: 'hardwood', colorFamily: 'beige', aiHint: 'wire-brushed white oak hardwood with visible grain texture, matte finish, European modern, wide plank' },
+  { id: 'fl-hw-dark-walnut',    name: 'Dark Walnut Stain',       color: '#4A3728', accent: '#2E2218', brand: 'Minwax',          type: 'Hardwood', subcategory: 'hardwood', colorFamily: 'brown', aiHint: 'dark walnut stained oak hardwood floors, rich deep brown, classic elegance, satin finish' },
+  { id: 'fl-hw-espresso',       name: 'Espresso Stain',          color: '#3C2415', accent: '#2A1808', brand: 'Minwax',          type: 'Hardwood', subcategory: 'hardwood', colorFamily: 'brown', aiHint: 'very dark espresso stained hardwood floors, nearly black brown, dramatic rich, formal' },
+  { id: 'fl-hw-jacobean',       name: 'Jacobean Stain',          color: '#5A4030', accent: '#3E2A1C', brand: 'Minwax',          type: 'Hardwood', subcategory: 'hardwood', colorFamily: 'brown', aiHint: 'warm medium-dark Jacobean stained oak hardwood, balanced brown, versatile traditional' },
+  { id: 'fl-hw-herringbone',    name: 'Herringbone Oak',         color: '#C4A878', accent: '#A88A60', brand: 'Carlisle',        type: 'Hardwood', subcategory: 'hardwood', colorFamily: 'brown', aiHint: 'light oak herringbone pattern hardwood floor, elegant European chevron V pattern, parquet' },
+  { id: 'fl-hw-reclaimed',      name: 'Reclaimed Barn Wood',     color: '#8A7B68', accent: '#6A5C48', brand: 'Pioneer Millworks',type:'Hardwood', subcategory: 'hardwood', colorFamily: 'brown', aiHint: 'reclaimed barn wood flooring, mixed patina and nail holes, rustic character, wide plank' },
+  { id: 'fl-hw-hickory',        name: 'Natural Hickory',         color: '#C8A870', accent: '#A88A50', brand: 'Bruce',           type: 'Hardwood', subcategory: 'hardwood', colorFamily: 'brown', aiHint: 'natural hickory hardwood with dramatic grain variation, honey and brown tones mixed, rustic farmhouse' },
+  { id: 'fl-hw-gray-wash',      name: 'Gray Washed Oak',         color: '#ABA8A0', accent: '#8A8880', brand: 'Hallmark',        type: 'Hardwood', subcategory: 'hardwood', colorFamily: 'gray',  aiHint: 'gray-washed white oak hardwood floors, cool neutral, Scandinavian modern, matte finish' },
+
+  // ── LVP (Luxury Vinyl Plank) ──────────────
+  { id: 'fl-lvp-gray-oak',      name: 'Gray Oak LVP',            color: '#9A9590', accent: '#7A7570', brand: 'COREtec',         type: 'LVP',     subcategory: 'lvp', colorFamily: 'gray',  aiHint: 'gray-washed luxury vinyl plank flooring, realistic wood grain, waterproof, modern farmhouse' },
+  { id: 'fl-lvp-honey-oak',     name: 'Honey Oak LVP',           color: '#C8A870', accent: '#A88850', brand: 'COREtec',         type: 'LVP',     subcategory: 'lvp', colorFamily: 'brown', aiHint: 'warm honey oak luxury vinyl plank, realistic wide plank, waterproof, warm traditional' },
+  { id: 'fl-lvp-dark-walnut',   name: 'Dark Walnut LVP',         color: '#5A4030', accent: '#3E2A1C', brand: 'LifeProof',       type: 'LVP',     subcategory: 'lvp', colorFamily: 'brown', aiHint: 'dark walnut luxury vinyl plank flooring, deep rich brown, 100% waterproof, scratch-resistant' },
+  { id: 'fl-lvp-whitewash',     name: 'Whitewashed Pine LVP',    color: '#D8D0C0', accent: '#C0B8A8', brand: 'LifeProof',       type: 'LVP',     subcategory: 'lvp', colorFamily: 'white', aiHint: 'whitewashed pine luxury vinyl plank, very light blonde, beach cottage style, waterproof' },
+  { id: 'fl-lvp-hickory',       name: 'Rustic Hickory LVP',      color: '#A88A60', accent: '#886A40', brand: 'Shaw Floorté',    type: 'LVP',     subcategory: 'lvp', colorFamily: 'brown', aiHint: 'rustic hickory luxury vinyl plank with hand-scraped texture, mixed warm tones, farmhouse' },
+  { id: 'fl-lvp-concrete',      name: 'Polished Concrete LVP',   color: '#9A9590', accent: '#7A7570', brand: 'COREtec',         type: 'LVP',     subcategory: 'lvp', colorFamily: 'gray',  aiHint: 'polished concrete look luxury vinyl tile, large format, industrial modern loft, smooth gray' },
+
+  // ── Tile ──────────────────────────────────
+  { id: 'fl-tile-marble-white', name: 'White Marble Tile',       color: '#E8E0E0', accent: '#C8C0C0', brand: 'MSI',             type: 'Tile',    subcategory: 'tile', colorFamily: 'white', aiHint: 'large format 24x24 white marble tile floor, subtle gray veining, polished, luxury foyer or kitchen' },
+  { id: 'fl-tile-slate',        name: 'Natural Slate',           color: '#5A6068', accent: '#404850', brand: 'Daltile',         type: 'Tile',    subcategory: 'tile', colorFamily: 'gray',  aiHint: 'natural slate stone tile floor, dark gray-blue, cleft texture, rustic-modern' },
+  { id: 'fl-tile-porcelain-wood',name:'Wood-Look Porcelain',     color: '#C4A878', accent: '#A88A60', brand: 'Daltile',         type: 'Tile',    subcategory: 'tile', colorFamily: 'brown', aiHint: 'wood-look porcelain plank tile floor in warm oak, realistic grain, waterproof, great for bathrooms and kitchens' },
+  { id: 'fl-tile-terrazzo',     name: 'Terrazzo',                color: '#E0D8CC', accent: '#C8C0B0', brand: 'Daltile',         type: 'Tile',    subcategory: 'tile', colorFamily: 'beige', aiHint: 'terrazzo tile floor with colorful aggregate chips in cream base, retro modern, polished' },
+  { id: 'fl-tile-cement-geo',   name: 'Geometric Cement Tile',   color: '#4A5568', accent: '#F5F5F0', brand: 'Villa Lagoon',    type: 'Tile',    subcategory: 'tile', colorFamily: 'gray',  aiHint: 'geometric patterned encaustic cement tile floor, bold black and white pattern, Mediterranean artisan' },
+  { id: 'fl-tile-travertine',   name: 'Travertine Tile',         color: '#D4C4A0', accent: '#B8A880', brand: 'MSI',             type: 'Tile',    subcategory: 'tile', colorFamily: 'beige', aiHint: 'cream travertine stone tile floor, warm natural stone, filled and honed, classic Mediterranean' },
+  { id: 'fl-tile-hex-black',    name: 'Black Hex Floor',         color: '#2A2A28', accent: '#1A1A18', brand: 'Merola',          type: 'Tile',    subcategory: 'tile', colorFamily: 'black', aiHint: 'matte black hexagon floor tile, honeycomb pattern, modern dramatic, white grout contrast' },
+  { id: 'fl-tile-large-gray',   name: 'Large Gray Porcelain',    color: '#8A8580', accent: '#6A6560', brand: 'Porcelanosa',     type: 'Tile',    subcategory: 'tile', colorFamily: 'gray',  aiHint: 'large format 24x48 gray porcelain tile floor, minimal grout, contemporary clean, matte' },
+
+  // ── Carpet ────────────────────────────────
+  { id: 'fl-carpet-gray-plush', name: 'Gray Plush',              color: '#A8A8A0', accent: '#888880', brand: 'Shaw',            type: 'Carpet',  subcategory: 'carpet', colorFamily: 'gray',  aiHint: 'soft gray plush wall-to-wall carpet, medium pile, cozy modern, neutral versatile' },
+  { id: 'fl-carpet-beige-berber',name:'Beige Berber Loop',       color: '#C8B898', accent: '#A89A78', brand: 'Mohawk',          type: 'Carpet',  subcategory: 'carpet', colorFamily: 'beige', aiHint: 'neutral beige berber loop carpet, flecked texture, durable, casual transitional, great for bedrooms' },
+  { id: 'fl-carpet-navy',       name: 'Navy Plush',              color: '#2B3850', accent: '#1A2740', brand: 'Shaw',            type: 'Carpet',  subcategory: 'carpet', colorFamily: 'blue',  aiHint: 'deep navy blue plush carpet, rich dramatic color, luxury feel, den or bedroom' },
+  { id: 'fl-carpet-cream',      name: 'Cream Frieze',            color: '#E8E0D0', accent: '#D0C8B8', brand: 'Mohawk',          type: 'Carpet',  subcategory: 'carpet', colorFamily: 'white', aiHint: 'soft cream frieze twist carpet, textured surface hides footprints, warm cozy, bedroom' },
 ];
 
 // ─── EXPORT COMBINED ───────────────────────────────────
@@ -420,8 +484,19 @@ export const SUBCATEGORIES = {
     { id: 'tile',         label: 'Wall Tile',     icon: '🧱' },
     { id: 'vanity',       label: 'Vanity',        icon: '🪞' },
     { id: 'fixtures',     label: 'Fixtures',      icon: '🚿' },
-    { id: 'shower',       label: 'Shower',        icon: '🚿' },
+    { id: 'shower',       label: 'Shower',        icon: '🛁' },
     { id: 'floor',        label: 'Floor',         icon: '🔲' },
+  ],
+  windows: [
+    { id: 'windows',      label: 'Windows',       icon: '🪟' },
+    { id: 'entry_doors',  label: 'Entry Doors',   icon: '🚪' },
+    { id: 'patio_doors',  label: 'Patio Doors',   icon: '🏠' },
+  ],
+  flooring: [
+    { id: 'hardwood',     label: 'Hardwood',      icon: '🪵' },
+    { id: 'lvp',          label: 'LVP',           icon: '💧' },
+    { id: 'tile',         label: 'Tile',          icon: '🔲' },
+    { id: 'carpet',       label: 'Carpet',        icon: '🧶' },
   ],
 };
 
@@ -435,16 +510,16 @@ export function getMaterialsBySubcategory(projectId, subcategoryId) {
 }
 
 export const POPULAR_PRODUCTS = [
-  { ...MATERIALS.siding[0], category: 'siding' },     // Arctic White Hardie
-  { ...MATERIALS.siding[4], category: 'siding' },      // Iron Gray Hardie
-  { ...MATERIALS.roofing[0], category: 'roofing' },    // Charcoal GAF
-  { ...MATERIALS.roofing[3], category: 'roofing' },    // Weathered Wood GAF
-  { ...MATERIALS.paint[0], category: 'paint' },        // Chantilly Lace BM
-  { ...MATERIALS.paint[4], category: 'paint' },        // Repose Gray SW
-  { ...MATERIALS.windows[0], category: 'windows' },    // Andersen 400 White
-  { ...MATERIALS.windows[3], category: 'windows' },    // Andersen 400 Black
-  { ...MATERIALS.kitchen[0], category: 'kitchen' },    // White Shaker cabs
-  { ...MATERIALS.kitchen[12], category: 'kitchen' },   // Calacatta Quartz
-  { ...MATERIALS.bathroom[0], category: 'bathroom' },  // White Subway tile
-  { ...MATERIALS.bathroom[10], category: 'bathroom' }, // White Shaker vanity
+  { ...MATERIALS.siding[0], category: 'siding' },      // Arctic White Hardie Lap
+  { ...MATERIALS.siding[4], category: 'siding' },       // Night Gray Hardie
+  { ...MATERIALS.roofing[0], category: 'roofing' },     // Charcoal GAF
+  { ...MATERIALS.paint[0], category: 'paint' },         // Pure White SW
+  { ...MATERIALS.windows[0], category: 'windows' },     // Black Double-Hung
+  { ...MATERIALS.windows[18], category: 'windows' },    // Modern Black Entry Door
+  { ...MATERIALS.kitchen[0], category: 'kitchen' },     // White Shaker Cabinets
+  { ...MATERIALS.kitchen[12], category: 'kitchen' },    // Calacatta Quartz
+  { ...MATERIALS.bathroom[0], category: 'bathroom' },   // White Subway Tile
+  { ...MATERIALS.bathroom[10], category: 'bathroom' },  // White Shaker Vanity
+  { ...MATERIALS.flooring[0], category: 'flooring' },   // White Oak Natural
+  { ...MATERIALS.garage[0], category: 'garage' },       // White Raised Panel
 ].filter(p => p && p.id);

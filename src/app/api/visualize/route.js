@@ -68,7 +68,11 @@ export async function POST(request) {
     const imageError = validateImage(imageBase64);
     if (imageError) return NextResponse.json({ error: imageError }, { status: 400 });
 
-    const gate = await validateHomePhoto(imageBase64);
+    const INTERIOR_CATEGORIES = ['kitchen', 'bathroom', 'flooring'];
+    const isInteriorProject = isMulti
+      ? selections.some(s => INTERIOR_CATEGORIES.includes(s.category))
+      : INTERIOR_CATEGORIES.includes(project);
+    const gate = await validateHomePhoto(imageBase64, { allowInterior: isInteriorProject });
     if (!gate.ok) return NextResponse.json({ error: gate.reason, gate: gate.type }, { status: 422 });
 
     const rateLimitError = checkRateLimit(tenantSlug);

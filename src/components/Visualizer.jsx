@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { PROJECTS, MATERIALS, COLOR_FAMILIES, TOTAL_PRODUCTS, POPULAR_PRODUCTS } from '@/lib/materials';
+import { PROJECTS, MATERIALS, COLOR_FAMILIES, TOTAL_PRODUCTS, POPULAR_PRODUCTS, SUBCATEGORIES, getSubcategories, getMaterialsBySubcategory } from '@/lib/materials';
 import { STYLE_PRESETS } from '@/lib/styles';
 import { trackEvent } from '@/lib/analytics';
 import { getVariant, getAllAssignments } from '@/lib/ab-test';
@@ -88,6 +88,7 @@ export default function Visualizer({ config }) {
   const [material, setMaterial] = useState(null);
   const [materials, setMaterials] = useState([]);
   const [selections, setSelections] = useState({}); // { categoryId: material }
+  const [activeSubcat, setActiveSubcat] = useState(null); // for kitchen/bathroom subcategory tabs
   const [loadingMaterials, setLoadingMaterials] = useState(false);
   const [filterBrand, setFilterBrand] = useState('');
   const [filterColor, setFilterColor] = useState('');
@@ -212,7 +213,9 @@ export default function Visualizer({ config }) {
     return () => { cancelled = true; };
   }, [project, config.tenantId]);
 
+  const subcats = project ? getSubcategories(project.id) : null;
   const filteredMaterials = materials.filter(m => {
+    if (activeSubcat && m.subcategory && m.subcategory !== activeSubcat) return false;
     if (filterBrand && m.brand !== filterBrand) return false;
     if (filterColor && m.colorFamily !== filterColor) return false;
     if (searchTerm) {
@@ -221,7 +224,7 @@ export default function Visualizer({ config }) {
     }
     return true;
   });
-  const brands = [...new Set(materials.map(m => m.brand))];
+  const brands = [...new Set(materials.filter(m => !activeSubcat || !m.subcategory || m.subcategory === activeSubcat).map(m => m.brand))];
 
   // ─── File handling with client-side resize ─────────
   const handleFile = async (file) => {
@@ -330,16 +333,41 @@ export default function Visualizer({ config }) {
   const handleMaterialTap = (mat, categoryOverride) => {
     const cat = categoryOverride || project?.id;
     if (!cat) return;
-    setSelections(prev => ({ ...prev, [cat]: mat }));
-    setMaterial(mat); // keep for display purposes
+    // For subcategorized projects (kitchen/bathroom), use subcategory as selection key
+    const subcatKey = mat.subcategory ? `${cat}_${mat.subcategory}` : cat;
+    setSelections(prev => ({ ...prev, [subcatKey]: mat }));
+    setMaterial(mat);
+    // Auto-advance to next subcategory if available
+    if (subcats && mat.subcategory) {
+      const currentIdx = subcats.findIndex(sc => sc.id === mat.subcategory);
+      if (currentIdx < subcats.length - 1) {
+        setTimeout(() => {
+          setActiveSubcat(subcats[currentIdx + 1].id);
+          setSearchTerm(''); setFilterBrand(''); setFilterColor('');
+        }, 300);
+      }
+    }
   };
-  const removeSelection = (cat) => {
-    setSelections(prev => { const next = { ...prev }; delete next[cat]; return next; });
+  const removeSelection = (key) => {
+    setSelections(prev => { const next = { ...prev }; delete next[key]; return next; });
+  };
+  // Get display label for a selection key like 'kitchen_cabinets' or 'siding'
+  const getSelectionLabel = (key) => {
+    const parts = key.split('_');
+    const proj = enabledProjects.find(p => p.id === parts[0]);
+    if (parts.length > 1 && SUBCATEGORIES[parts[0]]) {
+      const sc = SUBCATEGORIES[parts[0]].find(s => s.id === parts.slice(1).join('_'));
+      return `${proj?.icon || ''} ${sc?.label || parts.slice(1).join(' ')}`;
+    }
+    return `${proj?.icon || ''} ${proj?.label || key}`;
   };
   const generateFromSelections = () => {
-    const sels = Object.entries(selections).map(([category, mat]) => ({
-      category, materialId: mat.id,
-    }));
+    const sels = Object.entries(selections).map(([key, mat]) => {
+      // Keys like 'kitchen_cabinets' or 'siding'
+      const parts = key.split('_');
+      const category = parts[0]; // 'kitchen', 'bathroom', 'siding', etc.
+      return { category, materialId: mat.id };
+    });
     if (sels.length === 0) return;
     setSelectedStyle(null);
     setStep('generating');
@@ -668,17 +696,14 @@ export default function Visualizer({ config }) {
                           Your selections ({Object.keys(selections).length})
                         </p>
                         <div className="flex flex-wrap gap-2 mb-3">
-                          {Object.entries(selections).map(([cat, mat]) => {
-                            const proj = enabledProjects.find(p => p.id === cat);
-                            return (
-                              <div key={cat} className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs border"
+                          {Object.entries(selections).map(([key, mat]) => (
+                              <div key={key} className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs border"
                                 style={{ borderColor: border, background: surface }}>
                                 <div className="w-4 h-4 rounded" style={{ background: mat.color || mat.colorHex || '#888' }} />
-                                <span className="font-medium">{proj?.icon} {mat.name}</span>
-                                <button onClick={() => removeSelection(cat)} className="ml-1 opacity-50 hover:opacity-100">✕</button>
+                                <span className="font-medium">{getSelectionLabel(key)}: {mat.name}</span>
+                                <button onClick={() => removeSelection(key)} className="ml-1 opacity-50 hover:opacity-100">✕</button>
                               </div>
-                            );
-                          })}
+                          ))}
                         </div>
                         <button onClick={generateFromSelections}
                           className="w-full py-2.5 rounded-lg font-bold text-sm text-white transition hover:opacity-90"
@@ -718,7 +743,11 @@ export default function Visualizer({ config }) {
                     <p className="text-xs font-semibold mb-2" style={{ color: muted }}>Or browse by category</p>
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {enabledProjects.map(p => (
-                        <button key={p.id} onClick={() => setProject(p)}
+                        <button key={p.id} onClick={() => {
+                          setProject(p);
+                          const sc = getSubcategories(p.id);
+                          setActiveSubcat(sc ? sc[0].id : null);
+                        }}
                           className="rounded-xl border p-3 text-center transition-all hover:shadow-md active:scale-[0.97]"
                           style={{ borderColor: border, background: surface }}>
                           <div className="text-2xl mb-1">{p.icon}</div>
@@ -732,12 +761,41 @@ export default function Visualizer({ config }) {
                 {project && (
                   <>
                     <div className="flex items-center gap-2 mb-3">
-                      <button onClick={() => { setProject(null); setMaterial(null); setMaterials([]); }}
+                      <button onClick={() => { setProject(null); setMaterial(null); setMaterials([]); setActiveSubcat(null); }}
                         className="text-xs font-semibold px-2 py-1 rounded" style={{ color: primary }}>← Back</button>
                       <span className="text-xs ml-auto" style={{ color: muted }}>
                         {filteredMaterials.length} product{filteredMaterials.length !== 1 ? 's' : ''}
                       </span>
                     </div>
+
+                    {/* Subcategory tabs for kitchen/bathroom */}
+                    {subcats && (
+                      <>
+                        <p className="text-xs mb-2" style={{ color: muted }}>
+                          Pick one from each category, then generate them all at once.
+                        </p>
+                        <div className="flex gap-1 mb-3 overflow-x-auto pb-1">
+                          {subcats.map(sc => {
+                            const selKey = `${project.id}_${sc.id}`;
+                            const hasSel = !!selections[selKey];
+                            return (
+                              <button key={sc.id} onClick={() => { setActiveSubcat(sc.id); setSearchTerm(''); setFilterBrand(''); setFilterColor(''); }}
+                                className="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all relative flex-shrink-0"
+                                style={{
+                                  background: activeSubcat === sc.id ? primary : text + '06',
+                                  color: activeSubcat === sc.id ? '#fff' : muted,
+                                }}>
+                                {sc.icon} {sc.label}
+                                {hasSel && (
+                                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full text-white text-[9px] flex items-center justify-center"
+                                    style={{ background: '#22C55E' }}>✓</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
 
                     <div className="flex flex-wrap gap-2 mb-3">
                       <input type="text" placeholder="Search..." value={searchTerm}
@@ -769,7 +827,8 @@ export default function Visualizer({ config }) {
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                         {filteredMaterials.map(m => {
-                          const isSelected = selections[project.id]?.id === m.id;
+                          const selKey = m.subcategory ? `${project.id}_${m.subcategory}` : project.id;
+                          const isSelected = selections[selKey]?.id === m.id;
                           return (
                           <button key={m.id} onClick={() => handleMaterialTap(m)}
                             className="rounded-lg border p-2.5 text-left transition-all hover:shadow-md active:scale-[0.97] relative"
@@ -796,20 +855,17 @@ export default function Visualizer({ config }) {
                     {Object.keys(selections).length > 0 && (
                       <div className="mt-4 p-3 rounded-xl border" style={{ borderColor: primary + '40', background: primary + '08' }}>
                         <div className="flex flex-wrap gap-2 mb-3">
-                          {Object.entries(selections).map(([cat, mat]) => {
-                            const proj = enabledProjects.find(p => p.id === cat);
-                            return (
-                              <div key={cat} className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs border"
+                          {Object.entries(selections).map(([key, mat]) => (
+                              <div key={key} className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs border"
                                 style={{ borderColor: border, background: surface }}>
                                 <div className="w-4 h-4 rounded" style={{ background: mat.color || mat.colorHex || '#888' }} />
-                                <span className="font-medium">{proj?.icon} {mat.name}</span>
-                                <button onClick={() => removeSelection(cat)} className="ml-1 opacity-50 hover:opacity-100">✕</button>
+                                <span className="font-medium">{getSelectionLabel(key)}: {mat.name}</span>
+                                <button onClick={() => removeSelection(key)} className="ml-1 opacity-50 hover:opacity-100">✕</button>
                               </div>
-                            );
-                          })}
+                          ))}
                         </div>
                         <div className="flex gap-2">
-                          <button onClick={() => { setProject(null); setMaterial(null); setMaterials([]); }}
+                          <button onClick={() => { setProject(null); setMaterial(null); setMaterials([]); setActiveSubcat(null); }}
                             className="flex-1 py-2 rounded-lg text-xs font-semibold border transition"
                             style={{ borderColor: border, color: muted }}>
                             + Add more
@@ -885,15 +941,12 @@ export default function Visualizer({ config }) {
             {!selectedStyle && Object.keys(selections).length > 0 && (
               <div className="mt-4 p-3 rounded-xl border text-left" style={{ borderColor: border, background: surface }}>
                 <p className="text-xs font-semibold mb-1" style={{ color: muted }}>Applying {Object.keys(selections).length} changes</p>
-                {Object.entries(selections).map(([cat, mat]) => {
-                  const proj = enabledProjects.find(p => p.id === cat);
-                  return (
-                    <div key={cat} className="flex items-center gap-2 mt-1.5">
+                {Object.entries(selections).map(([key, mat]) => (
+                    <div key={key} className="flex items-center gap-2 mt-1.5">
                       <div className="w-4 h-4 rounded" style={{ background: mat.color || mat.colorHex || '#888' }} />
-                      <span className="text-xs" style={{ color: muted }}>{proj?.icon} {mat.brand} {mat.name}</span>
+                      <span className="text-xs" style={{ color: muted }}>{getSelectionLabel(key)}: {mat.brand} {mat.name}</span>
                     </div>
-                  );
-                })}
+                ))}
               </div>
             )}
           </div>

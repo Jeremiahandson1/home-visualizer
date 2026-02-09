@@ -11,9 +11,13 @@ const VISION_MODEL = 'gpt-4o-mini'; // Cheapest vision model ~$0.002/check
 
 /**
  * Server-side image validation before generation.
+ * @param {string} imageBase64
+ * @param {object} opts - { allowInterior: true } to accept interior photos
  * Returns { ok: true } or { ok: false, reason: string }
  */
-export async function validateHomePhoto(imageBase64) {
+export async function validateHomePhoto(imageBase64, opts = {}) {
+  const { allowInterior = false } = opts;
+
   // 1. Basic heuristics (free)
   const heuristic = runHeuristics(imageBase64);
   if (!heuristic.ok) return heuristic;
@@ -21,16 +25,14 @@ export async function validateHomePhoto(imageBase64) {
   // 2. AI vision check (cheap — ~$0.002)
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    // No API key = skip vision check (demo mode)
     return { ok: true, confidence: 'skipped', reason: 'no_api_key' };
   }
 
   try {
-    const result = await checkWithVision(apiKey, imageBase64);
+    const result = await checkWithVision(apiKey, imageBase64, allowInterior);
     return result;
   } catch (err) {
     console.error('[GATE] Vision check failed, allowing through:', err.message);
-    // Fail open — don't block generation if gate itself fails
     return { ok: true, confidence: 'fallback', reason: err.message };
   }
 }
@@ -68,7 +70,12 @@ function runHeuristics(base64) {
  * Costs ~$0.002 vs $0.05-0.08 for generation.
  * Returns structured assessment.
  */
-async function checkWithVision(apiKey, imageBase64) {
+async function checkWithVision(apiKey, imageBase64, allowInterior = false) {
+  const interiorRule = allowInterior
+    ? `- Interior photos of kitchens, bathrooms, or rooms = is_home: true (interior renovations are allowed)
+- Interior photos of closets, hallways, bedrooms, living rooms = is_home: true`
+    : `- Interior photos = is_home: false, suggest they upload an exterior`;
+
   const response = await fetch(VISION_URL, {
     method: 'POST',
     headers: {
@@ -88,15 +95,15 @@ async function checkWithVision(apiKey, imageBase64) {
           content: [
             {
               type: 'text',
-              text: `Is this a photo of the exterior of a house or building that could be used for a home renovation visualization? Respond with JSON only:
+              text: `Is this a photo of a home space that could be used for a renovation visualization? Respond with JSON only:
 {"is_home": true/false, "reason": "brief explanation", "type": "exterior|interior|not_a_building|screenshot|other"}
 
 Rules:
 - Exterior photos of houses, apartments, townhomes, condos = is_home: true
-- Interior photos = is_home: false, suggest they upload an exterior
+${interiorRule}
 - Photos of pets, food, people, documents, screenshots = is_home: false
-- Blurry but recognizable as a building exterior = is_home: true
-- Close-up of a wall/roof section = is_home: true (they want to visualize that surface)`,
+- Blurry but recognizable as a building or room = is_home: true
+- Close-up of a wall/surface section = is_home: true (they want to visualize that surface)`,
             },
             {
               type: 'image_url',

@@ -282,19 +282,64 @@ Apply a cohesive ${mat.name} design language across the ENTIRE exterior:
 - All architectural accents and details consistent with ${mat.name}
 Keep the same basic house structure and lot.`,
 
-  kitchen: (mat, desc) =>
-    `Renovate this kitchen in ${desc} style.
-Update cabinets, countertops, backsplash, and hardware to match the ${mat.name} aesthetic.
-Show realistic cabinet door profiles, countertop edges, tile grout lines, and proper lighting.
-Keep the same kitchen layout — same cabinet locations, same window/door positions, same appliance locations.
-Only change the finishes, not the structure.`,
+  kitchen: (mat, desc) => {
+    const sub = mat.subcategory || 'cabinets';
+    const prompts = {
+      cabinets: `Change the KITCHEN CABINETS to ${desc}.
+Install ${mat.name} cabinets on all cabinet fronts — uppers and lowers.
+The cabinet style should be ${mat.type || 'shaker'} with the correct door profile and finish.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Keep countertops, backsplash, flooring, appliances, fixtures, and layout exactly as they are.
+Only change the cabinet doors, drawer fronts, and panels.`,
+      countertops: `Change the KITCHEN COUNTERTOPS to ${desc}.
+Replace all countertop surfaces with ${mat.name}.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show realistic edge profile, proper seams if needed, and consistent material across all counter areas.
+Keep cabinets, backsplash, flooring, appliances, and fixtures exactly as they are.`,
+      backsplash: `Change the KITCHEN BACKSPLASH to ${desc}.
+Install ${mat.name} as the backsplash covering the wall area between countertops and upper cabinets.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show realistic tile pattern, grout lines, and proper termination at edges and corners.
+Keep cabinets, countertops, flooring, appliances, and fixtures exactly as they are.`,
+      hardware: `Change the KITCHEN HARDWARE to ${desc}.
+Replace all cabinet pulls, knobs, and handles with ${mat.name} hardware.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Also update the kitchen faucet to match the ${mat.name} finish.
+Keep cabinets, countertops, backsplash, flooring, and appliances exactly as they are.`,
+    };
+    return prompts[sub] || prompts.cabinets;
+  },
 
-  bathroom: (mat, desc) =>
-    `Renovate this bathroom in ${desc} style.
-Update tile, vanity, fixtures, and accessories to match the ${mat.name} aesthetic.
-Show realistic tile patterns, grout lines, fixture finish quality, and proper lighting.
-Keep the same bathroom layout — same fixture positions, same window/door positions.
-Only change the finishes, not the structure.`,
+  bathroom: (mat, desc) => {
+    const sub = mat.subcategory || 'tile';
+    const prompts = {
+      tile: `Change the BATHROOM WALL TILE to ${desc}.
+Install ${mat.name} tile on the bathroom walls and shower walls.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show realistic tile pattern, grout lines, and proper installation detail.
+Keep vanity, fixtures, floor, mirrors, and lighting exactly as they are.`,
+      vanity: `Replace the BATHROOM VANITY with ${desc}.
+Install a ${mat.name} vanity in place of the existing one.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Include appropriate countertop, sink(s), and mirror above.
+Keep wall tile, floor tile, shower, and overall layout exactly as they are.`,
+      fixtures: `Change the BATHROOM FIXTURES to ${desc}.
+Replace faucet(s), showerhead, towel bars, toilet paper holder, and other hardware with ${mat.name} finish.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Keep the same fixture types and positions — only change the finish/material.
+Keep tile, vanity, floor, and layout exactly as they are.`,
+      shower: `Update the SHOWER with ${desc}.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show professional installation with proper waterproofing details, clean transitions, and appropriate hardware.
+Keep wall tile, vanity, floor tile, and other elements exactly as they are.`,
+      floor: `Change the BATHROOM FLOOR to ${desc}.
+Install ${mat.name} as the bathroom floor tile/material.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show realistic pattern, proper grout lines, and clean transitions at walls and thresholds.
+Keep wall tile, vanity, shower, fixtures, and other elements exactly as they are.`,
+    };
+    return prompts[sub] || prompts.tile;
+  },
 
   flooring: (mat, desc) =>
     `Replace the flooring with ${desc}.

@@ -242,22 +242,102 @@ const EXTERIOR = [
 ];
 
 // ─── KITCHEN ───────────────────────────────────────────
+// Subcategories: cabinets, countertops, backsplash, hardware, sink
 const KITCHEN = [
-  { id: 'kitchen-white-shaker', name: 'White Shaker',       color: '#F5F5F0', accent: '#E0E0DB', brand: 'Mixed',                 type: 'Cabinet Style', colorFamily: 'white', aiHint: 'bright white shaker-style kitchen cabinets, subway tile backsplash, quartz countertops, stainless appliances, modern farmhouse kitchen' },
-  { id: 'kitchen-navy',         name: 'Navy & White',       color: '#2B3850', accent: '#F5F5F0', brand: 'Mixed',                 type: 'Cabinet Style', colorFamily: 'blue',  aiHint: 'navy blue lower cabinets with white uppers, brass hardware, marble countertops, transitional kitchen' },
-  { id: 'kitchen-natural-wood', name: 'Natural Wood',       color: '#C19A6B', accent: '#A0784A', brand: 'Mixed',                 type: 'Cabinet Style', colorFamily: 'brown', aiHint: 'natural white oak flat-panel cabinets, warm wood grain, minimal hardware, light quartz countertops, Scandinavian modern kitchen' },
-  { id: 'kitchen-sage',         name: 'Sage Green',         color: '#9EA393', accent: '#848A78', brand: 'Mixed',                 type: 'Cabinet Style', colorFamily: 'green', aiHint: 'sage green shaker cabinets, butcher block countertops, open shelving, brass fixtures, cottage style kitchen' },
-  { id: 'kitchen-black',        name: 'Matte Black',        color: '#1C1917', accent: '#F5F5F0', brand: 'Mixed',                 type: 'Cabinet Style', colorFamily: 'black', aiHint: 'matte black flat-panel cabinets, white countertops, black hardware, modern industrial kitchen' },
-  { id: 'kitchen-two-tone',     name: 'Two-Tone Gray',      color: '#6B7280', accent: '#F5F5F0', brand: 'Mixed',                 type: 'Cabinet Style', colorFamily: 'gray',  aiHint: 'gray lower cabinets and white upper cabinets, two-tone kitchen, contemporary transitional' },
+  // ── Cabinets ──────────────────────────────
+  { id: 'k-cab-white-shaker',    name: 'White Shaker',            color: '#F5F5F0', accent: '#E0E0DB', brand: 'KraftMaid',     type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'white', aiHint: 'bright white shaker-style kitchen cabinets with recessed center panel, clean lines, semi-gloss finish' },
+  { id: 'k-cab-antique-white',   name: 'Antique White',           color: '#F0EBE0', accent: '#D8D0C0', brand: 'KraftMaid',     type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'white', aiHint: 'antique white shaker cabinets with subtle warm cream tone, soft close, traditional feel' },
+  { id: 'k-cab-dove-gray',       name: 'Dove Gray Shaker',        color: '#B8B8B0', accent: '#A0A098', brand: 'Merillat',      type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'gray',  aiHint: 'soft dove gray painted shaker cabinets, gentle neutral gray, versatile transitional' },
+  { id: 'k-cab-navy',            name: 'Hale Navy',               color: '#2B3850', accent: '#1A2740', brand: 'Merillat',      type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'blue',  aiHint: 'deep navy blue painted cabinets, rich sophisticated dark blue, pairs with brass hardware' },
+  { id: 'k-cab-sage',            name: 'Sage Green',              color: '#9EA393', accent: '#848A78', brand: 'Thomasville',   type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'green', aiHint: 'muted sage green painted shaker cabinets, earthy and calming, cottage or farmhouse' },
+  { id: 'k-cab-black',           name: 'Matte Black Slab',        color: '#1C1917', accent: '#2A2725', brand: 'IKEA KUNGSBACKA', type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'black', aiHint: 'flat-panel matte black slab cabinets, no visible hardware, modern minimalist, handleless push-open' },
+  { id: 'k-cab-espresso',        name: 'Espresso Stain',          color: '#3C2415', accent: '#2A1808', brand: 'KraftMaid',     type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'brown', aiHint: 'rich dark espresso-stained wood cabinets with visible grain, raised panel traditional, deep chocolate brown' },
+  { id: 'k-cab-natural-oak',     name: 'Natural White Oak',       color: '#C8B48A', accent: '#B09A70', brand: 'Semihandmade',  type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'brown', aiHint: 'natural rift white oak flat-panel cabinets, warm light wood grain, Scandinavian modern, slab front' },
+  { id: 'k-cab-walnut',          name: 'Dark Walnut Slab',        color: '#5A3D28', accent: '#3E2818', brand: 'Thomasville',   type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'brown', aiHint: 'dark walnut slab-front cabinets, rich brown wood grain, contemporary luxury, flat panel' },
+  { id: 'k-cab-two-tone',        name: 'Two-Tone (Gray + White)', color: '#6B7280', accent: '#F5F5F0', brand: 'Diamond',       type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'gray',  aiHint: 'two-tone kitchen with gray lower cabinets and white upper cabinets, transitional, mixed finish' },
+  { id: 'k-cab-hunter-green',    name: 'Hunter Green',            color: '#355E3B', accent: '#2A4A2F', brand: 'Lily Ann',      type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'green', aiHint: 'deep hunter green painted shaker cabinets, bold moody dark green, dramatic with brass accents' },
+  { id: 'k-cab-greige',          name: 'Greige Flat Panel',       color: '#C4BAA8', accent: '#AEA490', brand: 'IKEA BODARP',   type: 'Cabinets', subcategory: 'cabinets', colorFamily: 'beige', aiHint: 'warm greige flat-panel cabinets, gray-beige blend, clean modern European style' },
+
+  // ── Countertops ───────────────────────────
+  { id: 'k-ct-calacatta',        name: 'Calacatta Quartz',        color: '#F0ECE8', accent: '#C8B8A8', brand: 'Cambria',       type: 'Countertops', subcategory: 'countertops', colorFamily: 'white', aiHint: 'white Calacatta quartz countertop with dramatic gray and gold veining, polished finish, marble-look' },
+  { id: 'k-ct-carrara',          name: 'Carrara Marble',          color: '#E8E0E0', accent: '#B0A8A8', brand: 'Natural Stone', type: 'Countertops', subcategory: 'countertops', colorFamily: 'white', aiHint: 'genuine Carrara marble countertop with subtle gray veining on white, honed finish, Italian marble' },
+  { id: 'k-ct-white-quartz',     name: 'Pure White Quartz',       color: '#F8F8F5', accent: '#E8E8E5', brand: 'Caesarstone',   type: 'Countertops', subcategory: 'countertops', colorFamily: 'white', aiHint: 'clean pure white quartz countertop with no veining, uniform bright white, modern minimalist' },
+  { id: 'k-ct-charcoal-soap',    name: 'Charcoal Soapstone',      color: '#4A4A48', accent: '#383838', brand: 'Silestone',     type: 'Countertops', subcategory: 'countertops', colorFamily: 'gray',  aiHint: 'dark charcoal soapstone-look quartz countertop, matte finish, deep gray with subtle texture' },
+  { id: 'k-ct-concrete',         name: 'Concrete Gray',           color: '#9A9590', accent: '#7A7570', brand: 'Caesarstone',   type: 'Countertops', subcategory: 'countertops', colorFamily: 'gray',  aiHint: 'industrial concrete-look quartz countertop, medium gray with subtle mottling, matte, modern loft' },
+  { id: 'k-ct-butcher-block',    name: 'Maple Butcher Block',     color: '#D4A86A', accent: '#B89050', brand: 'John Boos',     type: 'Countertops', subcategory: 'countertops', colorFamily: 'brown', aiHint: 'natural maple butcher block countertop, warm honey wood, end-grain or edge-grain, oiled finish' },
+  { id: 'k-ct-walnut-butcher',   name: 'Walnut Butcher Block',    color: '#5A3D28', accent: '#42301E', brand: 'John Boos',     type: 'Countertops', subcategory: 'countertops', colorFamily: 'brown', aiHint: 'rich dark walnut butcher block countertop, deep brown wood grain, premium warm wood surface' },
+  { id: 'k-ct-black-granite',    name: 'Absolute Black Granite',  color: '#1C1C1C', accent: '#0A0A0A', brand: 'Natural Stone', type: 'Countertops', subcategory: 'countertops', colorFamily: 'black', aiHint: 'polished absolute black granite countertop, deep solid black, glossy reflective, luxury' },
+  { id: 'k-ct-leathered-granite',name: 'Leathered Black Granite', color: '#2A2A28', accent: '#1A1A18', brand: 'Natural Stone', type: 'Countertops', subcategory: 'countertops', colorFamily: 'black', aiHint: 'leathered finish black granite countertop, matte textured surface, tactile subtle sheen, sophisticated' },
+  { id: 'k-ct-quartzite-taj',    name: 'Taj Mahal Quartzite',     color: '#E8DCC8', accent: '#D0C4A8', brand: 'Natural Stone', type: 'Countertops', subcategory: 'countertops', colorFamily: 'beige', aiHint: 'warm Taj Mahal quartzite countertop, creamy beige with soft gold veining, natural stone, elegant warm' },
+
+  // ── Backsplash ────────────────────────────
+  { id: 'k-bs-white-subway',     name: 'White Subway Tile',       color: '#FFFFFF', accent: '#E8E8E8', brand: 'Daltile',       type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'white', aiHint: 'classic white 3x6 subway tile backsplash with light gray grout, glossy finish, offset brick pattern' },
+  { id: 'k-bs-herringbone',      name: 'White Herringbone',       color: '#F5F5F0', accent: '#E0E0DB', brand: 'Daltile',       type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'white', aiHint: 'white herringbone pattern tile backsplash, chevron V pattern, glossy white, elegant classic' },
+  { id: 'k-bs-zellige',          name: 'Zellige White',           color: '#F0EDE5', accent: '#D8D0C5', brand: 'Clé Tile',      type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'white', aiHint: 'handmade Moroccan zellige tile backsplash in white, irregular glossy surface, organic artisan texture, square tiles' },
+  { id: 'k-bs-marble-slab',      name: 'Marble Slab',             color: '#E8E2DA', accent: '#C0B8B0', brand: 'Natural Stone', type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'white', aiHint: 'full-height Calacatta marble slab backsplash, bookmatched veining, continuous dramatic stone, luxury' },
+  { id: 'k-bs-sage-subway',      name: 'Sage Green Subway',       color: '#A8B09A', accent: '#909880', brand: 'Fireclay',      type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'green', aiHint: 'sage green glazed subway tile backsplash, soft muted green, handmade look with variation' },
+  { id: 'k-bs-navy-subway',      name: 'Navy Blue Subway',        color: '#2B3850', accent: '#1A2740', brand: 'Fireclay',      type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'blue',  aiHint: 'deep navy blue glossy subway tile backsplash, rich dark blue, high gloss, dramatic' },
+  { id: 'k-bs-penny-round',      name: 'White Penny Round',       color: '#F5F5F0', accent: '#D0D0C8', brand: 'Merola',        type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'white', aiHint: 'small white penny round mosaic tile backsplash, circular dots, retro modern, gray grout' },
+  { id: 'k-bs-stacked-stone',    name: 'Stacked Stone',           color: '#B0A890', accent: '#8A8268', brand: 'MSI',           type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'beige', aiHint: 'natural stacked ledgestone backsplash, mixed warm stone strips, rustic textured, 3D depth' },
+  { id: 'k-bs-black-hex',        name: 'Black Hexagon',           color: '#2A2A28', accent: '#1A1A18', brand: 'Daltile',       type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'black', aiHint: 'matte black hexagon mosaic tile backsplash, honeycomb pattern, modern dark, contrasting grout' },
+  { id: 'k-bs-arabesque',        name: 'White Arabesque',         color: '#F0EDE8', accent: '#D8D2C8', brand: 'MSI',           type: 'Backsplash', subcategory: 'backsplash', colorFamily: 'white', aiHint: 'white arabesque lantern-shaped tile backsplash, Moorish pattern, glossy, decorative' },
+
+  // ── Hardware & Fixtures ───────────────────
+  { id: 'k-hw-brushed-brass',    name: 'Brushed Brass',           color: '#C8A840', accent: '#A88828', brand: 'Amerock',       type: 'Hardware', subcategory: 'hardware', colorFamily: 'yellow', aiHint: 'brushed satin brass cabinet pulls and knobs, warm gold tone, modern bar pulls, contemporary kitchen hardware' },
+  { id: 'k-hw-matte-black',      name: 'Matte Black',             color: '#1C1917', accent: '#000000', brand: 'Amerock',       type: 'Hardware', subcategory: 'hardware', colorFamily: 'black', aiHint: 'matte black cabinet handles and knobs, modern flat black, bar pulls, industrial modern hardware' },
+  { id: 'k-hw-brushed-nickel',   name: 'Brushed Nickel',          color: '#C0C0B8', accent: '#A8A8A0', brand: 'Liberty',       type: 'Hardware', subcategory: 'hardware', colorFamily: 'gray',  aiHint: 'brushed satin nickel cabinet pulls, cool silver tone, soft metallic, transitional bar pulls' },
+  { id: 'k-hw-polished-chrome',  name: 'Polished Chrome',         color: '#D8D8D8', accent: '#E8E8E8', brand: 'Liberty',       type: 'Hardware', subcategory: 'hardware', colorFamily: 'gray',  aiHint: 'polished chrome cabinet hardware, bright mirror-finish silver, sleek modern pulls and knobs' },
+  { id: 'k-hw-oil-rubbed',       name: 'Oil-Rubbed Bronze',       color: '#4A3828', accent: '#362818', brand: 'Amerock',       type: 'Hardware', subcategory: 'hardware', colorFamily: 'brown', aiHint: 'oil-rubbed bronze cabinet pulls and knobs, dark antiqued brown with copper highlights, traditional' },
+  { id: 'k-hw-copper',           name: 'Aged Copper',             color: '#B87333', accent: '#8A5520', brand: 'Amerock',       type: 'Hardware', subcategory: 'hardware', colorFamily: 'brown', aiHint: 'aged warm copper cabinet hardware, natural patina copper pulls, rustic warm metallic' },
 ];
 
 // ─── BATHROOM ──────────────────────────────────────────
+// Subcategories: tile, vanity, fixtures, shower, flooring
 const BATHROOM = [
-  { id: 'bath-spa-white',       name: 'Spa White',          color: '#F5F5F0', accent: '#E8E0D0', brand: 'Mixed',                 type: 'Bath Style',    colorFamily: 'white', aiHint: 'all white spa bathroom, large format white tiles, floating vanity, frameless glass shower, warm white, luxury spa feel' },
-  { id: 'bath-marble',          name: 'Carrara Marble',     color: '#E8E0E0', accent: '#C0B8B8', brand: 'Mixed',                 type: 'Bath Style',    colorFamily: 'white', aiHint: 'white and gray Carrara marble tiles on floor and walls, marble-look countertop, elegant classical bathroom' },
-  { id: 'bath-modern-dark',     name: 'Modern Dark',        color: '#374151', accent: '#1C1917', brand: 'Mixed',                 type: 'Bath Style',    colorFamily: 'gray',  aiHint: 'dark charcoal tile bathroom, matte black fixtures, floating dark vanity, rain shower, dramatic modern bathroom' },
-  { id: 'bath-coastal',         name: 'Coastal Blue',       color: '#B0C4DE', accent: '#E8DCC8', brand: 'Mixed',                 type: 'Bath Style',    colorFamily: 'blue',  aiHint: 'light blue and white coastal bathroom, beadboard wainscoting, nautical fixtures, beach house style' },
-  { id: 'bath-warm-wood',       name: 'Warm Wood & White',  color: '#C19A6B', accent: '#F5F5F0', brand: 'Mixed',                 type: 'Bath Style',    colorFamily: 'brown', aiHint: 'warm wood vanity with white subway tile, wood-look floor tile, modern organic bathroom, warm and inviting' },
+  // ── Wall & Shower Tile ────────────────────
+  { id: 'b-tile-white-subway',   name: 'White Subway 3×6',        color: '#FFFFFF', accent: '#E8E8E8', brand: 'Daltile',         type: 'Wall Tile', subcategory: 'tile', colorFamily: 'white', aiHint: 'classic white 3x6 subway tile on bathroom walls, glossy finish, offset brick pattern, light gray grout' },
+  { id: 'b-tile-large-white',    name: 'Large Format White',      color: '#F5F5F0', accent: '#E0E0DB', brand: 'Daltile',         type: 'Wall Tile', subcategory: 'tile', colorFamily: 'white', aiHint: 'large format 12x24 white rectified porcelain tile, minimal grout lines, clean modern, matte finish' },
+  { id: 'b-tile-marble-hex',     name: 'Carrara Marble Hex',      color: '#E5DDD8', accent: '#C0B8B0', brand: 'MSI',             type: 'Wall Tile', subcategory: 'tile', colorFamily: 'white', aiHint: 'small hexagon Carrara marble mosaic tile, white with gray veining, honeycomb pattern, elegant classic' },
+  { id: 'b-tile-zellige-white',  name: 'Zellige Weathered White', color: '#EDE8DF', accent: '#D5CFC2', brand: 'Clé Tile',        type: 'Wall Tile', subcategory: 'tile', colorFamily: 'white', aiHint: 'handmade Moroccan zellige tile in weathered white, irregular glossy surface, organic artisan, square' },
+  { id: 'b-tile-sage-green',     name: 'Sage Green Subway',       color: '#A8B09A', accent: '#909880', brand: 'Fireclay',        type: 'Wall Tile', subcategory: 'tile', colorFamily: 'green', aiHint: 'sage green glazed ceramic subway tile, soft muted green, handmade variation, stacked or offset pattern' },
+  { id: 'b-tile-navy',           name: 'Navy Blue Field',         color: '#2B3850', accent: '#1A2740', brand: 'Fireclay',        type: 'Wall Tile', subcategory: 'tile', colorFamily: 'blue',  aiHint: 'deep navy blue glossy field tile on shower walls, rich dark blue, dramatic accent, white grout contrast' },
+  { id: 'b-tile-charcoal',       name: 'Charcoal Matte',          color: '#4A4A48', accent: '#3A3A38', brand: 'Porcelanosa',     type: 'Wall Tile', subcategory: 'tile', colorFamily: 'gray',  aiHint: 'dark charcoal matte porcelain tile, large format, modern dramatic bathroom, minimal grout lines' },
+  { id: 'b-tile-terrazzo',       name: 'Terrazzo Look',           color: '#E5E0D8', accent: '#C8C0B5', brand: 'Daltile',         type: 'Wall Tile', subcategory: 'tile', colorFamily: 'beige', aiHint: 'terrazzo-look porcelain tile with multicolor aggregate chips in cream base, playful retro-modern' },
+  { id: 'b-tile-fluted-white',   name: 'Fluted / Ribbed White',  color: '#F0ECE8', accent: '#D8D4CE', brand: 'Porcelanosa',     type: 'Wall Tile', subcategory: 'tile', colorFamily: 'white', aiHint: '3D fluted ribbed white wall tile with vertical ridges, textured modern, matte, creates light and shadow' },
+  { id: 'b-tile-penny-white',    name: 'White Penny Round',       color: '#F5F5F0', accent: '#D0D0C8', brand: 'Merola',          type: 'Wall Tile', subcategory: 'tile', colorFamily: 'white', aiHint: 'small white penny round mosaic tile on shower walls, circular dots, retro modern, gray grout' },
+
+  // ── Vanity ────────────────────────────────
+  { id: 'b-van-white-shaker',    name: 'White Shaker 36"',        color: '#F5F5F0', accent: '#E0E0DB', brand: 'Pottery Barn',    type: 'Vanity', subcategory: 'vanity', colorFamily: 'white', aiHint: 'white shaker-style 36-inch single bathroom vanity with white marble top, chrome hardware, classic' },
+  { id: 'b-van-floating-walnut', name: 'Floating Walnut 48"',     color: '#5A3D28', accent: '#42301E', brand: 'AllModern',       type: 'Vanity', subcategory: 'vanity', colorFamily: 'brown', aiHint: 'wall-mounted floating walnut wood vanity 48-inch, integrated white sink, modern minimalist, clean lines' },
+  { id: 'b-van-floating-white',  name: 'Floating White 60"',      color: '#FFFFFF', accent: '#E8E8E8', brand: 'DERA',            type: 'Vanity', subcategory: 'vanity', colorFamily: 'white', aiHint: 'wall-mounted floating white double vanity 60-inch, matte white, minimalist European, integrated basins' },
+  { id: 'b-van-navy',            name: 'Navy Blue 48"',           color: '#2B3850', accent: '#1A2740', brand: 'Pottery Barn',    type: 'Vanity', subcategory: 'vanity', colorFamily: 'blue',  aiHint: 'navy blue double vanity 48-inch, marble countertop, brass hardware, traditional transitional style' },
+  { id: 'b-van-natural-oak',     name: 'Natural Oak 60"',         color: '#C8B48A', accent: '#B09A70', brand: 'West Elm',        type: 'Vanity', subcategory: 'vanity', colorFamily: 'brown', aiHint: 'natural white oak double vanity 60-inch, warm light wood, white stone top, mid-century modern legs' },
+  { id: 'b-van-concrete',        name: 'Concrete & Black Metal',  color: '#9A9590', accent: '#2A2A28', brand: 'Restoration Hardware', type: 'Vanity', subcategory: 'vanity', colorFamily: 'gray', aiHint: 'industrial concrete vanity with black metal frame, open shelving below, vessel sink, loft style' },
+  { id: 'b-van-black-modern',    name: 'Matte Black 48"',         color: '#1C1917', accent: '#2A2725', brand: 'AllModern',       type: 'Vanity', subcategory: 'vanity', colorFamily: 'black', aiHint: 'matte black double vanity 48-inch, flat-panel doors, white quartz top, modern bold contrast' },
+  { id: 'b-van-green-painted',   name: 'Forest Green 36"',        color: '#355E3B', accent: '#2A4A2F', brand: 'Pottery Barn',    type: 'Vanity', subcategory: 'vanity', colorFamily: 'green', aiHint: 'deep forest green painted single vanity 36-inch, marble top, brass hardware, moody dramatic' },
+
+  // ── Fixtures & Faucets ────────────────────
+  { id: 'b-fix-matte-black',     name: 'Matte Black Fixtures',    color: '#1C1917', accent: '#000000', brand: 'Delta',           type: 'Fixtures', subcategory: 'fixtures', colorFamily: 'black', aiHint: 'matte black bathroom faucet, showerhead, towel bars, and accessories, modern flat black finish throughout' },
+  { id: 'b-fix-brushed-brass',   name: 'Brushed Gold Fixtures',   color: '#C8A840', accent: '#A88828', brand: 'Delta',           type: 'Fixtures', subcategory: 'fixtures', colorFamily: 'yellow', aiHint: 'brushed gold/brass bathroom fixtures including faucet, shower trim, towel bars, warm gold metallic finish' },
+  { id: 'b-fix-polished-chrome', name: 'Polished Chrome',         color: '#D8D8D8', accent: '#E8E8E8', brand: 'Moen',            type: 'Fixtures', subcategory: 'fixtures', colorFamily: 'gray', aiHint: 'polished chrome bathroom fixtures, bright mirror-finish faucet, shower trim, towel bars, classic clean' },
+  { id: 'b-fix-brushed-nickel',  name: 'Brushed Nickel',          color: '#C0C0B8', accent: '#A8A8A0', brand: 'Moen',            type: 'Fixtures', subcategory: 'fixtures', colorFamily: 'gray', aiHint: 'brushed satin nickel bathroom fixtures, soft silver faucet, showerhead, towel bars, versatile neutral' },
+  { id: 'b-fix-oil-bronze',      name: 'Oil-Rubbed Bronze',       color: '#4A3828', accent: '#362818', brand: 'Moen',            type: 'Fixtures', subcategory: 'fixtures', colorFamily: 'brown', aiHint: 'oil-rubbed bronze bathroom fixtures, dark antiqued brown with copper highlights, traditional warm' },
+  { id: 'b-fix-unlacquered-brass', name: 'Unlacquered Brass',     color: '#B5922C', accent: '#8A7020', brand: 'Waterworks',      type: 'Fixtures', subcategory: 'fixtures', colorFamily: 'yellow', aiHint: 'unlacquered living brass fixtures, natural patina developing over time, luxury artisan, warm rich gold' },
+
+  // ── Shower ────────────────────────────────
+  { id: 'b-shower-frameless',    name: 'Frameless Glass',         color: '#D0E8F0', accent: '#A0C8D8', brand: 'DreamLine',       type: 'Shower', subcategory: 'shower', colorFamily: 'white', aiHint: 'frameless clear glass shower enclosure, no visible frame, clean modern lines, polished hardware, walk-in' },
+  { id: 'b-shower-black-frame',  name: 'Black Framed Glass',      color: '#1C1917', accent: '#D0E8F0', brand: 'DreamLine',       type: 'Shower', subcategory: 'shower', colorFamily: 'black', aiHint: 'black framed glass shower enclosure, steel grid pattern, industrial modern, matte black metal frame' },
+  { id: 'b-shower-rain',         name: 'Rain Shower System',      color: '#2A2A28', accent: '#404040', brand: 'Kohler',          type: 'Shower', subcategory: 'shower', colorFamily: 'black', aiHint: 'overhead rain shower head system with handheld wand, ceiling-mount large rain head, modern spa shower' },
+  { id: 'b-shower-niche-marble', name: 'Marble Niche & Bench',    color: '#E8E0E0', accent: '#C0B8B0', brand: 'Custom',          type: 'Shower', subcategory: 'shower', colorFamily: 'white', aiHint: 'built-in shower niche with marble shelf and corner bench seat, Carrara marble accent, luxury shower interior' },
+  { id: 'b-shower-curbless',     name: 'Curbless / Zero-Entry',   color: '#F0ECE8', accent: '#D0C8C0', brand: 'Schluter',        type: 'Shower', subcategory: 'shower', colorFamily: 'white', aiHint: 'curbless zero-entry walk-in shower, linear drain, seamless floor transition, ADA accessible, modern spa' },
+
+  // ── Bathroom Floor ────────────────────────
+  { id: 'b-floor-marble-hex',    name: 'Carrara Hex Floor',       color: '#E8E2DA', accent: '#C0B8B0', brand: 'MSI',             type: 'Floor', subcategory: 'floor', colorFamily: 'white', aiHint: 'small hexagon Carrara marble mosaic floor tile, classic bathroom floor, white with gray veining' },
+  { id: 'b-floor-cement-pattern', name: 'Encaustic Cement Tile',  color: '#4A5568', accent: '#F5F5F0', brand: 'Villa Lagoon',    type: 'Floor', subcategory: 'floor', colorFamily: 'gray', aiHint: 'patterned encaustic cement tile floor in gray and white geometric pattern, Mediterranean artisan, bold' },
+  { id: 'b-floor-large-gray',    name: 'Large Gray Porcelain',    color: '#8A8580', accent: '#6A6560', brand: 'Porcelanosa',     type: 'Floor', subcategory: 'floor', colorFamily: 'gray', aiHint: 'large format 24x24 gray porcelain tile floor, minimal grout lines, modern clean, matte finish' },
+  { id: 'b-floor-wood-look',     name: 'Wood-Look Porcelain',     color: '#C8B48A', accent: '#A89A70', brand: 'Daltile',         type: 'Floor', subcategory: 'floor', colorFamily: 'brown', aiHint: 'wood-look porcelain plank tile floor in warm oak tone, realistic wood grain, waterproof, warm natural' },
+  { id: 'b-floor-penny-white',   name: 'White Penny Round',       color: '#F5F5F0', accent: '#D0D0C8', brand: 'Merola',          type: 'Floor', subcategory: 'floor', colorFamily: 'white', aiHint: 'white penny round mosaic tile bathroom floor, vintage classic, small circular tiles, dark grout' },
+  { id: 'b-floor-black-white',   name: 'Black & White Check',     color: '#1C1C1C', accent: '#F5F5F0', brand: 'Daltile',         type: 'Floor', subcategory: 'floor', colorFamily: 'black', aiHint: 'black and white checkerboard tile bathroom floor, classic retro pattern, high contrast, vintage charm' },
 ];
 
 // ─── FLOORING ──────────────────────────────────────────
@@ -328,6 +408,32 @@ export const TOTAL_PRODUCTS = Object.values(MATERIALS).reduce((sum, arr) => sum 
 
 // ─── Popular products — best sellers across categories ───
 // These skip the category step: tap product → generate
+// ─── SUBCATEGORIES for interior projects ──────────────
+export const SUBCATEGORIES = {
+  kitchen: [
+    { id: 'cabinets',     label: 'Cabinets',     icon: '🗄️' },
+    { id: 'countertops',  label: 'Countertops',  icon: '🪨' },
+    { id: 'backsplash',   label: 'Backsplash',   icon: '🧱' },
+    { id: 'hardware',     label: 'Hardware',      icon: '🔩' },
+  ],
+  bathroom: [
+    { id: 'tile',         label: 'Wall Tile',     icon: '🧱' },
+    { id: 'vanity',       label: 'Vanity',        icon: '🪞' },
+    { id: 'fixtures',     label: 'Fixtures',      icon: '🚿' },
+    { id: 'shower',       label: 'Shower',        icon: '🚿' },
+    { id: 'floor',        label: 'Floor',         icon: '🔲' },
+  ],
+};
+
+export function getSubcategories(projectId) {
+  return SUBCATEGORIES[projectId] || null;
+}
+
+export function getMaterialsBySubcategory(projectId, subcategoryId) {
+  const mats = MATERIALS[projectId] || [];
+  return mats.filter(m => m.subcategory === subcategoryId);
+}
+
 export const POPULAR_PRODUCTS = [
   { ...MATERIALS.siding[0], category: 'siding' },     // Arctic White Hardie
   { ...MATERIALS.siding[4], category: 'siding' },      // Iron Gray Hardie
@@ -337,8 +443,8 @@ export const POPULAR_PRODUCTS = [
   { ...MATERIALS.paint[4], category: 'paint' },        // Repose Gray SW
   { ...MATERIALS.windows[0], category: 'windows' },    // Andersen 400 White
   { ...MATERIALS.windows[3], category: 'windows' },    // Andersen 400 Black
-  { ...MATERIALS.deck[0], category: 'deck' },          // Trex Lava Rock
-  { ...MATERIALS.garage[0], category: 'garage' },      // Clopay Classic White
-  { ...MATERIALS.gutters?.[0], category: 'gutters' },  // If exists
-  { ...MATERIALS.stone?.[0], category: 'stone' },      // If exists
-].filter(p => p && p.id); // Filter out undefined entries
+  { ...MATERIALS.kitchen[0], category: 'kitchen' },    // White Shaker cabs
+  { ...MATERIALS.kitchen[12], category: 'kitchen' },   // Calacatta Quartz
+  { ...MATERIALS.bathroom[0], category: 'bathroom' },  // White Subway tile
+  { ...MATERIALS.bathroom[10], category: 'bathroom' }, // White Shaker vanity
+].filter(p => p && p.id);

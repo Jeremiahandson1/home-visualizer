@@ -10,7 +10,7 @@ export const PROJECTS = [
   { id: 'windows',  label: 'Windows & Doors',   icon: '▣', desc: 'Andersen, Pella, Marvin, Milgard' },
   { id: 'deck',     label: 'Deck & Patio',      icon: '▦', desc: 'Composite, PVC, hardwood, stone' },
   { id: 'garage',   label: 'Garage Doors',      icon: '▤', desc: 'Clopay, Amarr, C.H.I., Wayne Dalton' },
-  { id: 'gutters',  label: 'Gutters & Trim',    icon: '═', desc: 'Seamless aluminum, copper, fascia, soffit' },
+  { id: 'gutters',  label: 'Trim & Detail',    icon: '═', desc: 'Trim, soffit, fascia, gutters — James Hardie, AZEK, Royal' },
   { id: 'exterior', label: 'Full Exterior',      icon: '✦', desc: 'Complete style transformations' },
   { id: 'kitchen',  label: 'Kitchen',            icon: '▧', desc: 'Cabinets, countertops, backsplash' },
   { id: 'bathroom', label: 'Bathroom',           icon: '◫', desc: 'Tile, vanity, fixtures, shower' },
@@ -129,38 +129,162 @@ const ROOFING = [
 
 // ─── PAINT ─────────────────────────────────────────────
 const PAINT = [
-  // Sherwin-Williams Top Exterior Colors
-  { id: 'sw-pure-white',       name: 'Pure White (SW7005)', color: '#F3EFE0', accent: '#E8E4D5', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'painted siding in warm pure white, clean but not stark, slight cream warmth' },
-  { id: 'sw-alabaster',        name: 'Alabaster (SW7008)',  color: '#EDEADF', accent: '#E0DDD2', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'soft creamy white exterior paint, warm alabaster, inviting traditional' },
-  { id: 'sw-snowbound',        name: 'Snowbound (SW7004)', color: '#EDE9DF', accent: '#E0DCD2', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'soft warm white, gentle ivory undertone, bright yet not cold' },
-  { id: 'sw-repose-gray',      name: 'Repose Gray (SW7015)',color:'#C2BFB8', accent: '#ABA8A0', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm medium gray exterior paint, greige undertone, most popular gray' },
-  { id: 'sw-agreeable-gray',   name: 'Agreeable Gray (SW7029)',color:'#D1C8BA',accent:'#BEB5A5',brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm greige exterior paint, balanced gray-beige, universally appealing' },
-  { id: 'sw-iron-ore',         name: 'Iron Ore (SW7069)',  color: '#434243', accent: '#323232', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'very dark charcoal exterior paint, nearly black, dramatic modern' },
-  { id: 'sw-naval',            name: 'Naval (SW6244)',      color: '#2E3441', accent: '#1E242F', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'deep navy blue exterior paint, sophisticated dark blue, 2020 COTY' },
-  { id: 'sw-sea-salt',         name: 'Sea Salt (SW6204)',   color: '#C7D0C5', accent: '#B0BAA8', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'soft green-gray exterior paint, coastal spa-like, muted sage' },
-  { id: 'sw-accessible-beige', name: 'Accessible Beige (SW7036)',color:'#D1C4AD',accent:'#BEB19A',brand:'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm neutral beige exterior paint, sandy warmth, classic' },
-  { id: 'sw-tricorn-black',    name: 'Tricorn Black (SW6258)',color:'#2C2C2C',accent:'#1A1A1A',brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'true black exterior paint, bold dramatic black house' },
-  { id: 'sw-thunderous',       name: 'Thunderous (SW6201)', color: '#636A6D', accent: '#4A5255', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'dark blue-gray exterior paint, moody sophisticated dark gray' },
-  { id: 'sw-evergreen-fog',    name: 'Evergreen Fog (SW9130)',color:'#9EA393',accent:'#848A78',brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'muted sage green exterior paint, earthy organic green-gray, 2022 COTY' },
-  { id: 'sw-urbane-bronze',    name: 'Urbane Bronze (SW7048)',color:'#5E5549',accent:'#454035',brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'brown',  aiHint: 'dark warm bronze-brown exterior paint, sophisticated earthy dark' },
-  { id: 'sw-cyberspace',       name: 'Cyberspace (SW7076)', color: '#2E3238', accent: '#1E2228', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'deep dark blue-black exterior paint, midnight tone, modern drama' },
-  { id: 'sw-dover-white',      name: 'Dover White (SW6385)',color: '#E4D9C5', accent: '#D4C9B2', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm cream-white with subtle yellow, traditional warm white' },
+  // ═══ SHERWIN-WILLIAMS ════════════════════════════════
+  // ── Whites & Creams ──
+  { id: 'sw-pure-white',       name: 'Pure White (SW7005)',       color: '#F3EFE0', accent: '#E8E4D5', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'painted siding in warm pure white, clean but not stark, slight cream warmth' },
+  { id: 'sw-extra-white',      name: 'Extra White (SW7006)',      color: '#F0EDE5', accent: '#E4E1D9', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'bright clean white exterior paint, crisp and cool, modern white' },
+  { id: 'sw-alabaster',        name: 'Alabaster (SW7008)',        color: '#EDEADF', accent: '#E0DDD2', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'soft creamy white exterior paint, warm alabaster, inviting traditional' },
+  { id: 'sw-snowbound',        name: 'Snowbound (SW7004)',        color: '#EDE9DF', accent: '#E0DCD2', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'soft warm white, gentle ivory undertone, bright yet not cold' },
+  { id: 'sw-pearly-white',     name: 'Pearly White (SW7009)',     color: '#E8E1D4', accent: '#DCD5C8', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'warm pearl white with beige undertone, soft traditional white' },
+  { id: 'sw-eider-white',      name: 'Eider White (SW7014)',      color: '#E3DFD7', accent: '#D7D3CB', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'cool white with gray undertone, modern soft white, slightly cool' },
+  { id: 'sw-shoji-white',      name: 'Shoji White (SW7042)',      color: '#E5DDD0', accent: '#D9D1C4', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'warm white with earthy undertone, zen-inspired neutral white' },
+  { id: 'sw-creamy',           name: 'Creamy (SW7012)',           color: '#EDE2CF', accent: '#E1D6C3', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm cream exterior paint, rich buttery white, traditional warmth' },
+  { id: 'sw-natural-choice',   name: 'Natural Choice (SW7011)',   color: '#E4DDD0', accent: '#D8D1C4', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm natural cream, organic soft beige-white, earthy undertone' },
+  { id: 'sw-ivory-lace',       name: 'Ivory Lace (SW7013)',       color: '#F0E7D5', accent: '#E4DBC9', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'soft ivory cream paint, delicate warm white with yellow hint' },
+  { id: 'sw-antique-white',    name: 'Antique White (SW6119)',    color: '#F0E4D1', accent: '#E4D8C5', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'classic antique white, warm yellowed white, vintage charm' },
+  { id: 'sw-navajo-white',     name: 'Navajo White (SW6126)',     color: '#F0DBBB', accent: '#E4CFAF', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm peachy cream, Navajo white with golden warmth' },
+  { id: 'sw-dover-white',      name: 'Dover White (SW6385)',      color: '#E4D9C5', accent: '#D4C9B2', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm cream-white with subtle yellow, traditional warm white' },
+  { id: 'sw-classical-white',  name: 'Classical White (SW2829)',  color: '#ECE1CB', accent: '#E0D5BF', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm classical cream white, period-appropriate warm white for historic homes' },
 
-  // Benjamin Moore Top Exterior Colors
-  { id: 'bm-white-dove',       name: 'White Dove (OC-17)',  color: '#ECE5D5', accent: '#DDD5C5', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'soft warm white with subtle yellow, not stark, inviting' },
-  { id: 'bm-simply-white',     name: 'Simply White (OC-117)',color:'#F5F0E1',accent:'#E8E3D4',brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'clean bright white with warm undertone, fresh and crisp' },
-  { id: 'bm-hale-navy',        name: 'Hale Navy (HC-154)',  color: '#2B3850', accent: '#1C2840', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'rich dark navy blue, classic nautical deep blue, sophisticated' },
-  { id: 'bm-revere-pewter',    name: 'Revere Pewter (HC-172)',color:'#C4B9A3',accent:'#ACA18A',brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm greige, balanced pewter, classic neutral warm gray-beige' },
-  { id: 'bm-chantilly-lace',   name: 'Chantilly Lace (OC-65)',color:'#F5F2ED',accent:'#E8E5E0',brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'bright crisp white with neutral undertone, clean modern white' },
-  { id: 'bm-kendall-charcoal', name: 'Kendall Charcoal (HC-166)',color:'#545758',accent:'#3E4142',brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'gray', aiHint: 'rich deep charcoal gray, warm undertone, dramatic dark gray' },
-  { id: 'bm-newburyport-blue', name: 'Newburyport Blue (HC-155)',color:'#3A4E62',accent:'#283A4C',brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'blue', aiHint: 'deep blue with gray undertone, coastal New England blue' },
-  { id: 'bm-edgecomb-gray',    name: 'Edgecomb Gray (HC-173)',color:'#D2C9B8',accent:'#BEB5A2',brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'light warm greige, versatile neutral with subtle warmth' },
-  { id: 'bm-wrought-iron',     name: 'Wrought Iron (2124-10)',color:'#3A3C3E',accent:'#2A2C2E',brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'dark near-black with subtle brown, softer than pure black, elegant' },
-  { id: 'bm-sage-green',       name: 'Sage (2138-10)',      color: '#6B7A5A', accent: '#506040', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'earthy sage green, organic natural tone, pairs with cream trim' },
+  // ── Grays & Greiges ──
+  { id: 'sw-repose-gray',      name: 'Repose Gray (SW7015)',      color: '#C2BFB8', accent: '#ABA8A0', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm medium gray exterior paint, greige undertone, most popular gray' },
+  { id: 'sw-agreeable-gray',   name: 'Agreeable Gray (SW7029)',   color: '#D1C8BA', accent: '#BEB5A5', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm greige exterior paint, balanced gray-beige, universally appealing' },
+  { id: 'sw-mindful-gray',     name: 'Mindful Gray (SW7016)',     color: '#B4B0A8', accent: '#A4A098', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'balanced true gray, slightly warm, sophisticated neutral' },
+  { id: 'sw-worldly-gray',     name: 'Worldly Gray (SW7043)',     color: '#C5BFB2', accent: '#B5AFA2', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm worldly gray, earthy gray with subtle beige undertone' },
+  { id: 'sw-amazing-gray',     name: 'Amazing Gray (SW7044)',     color: '#ABA69C', accent: '#9B9690', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm medium gray, balanced neutral, versatile gray exterior' },
+  { id: 'sw-collonade-gray',   name: 'Collonade Gray (SW7641)',   color: '#BBB5A8', accent: '#ABA59C', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm gray with sandy undertone, classic collonade gray' },
+  { id: 'sw-dorian-gray',      name: 'Dorian Gray (SW7017)',      color: '#ADAAA2', accent: '#9D9A92', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm true gray, balanced neutral gray, refined classic' },
+  { id: 'sw-dovetail',         name: 'Dovetail (SW7018)',         color: '#908D86', accent: '#807D76', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'medium warm gray, sophisticated depth, versatile mid-tone' },
+  { id: 'sw-gauntlet-gray',    name: 'Gauntlet Gray (SW7019)',    color: '#777370', accent: '#676360', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'deep warm gray, strong dramatic gray, bold gray exterior' },
+  { id: 'sw-passive',          name: 'Passive (SW7064)',          color: '#CBC7BD', accent: '#BBB7AD', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'cool light gray, passive soft gray with subtle blue undertone' },
+  { id: 'sw-accessible-beige', name: 'Accessible Beige (SW7036)', color: '#D1C4AD', accent: '#BEB19A', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm neutral beige exterior paint, sandy warmth, classic' },
+  { id: 'sw-alpaca',           name: 'Alpaca (SW7022)',           color: '#BAB3A7', accent: '#AAA39D', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm gray-beige, soft greige, cozy neutral exterior' },
+  { id: 'sw-requisite-gray',   name: 'Requisite Gray (SW7023)',   color: '#B2ADA3', accent: '#A29D93', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm gray-green undertone, refined neutral gray' },
+  { id: 'sw-useful-gray',      name: 'Useful Gray (SW7050)',      color: '#B1ADA2', accent: '#A19D92', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm useful neutral gray, balanced warm gray exterior' },
+  { id: 'sw-intellectual-gray',name: 'Intellectual Gray (SW7045)', color: '#A69E90', accent: '#968E80', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'warm earthy gray, deep greige, intellectual sophisticated tone' },
+  { id: 'sw-modern-gray',      name: 'Modern Gray (SW7632)',      color: '#BEB8A7', accent: '#AEA897', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'modern warm gray-green undertone, contemporary neutral' },
+  { id: 'sw-fawn-brindle',     name: 'Fawn Brindle (SW7639)',     color: '#C6BBA7', accent: '#B6AB97', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm fawn beige-gray, earthy natural tone, warm greige' },
+  { id: 'sw-light-french-gray',name: 'Light French Gray (SW0055)',color: '#C2C0BB', accent: '#B2B0AB', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'cool light French gray, subtle and elegant, slightly cool undertone' },
+  { id: 'sw-peppercorn',       name: 'Peppercorn (SW7674)',       color: '#585452', accent: '#484442', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'dark warm gray, peppery deep gray, dramatic yet warm' },
+  { id: 'sw-grizzle-gray',     name: 'Grizzle Gray (SW7068)',     color: '#85857D', accent: '#75756D', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'medium-dark gray-green, earthy grizzle tone, natural depth' },
 
-  // PPG / Glidden
-  { id: 'ppg-juniper-berry',   name: 'Juniper Berry',       color: '#3B5440', accent: '#284030', brand: 'PPG',           type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'deep forest green exterior paint, rich evergreen' },
-  { id: 'ppg-gray-flannel',    name: 'Gray Flannel',        color: '#7A7E82', accent: '#5E6266', brand: 'PPG',           type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'classic medium gray, neutral flannel tone' },
+  // ── Cool Grays & Blue-Grays ──
+  { id: 'sw-thunderous',       name: 'Thunderous (SW6201)',       color: '#636A6D', accent: '#4A5255', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'dark blue-gray exterior paint, moody sophisticated dark gray' },
+  { id: 'sw-silver-strand',    name: 'Silver Strand (SW7057)',    color: '#C5CBC2', accent: '#B5BBB2', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'cool silver-green gray, spa-like cool neutral' },
+  { id: 'sw-magnetic-gray',    name: 'Magnetic Gray (SW7058)',    color: '#B4B9B3', accent: '#A4A9A3', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'cool green-gray, magnetic neutral, fresh modern gray' },
+  { id: 'sw-unusual-gray',     name: 'Unusual Gray (SW7059)',     color: '#A3A89E', accent: '#93988E', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'medium green-gray, unique earthy gray, organic neutral' },
+  { id: 'sw-attitude-gray',    name: 'Attitude Gray (SW7060)',    color: '#7C8279', accent: '#6C7269', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'dark green-gray, bold attitude gray, strong deep tone' },
+  { id: 'sw-night-owl',        name: 'Night Owl (SW7061)',        color: '#5D635D', accent: '#4D534D', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'very dark green-gray, night owl deep forest gray' },
+  { id: 'sw-online',           name: 'Online (SW7072)',           color: '#B0B5B5', accent: '#A0A5A5', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'cool blue-gray, tech-inspired modern neutral' },
+  { id: 'sw-network-gray',     name: 'Network Gray (SW7073)',     color: '#97999A', accent: '#87898A', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'medium cool gray, neutral true gray with slight blue' },
+  { id: 'sw-software',         name: 'Software (SW7074)',         color: '#7F8486', accent: '#6F7476', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'dark cool blue-gray, slate tone, modern industrial' },
+  { id: 'sw-web-gray',         name: 'Web Gray (SW7075)',         color: '#63686A', accent: '#53585A', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'deep dark blue-gray, bold contemporary dark exterior' },
+
+  // ── Blacks ──
+  { id: 'sw-tricorn-black',    name: 'Tricorn Black (SW6258)',    color: '#2C2C2C', accent: '#1A1A1A', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'true black exterior paint, bold dramatic black house' },
+  { id: 'sw-iron-ore',         name: 'Iron Ore (SW7069)',         color: '#434243', accent: '#323232', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'very dark charcoal exterior paint, nearly black, dramatic modern' },
+  { id: 'sw-black-fox',        name: 'Black Fox (SW7020)',        color: '#504D4A', accent: '#403D3A', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'dark warm brown-black, sophisticated dark exterior' },
+  { id: 'sw-cyberspace',       name: 'Cyberspace (SW7076)',       color: '#2E3238', accent: '#1E2228', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'deep dark blue-black exterior paint, midnight tone, modern drama' },
+  { id: 'sw-rock-bottom',      name: 'Rock Bottom (SW7062)',      color: '#494C48', accent: '#393C38', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'dark green-black, earthy near-black, natural dark drama' },
+  { id: 'sw-black-magic',      name: 'Black Magic (SW6991)',      color: '#383637', accent: '#282627', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'warm true black, slight brown warmth, dramatic full black' },
+  { id: 'sw-urbane-bronze',    name: 'Urbane Bronze (SW7048)',    color: '#5E5549', accent: '#454035', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'brown',  aiHint: 'dark warm bronze-brown exterior paint, sophisticated earthy dark, 2021 COTY' },
+
+  // ── Blues ──
+  { id: 'sw-naval',            name: 'Naval (SW6244)',            color: '#2E3441', accent: '#1E242F', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'deep navy blue exterior paint, sophisticated dark blue, 2020 COTY' },
+  { id: 'sw-rainstorm',        name: 'Rainstorm (SW6230)',        color: '#274357', accent: '#1A3347', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'deep stormy blue, dramatic dark blue with teal undertone' },
+  { id: 'sw-topsail',          name: 'Topsail (SW6217)',          color: '#D6DFE0', accent: '#C6CFD0', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'pale coastal blue, airy light blue-gray, beachy fresh' },
+  { id: 'sw-tradewind',        name: 'Tradewind (SW6218)',        color: '#ADC4C5', accent: '#9DB4B5', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'medium coastal blue-green, tradewind teal, beachy mid-tone' },
+  { id: 'sw-rain',             name: 'Rain (SW6219)',             color: '#8AACB0', accent: '#7A9CA0', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'medium blue-teal, rain-inspired calming blue exterior' },
+  { id: 'sw-mountain-air',     name: 'Mountain Air (SW6224)',     color: '#CADAD9', accent: '#BACAC9', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'pale blue-green, fresh mountain air, light and airy' },
+  { id: 'sw-languid-blue',     name: 'Languid Blue (SW6226)',     color: '#C5D5D2', accent: '#B5C5C2', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'soft muted blue-green, languid spa-like calm blue' },
+  { id: 'sw-uncertain-gray',   name: 'Uncertain Gray (SW6234)',   color: '#C0CACC', accent: '#B0BABC', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'cool blue-gray, uncertain between blue and gray, sophisticated' },
+  { id: 'sw-grays-harbor',     name: 'Grays Harbor (SW6236)',     color: '#5D7B7C', accent: '#4D6B6C', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'deep teal-gray, Pacific Northwest harbor blue, moody coastal' },
+  { id: 'sw-bracing-blue',     name: 'Bracing Blue (SW6242)',     color: '#4F6C78', accent: '#3F5C68', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'medium-dark blue-teal, bracing cool blue, nautical depth' },
+  { id: 'sw-north-star',       name: 'North Star (SW6246)',       color: '#C8D2D4', accent: '#B8C2C4', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'pale cool blue-gray, north star icy light blue, modern crisp' },
+  { id: 'sw-regatta',          name: 'Regatta (SW6517)',          color: '#1E4D6B', accent: '#0E3D5B', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'bold deep blue, regatta sailing blue, vivid dramatic blue' },
+  { id: 'sw-blustery-sky',     name: 'Blustery Sky (SW9140)',     color: '#5C7B8E', accent: '#4C6B7E', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'medium stormy blue, blustery sky dramatic blue exterior' },
+  { id: 'sw-debonair',         name: 'Debonair (SW9139)',         color: '#3A5A6B', accent: '#2A4A5B', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'dark sophisticated blue, debonair deep teal-blue' },
+
+  // ── Greens ──
+  { id: 'sw-evergreen-fog',    name: 'Evergreen Fog (SW9130)',    color: '#9EA393', accent: '#848A78', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'muted sage green exterior paint, earthy organic green-gray, 2022 COTY' },
+  { id: 'sw-sea-salt',         name: 'Sea Salt (SW6204)',         color: '#C7D0C5', accent: '#B0BAA8', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'soft green-gray exterior paint, coastal spa-like, muted sage' },
+  { id: 'sw-basil',            name: 'Basil (SW6194)',            color: '#364B3E', accent: '#243B2E', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'deep dark green, basil herb green, rich forest tone' },
+  { id: 'sw-ripe-olive',       name: 'Ripe Olive (SW6199)',       color: '#575940', accent: '#474930', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'dark olive green, earthy ripe olive, moody organic green' },
+  { id: 'sw-retreat',          name: 'Retreat (SW6207)',          color: '#7A8E7E', accent: '#6A7E6E', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'medium sage green, retreat nature green, calming organic' },
+  { id: 'sw-contented',        name: 'Contented (SW6191)',        color: '#A8B79C', accent: '#98A78C', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'light sage green, contented soft green, fresh and natural' },
+  { id: 'sw-oakmoss',          name: 'Oakmoss (SW6180)',          color: '#6D7C65', accent: '#5D6C55', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'dark moss green, oakmoss earthy green, woodland depth' },
+  { id: 'sw-softened-green',   name: 'Softened Green (SW6177)',   color: '#C9CDB9', accent: '#B9BDA9', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'light muted green, soft sage green, gentle and natural' },
+  { id: 'sw-artichoke',        name: 'Artichoke (SW6179)',        color: '#9FA389', accent: '#8F9379', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'earthy artichoke green, muted organic green, natural exterior' },
+  { id: 'sw-pewter-green',     name: 'Pewter Green (SW6208)',     color: '#667B6C', accent: '#566B5C', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'dark pewter green, deep sage, sophisticated dark green exterior' },
+  { id: 'sw-gallery-green',    name: 'Gallery Green (SW0015)',    color: '#708672', accent: '#607662', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'medium-dark green, gallery green, classic traditional green' },
+
+  // ── Reds & Warm Accents ──
+  { id: 'sw-rustic-red',       name: 'Rustic Red (SW7593)',       color: '#743731', accent: '#642721', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'red',    aiHint: 'deep rustic barn red, traditional red exterior, farmhouse red' },
+  { id: 'sw-red-bay',          name: 'Red Bay (SW6321)',          color: '#703E3B', accent: '#602E2B', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'red',    aiHint: 'deep muted red-brown, red bay sophisticated burgundy' },
+  { id: 'sw-fired-brick',      name: 'Fired Brick (SW6342)',      color: '#6E332E', accent: '#5E231E', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'red',    aiHint: 'deep fired brick red, rich dark red, classic brick-like' },
+
+  // ── Yellows & Golds ──
+  { id: 'sw-napery',           name: 'Napery (SW6386)',           color: '#EDE0C8', accent: '#DDD0B8', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'yellow', aiHint: 'warm soft yellow cream, napery linen tone, gentle warm exterior' },
+  { id: 'sw-compatible-cream', name: 'Compatible Cream (SW6387)', color: '#E6D3AC', accent: '#D6C39C', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'yellow', aiHint: 'rich warm cream with golden tone, compatible warm yellow-cream' },
+  { id: 'sw-butternut',        name: 'Butternut (SW6389)',        color: '#D8B46B', accent: '#C8A45B', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'yellow', aiHint: 'warm golden butternut, rich yellow-gold, bold warm exterior' },
+  { id: 'sw-blonde',           name: 'Blonde (SW6128)',           color: '#EFDBB5', accent: '#DFCBA5', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'yellow', aiHint: 'warm blonde golden cream, soft honey tone' },
+
+  // ── Browns & Tans ──
+  { id: 'sw-warm-stone',       name: 'Warm Stone (SW7032)',       color: '#BFB4A0', accent: '#AFA490', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'brown',  aiHint: 'warm stone tan, earthy warm neutral, natural stone tone' },
+  { id: 'sw-tony-taupe',       name: 'Tony Taupe (SW7038)',       color: '#A6978A', accent: '#96877A', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'brown',  aiHint: 'warm taupe, earthy brown-gray, sophisticated neutral brown' },
+  { id: 'sw-virtual-taupe',    name: 'Virtual Taupe (SW7039)',    color: '#907E6C', accent: '#806E5C', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'brown',  aiHint: 'medium-dark taupe brown, earthy sophisticated tone' },
+  { id: 'sw-toasty',           name: 'Toasty (SW6095)',           color: '#A67E5F', accent: '#966E4F', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'brown',  aiHint: 'warm toasty brown, caramel mid-tone brown, cozy warm exterior' },
+  { id: 'sw-whole-wheat',      name: 'Whole Wheat (SW6121)',      color: '#C0A67E', accent: '#B0966E', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'brown',  aiHint: 'warm wheat tan, golden brown, natural grain tone' },
+  { id: 'sw-camelback',        name: 'Camelback (SW6122)',        color: '#CBB08E', accent: '#BBA07E', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm camel tan, sandy warm beige, desert-inspired tone' },
+  { id: 'sw-kilim-beige',      name: 'Kilim Beige (SW6106)',      color: '#C7B599', accent: '#B7A589', brand: 'Sherwin-Williams', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm kilim beige, earthy tan, traditional warm neutral' },
+
+  // ═══ BENJAMIN MOORE ══════════════════════════════════
+  // ── Whites ──
+  { id: 'bm-white-dove',       name: 'White Dove (OC-17)',        color: '#ECE5D5', accent: '#DDD5C5', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'soft warm white with subtle yellow, not stark, inviting' },
+  { id: 'bm-simply-white',     name: 'Simply White (OC-117)',     color: '#F5F0E1', accent: '#E8E3D4', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'clean bright white with warm undertone, fresh and crisp' },
+  { id: 'bm-chantilly-lace',   name: 'Chantilly Lace (OC-65)',   color: '#F5F2ED', accent: '#E8E5E0', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'bright crisp white with neutral undertone, clean modern white' },
+  { id: 'bm-cloud-white',      name: 'Cloud White (OC-130)',      color: '#F0E8D8', accent: '#E4DCCC', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'white',  aiHint: 'warm cloud white, soft creamy white, gentle and inviting' },
+  { id: 'bm-swiss-coffee',     name: 'Swiss Coffee (OC-45)',      color: '#EDE5D5', accent: '#DDD5C5', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm creamy white, swiss coffee with golden undertone, cozy white' },
+  { id: 'bm-linen-white',      name: 'Linen White (OC-146)',      color: '#EEE6D5', accent: '#DED6C5', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm linen white, subtle yellow cream, classic traditional white' },
+
+  // ── Grays ──
+  { id: 'bm-revere-pewter',    name: 'Revere Pewter (HC-172)',    color: '#C4B9A3', accent: '#ACA18A', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm greige, balanced pewter, classic neutral warm gray-beige' },
+  { id: 'bm-edgecomb-gray',    name: 'Edgecomb Gray (HC-173)',    color: '#D2C9B8', accent: '#BEB5A2', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'light warm greige, versatile neutral with subtle warmth' },
+  { id: 'bm-kendall-charcoal', name: 'Kendall Charcoal (HC-166)',color: '#545758', accent: '#3E4142', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'rich deep charcoal gray, warm undertone, dramatic dark gray' },
+  { id: 'bm-stonington-gray',  name: 'Stonington Gray (HC-170)', color: '#B5B7B3', accent: '#A5A7A3', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'cool true gray, balanced stonington neutral, versatile cool gray' },
+  { id: 'bm-chelsea-gray',     name: 'Chelsea Gray (HC-168)',     color: '#8A8C87', accent: '#7A7C77', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'medium-dark warm gray, chelsea sophistication, rich gray exterior' },
+  { id: 'bm-balboa-mist',      name: 'Balboa Mist (OC-27)',       color: '#D4CEC2', accent: '#C4BEB2', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'light warm gray, misty neutral, soft and calming' },
+  { id: 'bm-gray-owl',         name: 'Gray Owl (OC-52)',          color: '#C3C4BB', accent: '#B3B4AB', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'cool green-gray, gray owl soft sage undertone, fresh neutral' },
+  { id: 'bm-pale-oak',         name: 'Pale Oak (OC-20)',          color: '#D8D0C2', accent: '#C8C0B2', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'beige',  aiHint: 'warm pale oak greige, soft beige-gray, versatile warm neutral' },
+
+  // ── Blues ──
+  { id: 'bm-hale-navy',        name: 'Hale Navy (HC-154)',        color: '#2B3850', accent: '#1C2840', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'rich dark navy blue, classic nautical deep blue, sophisticated' },
+  { id: 'bm-newburyport-blue', name: 'Newburyport Blue (HC-155)',color: '#3A4E62', accent: '#283A4C', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'deep blue with gray undertone, coastal New England blue' },
+  { id: 'bm-van-deusen-blue',  name: 'Van Deusen Blue (HC-156)', color: '#3C5670', accent: '#2C4660', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'deep historic blue, Van Deusen rich blue, classic Americana' },
+  { id: 'bm-gentleman-gray',   name: 'Gentleman\'s Gray (2062-20)',color:'#3B4B5B', accent: '#2B3B4B', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'dark blue-gray, gentleman sophisticated charcoal-blue' },
+  { id: 'bm-blue-note',        name: 'Blue Note (2129-30)',       color: '#2A3C50', accent: '#1A2C40', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'deep rich blue, musical dark navy, dramatic bold blue' },
+
+  // ── Blacks ──
+  { id: 'bm-wrought-iron',     name: 'Wrought Iron (2124-10)',    color: '#3A3C3E', accent: '#2A2C2E', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'dark near-black with subtle brown, softer than pure black, elegant' },
+  { id: 'bm-black',            name: 'Black (2132-10)',           color: '#333333', accent: '#222222', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'true black exterior paint, bold dramatic, deep pure black' },
+  { id: 'bm-onyx',             name: 'Onyx (2133-10)',            color: '#3C3C3C', accent: '#2C2C2C', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'black',  aiHint: 'rich onyx black, warm-toned near-black, luxurious dark' },
+
+  // ── Greens ──
+  { id: 'bm-sage-green',       name: 'Sage (2138-10)',            color: '#6B7A5A', accent: '#506040', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'earthy sage green, organic natural tone, pairs with cream trim' },
+  { id: 'bm-hunter-green',     name: 'Hunter Green (2041-10)',    color: '#2B4C3F', accent: '#1B3C2F', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'deep classic hunter green, rich dark green, traditional elegance' },
+  { id: 'bm-backwoods',        name: 'Backwoods (469)',           color: '#4B6050', accent: '#3B5040', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'deep forest green, backwoods rich dark green, 2024 COTY' },
+  { id: 'bm-cushing-green',    name: 'Cushing Green (HC-125)',    color: '#6C7A60', accent: '#5C6A50', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'historic muted green, Cushing earthy sage, traditional colonial' },
+
+  // ── Reds ──
+  { id: 'bm-heritage-red',     name: 'Heritage Red (HC-181)',     color: '#7A3535', accent: '#6A2525', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'red',    aiHint: 'deep heritage red, classic barn red, traditional American red' },
+  { id: 'bm-caliente',         name: 'Caliente (AF-290)',         color: '#8B3332', accent: '#7B2322', brand: 'Benjamin Moore', type: 'Exterior Paint', colorFamily: 'red',    aiHint: 'bold vibrant red, caliente hot red, dramatic red exterior' },
+
+  // ═══ PPG ═════════════════════════════════════════════
+  { id: 'ppg-juniper-berry',   name: 'Juniper Berry',             color: '#3B5440', accent: '#284030', brand: 'PPG',           type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'deep forest green exterior paint, rich evergreen' },
+  { id: 'ppg-gray-flannel',    name: 'Gray Flannel',              color: '#7A7E82', accent: '#5E6266', brand: 'PPG',           type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'classic medium gray, neutral flannel tone' },
+  { id: 'ppg-midnight-blue',   name: 'Midnight Blue',             color: '#2A3B4E', accent: '#1A2B3E', brand: 'PPG',           type: 'Exterior Paint', colorFamily: 'blue',   aiHint: 'deep midnight navy blue, dramatic dark blue exterior' },
+  { id: 'ppg-dusty-miller',    name: 'Dusty Miller',              color: '#9CAA94', accent: '#8C9A84', brand: 'PPG',           type: 'Exterior Paint', colorFamily: 'green',  aiHint: 'soft dusty sage green, muted herbal green, natural exterior' },
+  { id: 'ppg-granite',         name: 'Granite',                   color: '#888B8E', accent: '#787B7E', brand: 'PPG',           type: 'Exterior Paint', colorFamily: 'gray',   aiHint: 'medium granite gray, stone-like neutral, natural cool gray' },
 ];
 
 // ─── WINDOWS & DOORS ───────────────────────────────────
@@ -251,13 +375,78 @@ const GARAGE = [
 ];
 
 // ─── GUTTERS & TRIM ────────────────────────────────────
+// ─── TRIM & DETAIL ─────────────────────────────────────
+// Subcategories: trim, soffit, fascia, gutters
 const GUTTERS = [
-  { id: 'gutter-white',         name: 'White Seamless',     color: '#F5F5F0', accent: '#E0E0DB', brand: 'Seamless',              type: 'Aluminum',      colorFamily: 'white', aiHint: 'white seamless aluminum gutters and downspouts with white fascia trim' },
-  { id: 'gutter-black',         name: 'Black Seamless',     color: '#1C1917', accent: '#0C0A09', brand: 'Seamless',              type: 'Aluminum',      colorFamily: 'black', aiHint: 'black seamless aluminum gutters and downspouts, modern contrast' },
-  { id: 'gutter-bronze',        name: 'Dark Bronze',        color: '#5C4D30', accent: '#3E3420', brand: 'Seamless',              type: 'Aluminum',      colorFamily: 'brown', aiHint: 'dark bronze seamless aluminum gutters, elegant traditional' },
-  { id: 'gutter-copper',        name: 'Natural Copper',     color: '#B87333', accent: '#8B5A28', brand: 'Custom',                type: 'Copper',        colorFamily: 'brown', aiHint: 'natural bright copper half-round gutters with round downspouts, premium luxury detail' },
-  { id: 'fascia-white-pvc',     name: 'White PVC Fascia',   color: '#FAFAFA', accent: '#E8E8E8', brand: 'Royal',                 type: 'PVC Trim',      colorFamily: 'white', aiHint: 'crisp white PVC fascia and soffit trim, clean maintenance-free' },
-  { id: 'soffit-vented-white',  name: 'Vented White Soffit',color: '#F5F5F0', accent: '#E0E0DB', brand: 'Royal',                 type: 'PVC Soffit',    colorFamily: 'white', aiHint: 'white vented PVC soffit panels for proper roof ventilation' },
+  // ── Trim (Corner boards, window/door casing, rake) ──
+  // James Hardie HardieTrim
+  { id: 'tr-hardie-arctic',     name: 'Arctic White Trim',      color: '#F5F5F0', accent: '#E0E0DB', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'trim', colorFamily: 'white', aiHint: 'crisp Arctic White HardieTrim fiber cement trim boards on all corners, window casings, door casing, and rake boards — smooth bright white' },
+  { id: 'tr-hardie-iron',       name: 'Iron Gray Trim',         color: '#5C5C5C', accent: '#404040', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'trim', colorFamily: 'gray',  aiHint: 'Iron Gray HardieTrim fiber cement trim boards, dark gray corner boards and window casings, bold contrast' },
+  { id: 'tr-hardie-night',      name: 'Night Gray Trim',        color: '#3A3C3E', accent: '#252728', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'trim', colorFamily: 'black', aiHint: 'very dark Night Gray almost-black HardieTrim, dramatic modern contrast on corners and window surrounds' },
+  { id: 'tr-hardie-cobble',     name: 'Cobble Stone Trim',      color: '#B5A998', accent: '#9A8E7D', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'trim', colorFamily: 'beige', aiHint: 'warm Cobble Stone tan HardieTrim, natural earthy trim boards on corners and casings' },
+  { id: 'tr-hardie-timber',     name: 'Timber Bark Trim',       color: '#6B4E37', accent: '#4D3825', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'trim', colorFamily: 'brown', aiHint: 'deep brown Timber Bark HardieTrim, rich dark wood-tone fiber cement trim boards' },
+  { id: 'tr-hardie-sage',       name: 'Mountain Sage Trim',     color: '#7A8B72', accent: '#5E7456', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'trim', colorFamily: 'green', aiHint: 'muted sage green Mountain Sage HardieTrim, organic natural green trim on corners and windows' },
+  { id: 'tr-hardie-evening',    name: 'Evening Blue Trim',      color: '#2C3E5A', accent: '#1A2744', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'trim', colorFamily: 'blue',  aiHint: 'deep navy Evening Blue HardieTrim, sophisticated dark blue trim boards' },
+  { id: 'tr-hardie-monterey',   name: 'Monterey Taupe Trim',    color: '#A89882', accent: '#8B7D68', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'trim', colorFamily: 'beige', aiHint: 'warm taupe Monterey Taupe HardieTrim, earthy mid-tone trim, pairs with white siding' },
+  // AZEK PVC Trim
+  { id: 'tr-azek-white',        name: 'White PVC Trim',         color: '#FAFAFA', accent: '#E8E8E8', brand: 'AZEK',            type: 'PVC',           subcategory: 'trim', colorFamily: 'white', aiHint: 'bright white AZEK PVC trim boards, moisture-proof, smooth finish, never needs painting, all corners and casings' },
+  { id: 'tr-azek-clay',         name: 'Clay PVC Trim',          color: '#C8B898', accent: '#B0A078', brand: 'AZEK',            type: 'PVC',           subcategory: 'trim', colorFamily: 'beige', aiHint: 'warm clay-colored AZEK PVC trim, low-maintenance tan trim boards, pairs with earth-tone siding' },
+  // CertainTeed Trim
+  { id: 'tr-ct-white',          name: 'White Vinyl Trim',       color: '#F5F5F0', accent: '#E0E0DB', brand: 'CertainTeed',     type: 'Vinyl',         subcategory: 'trim', colorFamily: 'white', aiHint: 'white CertainTeed vinyl trim system, coordinated with vinyl siding, maintenance-free window and corner trim' },
+  { id: 'tr-ct-black',          name: 'Black Vinyl Trim',       color: '#1C1917', accent: '#0C0A09', brand: 'CertainTeed',     type: 'Vinyl',         subcategory: 'trim', colorFamily: 'black', aiHint: 'black CertainTeed vinyl trim boards, modern bold contrast, maintenance-free, pairs with light siding' },
+  // Wood Trim
+  { id: 'tr-cedar-natural',     name: 'Natural Cedar Trim',     color: '#C19A6B', accent: '#A0784A', brand: 'Western Red Cedar',type:'Wood',          subcategory: 'trim', colorFamily: 'brown', aiHint: 'natural western red cedar trim boards, warm honey wood grain on corners and window casings, craftsman style' },
+  { id: 'tr-wood-white-paint',  name: 'Painted White Wood Trim',color: '#F5F5F0', accent: '#E0E0DB', brand: 'Pine / Finger-Joint',type:'Wood',       subcategory: 'trim', colorFamily: 'white', aiHint: 'traditional painted white wood trim, classic look, wide profile corner boards and window casings' },
+
+  // ── Soffit (Under-eave panels) ────────────
+  // Royal Building Products
+  { id: 'sf-royal-white-vent',  name: 'White Vented Soffit',    color: '#F5F5F0', accent: '#E0E0DB', brand: 'Royal',           type: 'Vinyl Vented',  subcategory: 'soffit', colorFamily: 'white', aiHint: 'white vented vinyl soffit panels under all eaves, small perforations for attic ventilation, clean look' },
+  { id: 'sf-royal-white-solid', name: 'White Solid Soffit',     color: '#F5F5F0', accent: '#E0E0DB', brand: 'Royal',           type: 'Vinyl Solid',   subcategory: 'soffit', colorFamily: 'white', aiHint: 'white solid (non-vented) vinyl soffit panels, smooth clean underside, used on covered porches' },
+  { id: 'sf-royal-brown-vent',  name: 'Brown Vented Soffit',    color: '#6B4E37', accent: '#4D3825', brand: 'Royal',           type: 'Vinyl Vented',  subcategory: 'soffit', colorFamily: 'brown', aiHint: 'dark brown vented vinyl soffit, earth-tone match for brown siding homes, ventilated' },
+  { id: 'sf-royal-gray-vent',   name: 'Gray Vented Soffit',     color: '#8B8D8F', accent: '#6E7072', brand: 'Royal',           type: 'Vinyl Vented',  subcategory: 'soffit', colorFamily: 'gray',  aiHint: 'medium gray vented vinyl soffit panels, modern neutral tone, attic ventilation' },
+  { id: 'sf-royal-black-vent',  name: 'Black Vented Soffit',    color: '#1C1917', accent: '#0C0A09', brand: 'Royal',           type: 'Vinyl Vented',  subcategory: 'soffit', colorFamily: 'black', aiHint: 'black vented vinyl soffit panels, dramatic modern, pairs with black fascia for bold look' },
+  // James Hardie Soffit
+  { id: 'sf-hardie-white',      name: 'HardieSoffit White',     color: '#F5F5F0', accent: '#E0E0DB', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'soffit', colorFamily: 'white', aiHint: 'smooth white HardieSoffit fiber cement panels, premium look, fire-resistant, vented strips' },
+  { id: 'sf-hardie-gray',       name: 'HardieSoffit Gray',      color: '#8B8D8F', accent: '#6E7072', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'soffit', colorFamily: 'gray',  aiHint: 'medium gray HardieSoffit fiber cement panels, sleek modern eave underside' },
+  // Beadboard
+  { id: 'sf-bead-white',        name: 'White Beadboard Soffit', color: '#F5F5F0', accent: '#E0E0DB', brand: 'Various',         type: 'Beadboard',     subcategory: 'soffit', colorFamily: 'white', aiHint: 'white beadboard V-groove soffit panels, decorative classic pattern, cottage and craftsman style porch ceilings' },
+  { id: 'sf-bead-stain',        name: 'Stained Beadboard Soffit',color:'#B08050', accent: '#8A6038', brand: 'Various',         type: 'Beadboard',     subcategory: 'soffit', colorFamily: 'brown', aiHint: 'natural stained wood beadboard soffit, warm honey wood tongue-and-groove under eaves, rustic craftsman detail' },
+  { id: 'sf-bead-blue',         name: 'Haint Blue Soffit',      color: '#8AAEC4', accent: '#6A8EA4', brand: 'Various',         type: 'Beadboard',     subcategory: 'soffit', colorFamily: 'blue',  aiHint: 'haint blue painted beadboard porch ceiling/soffit, traditional Southern blue-green, classic charming detail' },
+  // Aluminum
+  { id: 'sf-alum-white',        name: 'White Aluminum Soffit',  color: '#F5F5F0', accent: '#E0E0DB', brand: 'Aluminum',        type: 'Aluminum',      subcategory: 'soffit', colorFamily: 'white', aiHint: 'white aluminum soffit panels, durable metal, clean commercial-grade appearance, vented option' },
+
+  // ── Fascia (Edge boards along roofline) ───
+  // PVC Fascia
+  { id: 'fa-azek-white',        name: 'White PVC Fascia',       color: '#FAFAFA', accent: '#E8E8E8', brand: 'AZEK',            type: 'PVC',           subcategory: 'fascia', colorFamily: 'white', aiHint: 'crisp white AZEK PVC fascia board wrapping entire roofline edge, rot-proof, never needs painting' },
+  { id: 'fa-royal-white',       name: 'White Vinyl Fascia',     color: '#F5F5F0', accent: '#E0E0DB', brand: 'Royal',           type: 'Vinyl',         subcategory: 'fascia', colorFamily: 'white', aiHint: 'white vinyl fascia board along roofline, covers wood fascia, maintenance-free protection' },
+  // Aluminum Fascia Wrap
+  { id: 'fa-alum-white',        name: 'White Aluminum Fascia',  color: '#F5F5F0', accent: '#E0E0DB', brand: 'Aluminum',        type: 'Aluminum Wrap', subcategory: 'fascia', colorFamily: 'white', aiHint: 'white aluminum fascia wrap covering wood fascia boards, durable metal protection, clean edge' },
+  { id: 'fa-alum-black',        name: 'Black Aluminum Fascia',  color: '#1C1917', accent: '#0C0A09', brand: 'Aluminum',        type: 'Aluminum Wrap', subcategory: 'fascia', colorFamily: 'black', aiHint: 'black aluminum fascia wrap along roofline, bold modern contrast, defines roof edge sharply' },
+  { id: 'fa-alum-bronze',       name: 'Dark Bronze Fascia',     color: '#5C4D30', accent: '#3E3420', brand: 'Aluminum',        type: 'Aluminum Wrap', subcategory: 'fascia', colorFamily: 'brown', aiHint: 'dark bronze aluminum fascia wrap, elegant warm-tone metallic on roofline, traditional upscale' },
+  { id: 'fa-alum-brown',        name: 'Brown Aluminum Fascia',  color: '#6B4E37', accent: '#4D3825', brand: 'Aluminum',        type: 'Aluminum Wrap', subcategory: 'fascia', colorFamily: 'brown', aiHint: 'brown aluminum fascia wrap, earth-tone roofline edge, pairs with brown or tan siding' },
+  // James Hardie Fascia
+  { id: 'fa-hardie-white',      name: 'Arctic White Fascia',    color: '#F5F5F0', accent: '#E0E0DB', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'fascia', colorFamily: 'white', aiHint: 'Arctic White HardieTrim fascia board, fiber cement, smooth finish along roofline edge' },
+  { id: 'fa-hardie-iron',       name: 'Iron Gray Fascia',       color: '#5C5C5C', accent: '#404040', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'fascia', colorFamily: 'gray',  aiHint: 'Iron Gray HardieTrim fascia board, dark gray fiber cement along roof edge, modern contrast' },
+  { id: 'fa-hardie-night',      name: 'Night Gray Fascia',      color: '#3A3C3E', accent: '#252728', brand: 'James Hardie',    type: 'Fiber Cement',  subcategory: 'fascia', colorFamily: 'black', aiHint: 'nearly black Night Gray HardieTrim fascia, dramatic dark roofline definition' },
+  // Wood Fascia
+  { id: 'fa-cedar',             name: 'Natural Cedar Fascia',   color: '#C19A6B', accent: '#A0784A', brand: 'Western Red Cedar',type:'Wood',          subcategory: 'fascia', colorFamily: 'brown', aiHint: 'natural western red cedar fascia board, warm wood grain visible along roofline, craftsman detail' },
+  { id: 'fa-painted-white',     name: 'Painted Wood Fascia',    color: '#F5F5F0', accent: '#E0E0DB', brand: 'Pine',            type: 'Wood',          subcategory: 'fascia', colorFamily: 'white', aiHint: 'traditional painted white wood fascia board, classic look, requires maintenance' },
+
+  // ── Gutters & Downspouts ──────────────────
+  // K-Style Aluminum (most common)
+  { id: 'gu-k-white',           name: 'White K-Style',          color: '#F5F5F0', accent: '#E0E0DB', brand: 'Seamless',        type: 'K-Style Aluminum',subcategory: 'gutters', colorFamily: 'white', aiHint: 'white seamless K-style aluminum gutters and rectangular downspouts, most popular style, clean standard' },
+  { id: 'gu-k-black',           name: 'Black K-Style',          color: '#1C1917', accent: '#0C0A09', brand: 'Seamless',        type: 'K-Style Aluminum',subcategory: 'gutters', colorFamily: 'black', aiHint: 'black seamless K-style aluminum gutters and downspouts, modern bold contrast, popular with white homes' },
+  { id: 'gu-k-bronze',          name: 'Dark Bronze K-Style',    color: '#5C4D30', accent: '#3E3420', brand: 'Seamless',        type: 'K-Style Aluminum',subcategory: 'gutters', colorFamily: 'brown', aiHint: 'dark bronze seamless K-style gutters, elegant traditional warm metallic, complements earth tones' },
+  { id: 'gu-k-brown',           name: 'Brown K-Style',          color: '#6B4E37', accent: '#4D3825', brand: 'Seamless',        type: 'K-Style Aluminum',subcategory: 'gutters', colorFamily: 'brown', aiHint: 'brown seamless K-style gutters, earth-tone match for brown or tan siding' },
+  { id: 'gu-k-gray',            name: 'Gray K-Style',           color: '#8B8D8F', accent: '#6E7072', brand: 'Seamless',        type: 'K-Style Aluminum',subcategory: 'gutters', colorFamily: 'gray',  aiHint: 'medium gray seamless K-style gutters, neutral modern, blends with gray siding' },
+  { id: 'gu-k-cream',           name: 'Cream K-Style',          color: '#E8DCC8', accent: '#D4C8B0', brand: 'Seamless',        type: 'K-Style Aluminum',subcategory: 'gutters', colorFamily: 'beige', aiHint: 'warm cream seamless K-style gutters, soft neutral, blends with traditional homes' },
+  // Half-Round (Premium)
+  { id: 'gu-hr-copper',         name: 'Copper Half-Round',      color: '#B87333', accent: '#8B5A28', brand: 'Custom Copper',   type: 'Half-Round Copper',subcategory:'gutters', colorFamily: 'brown', aiHint: 'bright natural copper half-round gutters with round downspouts, luxury premium detail, develops green patina over time' },
+  { id: 'gu-hr-white',          name: 'White Half-Round',       color: '#F5F5F0', accent: '#E0E0DB', brand: 'Seamless',        type: 'Half-Round Aluminum',subcategory:'gutters', colorFamily: 'white', aiHint: 'white aluminum half-round gutters, rounded profile, European elegance, with round downspouts' },
+  { id: 'gu-hr-black',          name: 'Black Half-Round',       color: '#1C1917', accent: '#0C0A09', brand: 'Seamless',        type: 'Half-Round Aluminum',subcategory:'gutters', colorFamily: 'black', aiHint: 'black aluminum half-round gutters, modern premium, rounded profile with round downspouts' },
+  // Box/Modern Style
+  { id: 'gu-box-black',         name: 'Black Box Gutter',       color: '#1C1917', accent: '#0C0A09', brand: 'Custom',          type: 'Box Style',     subcategory: 'gutters', colorFamily: 'black', aiHint: 'sleek black box-style modern gutters, rectangular sharp profile, contemporary minimalist, hidden-look' },
+  { id: 'gu-box-white',         name: 'White Box Gutter',       color: '#F5F5F0', accent: '#E0E0DB', brand: 'Custom',          type: 'Box Style',     subcategory: 'gutters', colorFamily: 'white', aiHint: 'white box-style modern gutters, clean rectangular profile, minimalist contemporary' },
 ];
 
 // ─── FULL EXTERIOR STYLES ──────────────────────────────
@@ -497,6 +686,12 @@ export const SUBCATEGORIES = {
     { id: 'lvp',          label: 'LVP',           icon: '💧' },
     { id: 'tile',         label: 'Tile',          icon: '🔲' },
     { id: 'carpet',       label: 'Carpet',        icon: '🧶' },
+  ],
+  gutters: [
+    { id: 'trim',         label: 'Trim',          icon: '📐' },
+    { id: 'soffit',       label: 'Soffit',        icon: '🏗️' },
+    { id: 'fascia',       label: 'Fascia',        icon: '📏' },
+    { id: 'gutters',      label: 'Gutters',       icon: '🌧️' },
   ],
 };
 

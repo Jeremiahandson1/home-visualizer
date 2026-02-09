@@ -283,11 +283,36 @@ The new garage door should be ${mat.type || 'steel'} style in ${mat.name} finish
 Show proper installation with appropriate trim, weather sealing, and hardware.
 Keep the exact same garage opening size. Keep all other elements exactly as they are.`,
 
-  gutters: (mat, desc) =>
-    `Update the gutters and trim on this house with ${desc}.
-Install ${mat.type || 'seamless aluminum'} gutters and downspouts in ${mat.name} color.
-Show proper gutter slope, downspout placement at corners, and clean fascia/soffit if applicable.
-Keep the roof, siding, windows, doors, and all other elements exactly as they are.`,
+  gutters: (mat, desc) => {
+    const sub = mat.subcategory || 'gutters';
+    const prompts = {
+      trim: `Change the EXTERIOR TRIM on this house to ${desc}.
+Replace all corner boards, window casings, door casing, and rake/gable trim with ${mat.name}.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show consistent trim profile on all corners, around every window and door frame.
+Keep the siding, roof, soffit, fascia, gutters, and all other elements exactly as they are.
+ONLY change the trim boards.`,
+      soffit: `Change the SOFFIT (underside of eaves) on this house to ${desc}.
+Install ${mat.name} soffit panels under all roof eaves and overhangs.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show the soffit panels visible under the eave overhangs around the entire house.
+Keep the siding, roof, trim, fascia, gutters, and all other elements exactly as they are.
+ONLY change the soffit panels.`,
+      fascia: `Change the FASCIA BOARDS on this house to ${desc}.
+Install ${mat.name} fascia along the entire roofline edge.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show the fascia board clearly visible as the finished edge along the roof, behind the gutters.
+Keep the siding, roof, trim, soffit, gutters, and all other elements exactly as they are.
+ONLY change the fascia boards.`,
+      gutters: `Change the GUTTERS AND DOWNSPOUTS on this house to ${desc}.
+Install ${mat.type || 'seamless aluminum'} gutters in ${mat.name} along all roof edges with matching downspouts at corners.
+${mat.aiHint ? `Visual: ${mat.aiHint}` : ''}
+Show proper gutter slope and professional downspout placement.
+Keep the roof, siding, trim, soffit, fascia, and all other elements exactly as they are.
+ONLY change the gutters and downspouts.`,
+    };
+    return prompts[sub] || prompts.gutters;
+  },
 
   exterior: (mat, desc) =>
     `Transform this home's entire exterior into a ${mat.name} style.

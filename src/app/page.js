@@ -207,48 +207,90 @@ export default function HomePage() {
       </section>
 
       {/* vs HOVER */}
-      <section id="vs-hover" className="px-6 py-20 max-w-4xl mx-auto">
+      <section id="vs-hover" className="px-6 py-20 max-w-5xl mx-auto">
         <h2 className="font-display text-3xl font-bold text-center text-stone-900 mb-4">
           HomeVisualizer vs HOVER Instant Design
         </h2>
-        <p className="text-center text-stone-600 mb-12">Same AI-powered 2D visualization. Better deal for contractors.</p>
+        <p className="text-center text-stone-600 mb-12">HOVER charges $25 per project. We don&apos;t. Here&apos;s what that means.</p>
 
+        {/* Cost comparison at volume */}
+        <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 mb-10">
+          <h3 className="font-bold text-lg text-stone-900 mb-4 text-center">Annual Cost at 20 Projects/Month</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b-2 border-amber-300">
+                  <th className="text-left py-3 px-3 text-stone-500 font-medium"></th>
+                  <th className="text-center py-3 px-3 text-stone-600 font-bold">HOVER<br /><span className="text-xs font-normal">$25/project</span></th>
+                  <th className="text-center py-3 px-3 text-amber-700 font-bold">Our SaaS<br /><span className="text-xs font-normal">$149/mo flat</span></th>
+                  <th className="text-center py-3 px-3 text-green-700 font-bold">Our License<br /><span className="text-xs font-normal">$2,497 once</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['10 projects/mo', '$3,000/yr', '$1,788/yr', '~$180/yr', ''],
+                  ['20 projects/mo', '$6,000/yr', '$1,788/yr', '~$180/yr', ''],
+                  ['50 projects/mo', '$15,000/yr', '$4,188/yr', '~$420/yr', ''],
+                  ['Year 1 total (20/mo)', '$6,000', '$1,788', '$2,677', 'License + API'],
+                  ['Year 2 total (20/mo)', '$12,000', '$3,576', '$2,857', 'API only'],
+                  ['Year 3 total (20/mo)', '$18,000', '$5,364', '$3,037', ''],
+                  ['3-year savings vs HOVER', '—', '$12,636 saved', '$14,963 saved', ''],
+                ].map(([label, hover, saas, license, note], i) => (
+                  <tr key={i} className={i === 6 ? 'bg-green-50 font-bold' : i % 2 === 0 ? 'bg-white' : 'bg-amber-50/30'}>
+                    <td className="py-2.5 px-3 text-stone-700 font-medium">{label}</td>
+                    <td className="py-2.5 px-3 text-center text-red-600">{hover}</td>
+                    <td className="py-2.5 px-3 text-center text-amber-700">{saas}</td>
+                    <td className="py-2.5 px-3 text-center text-green-700">{license}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-stone-500 mt-3 text-center">
+            License API cost: ~$0.05/generation paid directly to OpenAI. SaaS includes all hosting and API costs.
+          </p>
+        </div>
+
+        {/* Feature comparison */}
         <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-stone-50 border-b border-stone-200">
                 <th className="text-left py-3 px-4 font-medium text-stone-500">Feature</th>
-                <th className="text-center py-3 px-4 font-bold text-amber-700">HomeVisualizer</th>
-                <th className="text-center py-3 px-4 font-medium text-stone-500">HOVER Design</th>
+                <th className="text-center py-3 px-4 font-medium text-stone-500">HOVER</th>
+                <th className="text-center py-3 px-4 font-bold text-amber-700">Our SaaS</th>
+                <th className="text-center py-3 px-4 font-bold text-green-700">Our License</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {[
-                ['Upload photo → AI design', '✅', '✅'],
-                ['Real manufacturer products', `✅ ${TOTAL_PRODUCTS}+`, '✅ (curated)'],
-                ['Instant style presets', `✅ ${STYLE_PRESETS.length} styles`, '✅'],
-                ['Iterative refinement', '✅ Natural language', '✅'],
-                ['Website embeddable', '✅ One iframe tag', '✅'],
-                ['White-label branding', '✅ 100% your brand', '⚠️ HOVER branded'],
-                ['Lead capture built-in', '✅ Full form + CRM', '⚠️ Limited'],
-                ['Flat monthly pricing', '✅ From $149/mo', '❌ Per-job pricing'],
-                ['One-time purchase option', '✅ From $2,497', '❌ Subscription only'],
-                ['Unlimited homeowner use', '✅ Included', '❌ Extra cost'],
-                ['Analytics dashboard', '✅ Full funnel', '⚠️ Basic'],
-                ['Social sharing w/ your brand', '✅', '⚠️ HOVER branded'],
-                ['You own the data', '✅', '❌ HOVER owns it'],
-                ['Custom materials', '✅ Add your own', '❌'],
-                ['Interior projects', '✅ Kitchen/bath/floor', '⚠️ Exterior focus'],
-              ].map(([feature, us, them], i) => (
+                ['Pricing model', '$25/project', 'Flat monthly', 'One-time purchase'],
+                ['Homeowner self-serve on your site', '✅', '✅', '✅'],
+                ['White-label (your brand only)', '⚠️ HOVER branded', '✅', '✅'],
+                ['Lead capture + CRM alerts', '⚠️ Limited', '✅', '✅'],
+                ['Real manufacturer products', '✅ (curated)', `✅ ${TOTAL_PRODUCTS}+`, `✅ ${TOTAL_PRODUCTS}+`],
+                ['Style presets', '✅', `✅ ${STYLE_PRESETS.length} styles`, `✅ ${STYLE_PRESETS.length} styles`],
+                ['Analytics dashboard', '⚠️ Basic', '✅ Full funnel', '✅ Full funnel'],
+                ['Custom materials', '❌', '✅', '✅'],
+                ['You own the code', '❌', '❌', '✅'],
+                ['You own the data', '❌ HOVER owns it', '⚠️ On our servers', '✅ 100% yours'],
+                ['Social sharing with your brand', '⚠️ HOVER branded', '✅', '✅'],
+                ['Works if vendor shuts down', '❌', '❌', '✅ You have the code'],
+              ].map(([feature, hover, saas, license], i) => (
                 <tr key={i} className={i % 2 === 0 ? '' : 'bg-stone-50/50'}>
-                  <td className="py-2.5 px-4 text-stone-700">{feature}</td>
-                  <td className="py-2.5 px-4 text-center font-medium">{us}</td>
-                  <td className="py-2.5 px-4 text-center text-stone-500">{them}</td>
+                  <td className="py-2.5 px-4 text-stone-700 font-medium">{feature}</td>
+                  <td className="py-2.5 px-4 text-center text-stone-500">{hover}</td>
+                  <td className="py-2.5 px-4 text-center">{saas}</td>
+                  <td className="py-2.5 px-4 text-center">{license}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        <p className="text-center text-sm text-stone-500 mt-6">
+          HOVER pricing based on publicly listed $25/project for Instant Design as of 2025.
+        </p>
       </section>
 
       {/* How It Integrates */}
@@ -527,9 +569,60 @@ export default function HomePage() {
             </p>
           </div>
 
+          {/* SaaS vs License Comparison */}
+          <div className="mt-16 bg-stone-50 border-2 border-stone-200 rounded-2xl p-8">
+            <h3 className="font-display text-2xl font-bold text-center text-stone-900 mb-2">SaaS vs. Own It — Real Numbers</h3>
+            <p className="text-center text-stone-500 text-sm mb-8">Based on 200 visualizations per month</p>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-stone-300">
+                    <th className="text-left py-3 px-4 text-stone-500 font-medium"></th>
+                    <th className="text-center py-3 px-4 text-amber-700 font-bold">Pro SaaS<br /><span className="text-xs font-normal text-stone-400">$349/mo</span></th>
+                    <th className="text-center py-3 px-4 text-green-700 font-bold">Pro License<br /><span className="text-xs font-normal text-stone-400">$4,997 one-time</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Year 1 cost', '$4,188', '$5,117', 'License: $4,997 + ~$10/mo API'],
+                    ['Year 2 cost', '$8,376', '$5,237', 'Only API fees after purchase'],
+                    ['Year 3 cost', '$12,564', '$5,357', ''],
+                    ['3-year savings', '—', '$7,207 saved', 'Savings grow every month'],
+                    ['Cost per generation', '~$1.75', '~$0.05', 'Direct API cost, no markup'],
+                    ['You own the code', '❌', '✅', 'Modify anything, anytime'],
+                    ['Hosting', 'We handle it', 'You host ($7–25/mo)', 'Render, Railway, or your server'],
+                    ['Updates', 'Automatic', '$499/yr optional', 'Or update code yourself'],
+                    ['Data ownership', 'On our servers', '100% yours', 'Your database, your leads'],
+                  ].map(([label, saas, license, note], i) => (
+                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
+                      <td className="py-3 px-4 font-medium text-stone-700">{label}</td>
+                      <td className="py-3 px-4 text-center text-stone-600">{saas}</td>
+                      <td className="py-3 px-4 text-center font-semibold text-green-700">{license}</td>
+                      {note && <td className="py-3 px-4 text-xs text-stone-400 hidden lg:table-cell">{note}</td>}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 grid sm:grid-cols-2 gap-4 text-center">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <p className="text-xs text-stone-500 mb-1">Best if you want</p>
+                <p className="font-bold text-amber-800">Zero maintenance</p>
+                <p className="text-xs text-stone-500 mt-1">We host, update, and support. You focus on roofing.</p>
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                <p className="text-xs text-stone-500 mb-1">Best if you want</p>
+                <p className="font-bold text-green-800">Maximum control &amp; savings</p>
+                <p className="text-xs text-stone-500 mt-1">Own the code. Pay ~$0.05/scan directly to OpenAI. No middleman.</p>
+              </div>
+            </div>
+          </div>
+
           {/* ROI Calculator */}
-          <div className="mt-16 bg-amber-50 border-2 border-amber-200 rounded-2xl p-8 text-center">
-            <h3 className="font-display text-2xl font-bold text-stone-900 mb-2">The Math is Simple</h3>
+          <div className="mt-8 bg-amber-50 border-2 border-amber-200 rounded-2xl p-8 text-center">
+            <h3 className="font-display text-2xl font-bold text-stone-900 mb-2">Either Way, The ROI is Insane</h3>
             <p className="text-stone-600 mb-6">Average exterior project: $8,000–$25,000</p>
             <div className="grid sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
               <div>
@@ -545,7 +638,7 @@ export default function HomePage() {
                 <p className="text-sm text-stone-600">ROI on $149/mo</p>
               </div>
             </div>
-            <p className="text-xs text-stone-500 mt-4">One extra &ldquo;yes&rdquo; pays for a full year. Everything after that is profit.</p>
+            <p className="text-xs text-stone-500 mt-4">One extra &ldquo;yes&rdquo; pays for a full year — or the entire license. Everything after that is profit.</p>
           </div>
         </div>
       </section>

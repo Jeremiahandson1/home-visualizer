@@ -43,11 +43,26 @@ function resizeImage(dataUrl, maxPx) {
 
 // ─── Progress stages for loading screen ─────────────
 const PROGRESS_STAGES = [
-  { pct: 15, label: 'Analyzing your home...', delay: 0 },
-  { pct: 35, label: 'Detecting structure & materials...', delay: 2000 },
-  { pct: 55, label: 'Applying new design...', delay: 5000 },
-  { pct: 75, label: 'Rendering realistic shadows...', delay: 9000 },
-  { pct: 90, label: 'Final touches...', delay: 14000 },
+  { pct: 10, label: 'Uploading your photo...', delay: 0 },
+  { pct: 20, label: 'Analyzing home structure...', delay: 2000 },
+  { pct: 30, label: 'Detecting roof, siding & trim...', delay: 5000 },
+  { pct: 40, label: 'Mapping material zones...', delay: 9000 },
+  { pct: 50, label: 'Applying new design...', delay: 14000 },
+  { pct: 60, label: 'Rendering new materials...', delay: 20000 },
+  { pct: 70, label: 'Adding realistic shadows & depth...', delay: 28000 },
+  { pct: 80, label: 'Matching lighting conditions...', delay: 36000 },
+  { pct: 88, label: 'Refining details & edges...', delay: 45000 },
+  { pct: 94, label: 'Almost there — finalizing image...', delay: 55000 },
+  { pct: 97, label: 'Just a few more seconds...', delay: 65000 },
+];
+
+const LOADING_TIPS = [
+  'AI analyzes every surface of your home individually',
+  'Each visualization is unique to your exact home',
+  'Results typically look best with a straight-on photo',
+  'Pro tip: try multiple styles to find your favorite',
+  'The AI preserves your landscaping and surroundings',
+  'Higher quality = a little more wait time',
 ];
 
 export default function Visualizer({ config }) {
@@ -88,6 +103,8 @@ export default function Visualizer({ config }) {
   // Progress
   const [progressPct, setProgressPct] = useState(0);
   const [progressLabel, setProgressLabel] = useState('');
+  const [elapsedSec, setElapsedSec] = useState(0);
+  const [currentTip, setCurrentTip] = useState(0);
 
   const [refineText, setRefineText] = useState('');
   const [refining, setRefining] = useState(false);
@@ -168,11 +185,15 @@ export default function Visualizer({ config }) {
 
   // Progress animation during generating
   useEffect(() => {
-    if (step !== 'generating') { setProgressPct(0); setProgressLabel(''); return; }
+    if (step !== 'generating') { setProgressPct(0); setProgressLabel(''); setElapsedSec(0); setCurrentTip(0); return; }
     const timers = PROGRESS_STAGES.map(({ pct, label, delay }) =>
       setTimeout(() => { setProgressPct(pct); setProgressLabel(label); }, delay)
     );
-    return () => timers.forEach(clearTimeout);
+    // Elapsed seconds counter
+    const ticker = setInterval(() => setElapsedSec(s => s + 1), 1000);
+    // Rotate tips every 8 seconds
+    const tipRotator = setInterval(() => setCurrentTip(t => (t + 1) % LOADING_TIPS.length), 8000);
+    return () => { timers.forEach(clearTimeout); clearInterval(ticker); clearInterval(tipRotator); };
   }, [step]);
 
   // Fetch materials
@@ -671,6 +692,9 @@ export default function Visualizer({ config }) {
             <div className="relative w-20 h-20 mx-auto mb-5">
               <img src={image} alt="" className="w-20 h-20 rounded-xl object-cover" />
               <div className="absolute inset-0 rounded-xl border-2 animate-pulse" style={{ borderColor: primary }} />
+              {/* Spinning ring */}
+              <div className="absolute -inset-2 rounded-2xl border-2 border-transparent animate-spin"
+                style={{ borderTopColor: primary, animationDuration: '2s' }} />
             </div>
 
             {/* Progress bar */}
@@ -684,9 +708,23 @@ export default function Visualizer({ config }) {
               {selectedStyle ? selectedStyle.name : `${material?.brand} ${material?.name}`}
             </p>
 
+            {/* Elapsed timer */}
+            <p className="text-xs mt-2 tabular-nums" style={{ color: muted }}>
+              {elapsedSec < 60
+                ? `${elapsedSec}s elapsed`
+                : `${Math.floor(elapsedSec / 60)}m ${elapsedSec % 60}s elapsed`}
+              {elapsedSec > 5 && <span className="animate-pulse"> — still working</span>}
+            </p>
+
+            {/* Rotating tips */}
+            <div className="mt-4 px-4 py-2 rounded-lg text-xs transition-opacity duration-500"
+              style={{ background: text + '05', color: muted }}>
+              💡 {LOADING_TIPS[currentTip]}
+            </div>
+
             {/* Style preview hint */}
             {selectedStyle && (
-              <div className="mt-6 p-3 rounded-xl border text-left" style={{ borderColor: border, background: surface }}>
+              <div className="mt-4 p-3 rounded-xl border text-left" style={{ borderColor: border, background: surface }}>
                 <p className="text-xs font-semibold mb-1" style={{ color: muted }}>What to expect</p>
                 <p className="text-xs" style={{ color: muted }}>{selectedStyle.shortDesc}</p>
                 <div className="flex gap-1 mt-2">

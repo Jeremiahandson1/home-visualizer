@@ -10,7 +10,7 @@ const COST = { generate: 8, refine: 12 };
 
 async function preprocessImage(imageBuffer) {
   return await sharp(imageBuffer)
-    .resize(1536, 1024, { fit: 'inside', withoutEnlargement: true })
+    .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
     .png()
     .toBuffer();
 }
@@ -59,7 +59,7 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
       }],
       tools: [{
         type: 'image_generation',
-        size: '1536x1024',
+        size: '1024x1024',
       }],
     }),
   });
@@ -125,7 +125,7 @@ export async function refineWithOpenAI({ imageBuffer, instruction, context, orig
       input: [{ role: 'user', content: inputContent }],
       tools: [{
         type: 'image_generation',
-        size: '1536x1024',
+        size: '1024x1024',
       }],
     }),
   });

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { PROJECTS, MATERIALS, COLOR_FAMILIES, TOTAL_PRODUCTS, POPULAR_PRODUCTS, SUBCATEGORIES, getSubcategories, getMaterialsBySubcategory } from '@/lib/materials';
-import { STYLE_PRESETS } from '@/lib/styles';
+import { STYLE_PRESETS, getStylesByCategory } from '@/lib/styles';
 import { trackEvent } from '@/lib/analytics';
 import { getVariant, getAllAssignments } from '@/lib/ab-test';
 import { EXAMPLE_TRANSFORMATIONS, TESTIMONIALS, getPopularityBadge } from '@/lib/social-proof';
@@ -44,8 +44,8 @@ function resizeImage(dataUrl, maxPx) {
 // ─── Progress stages for loading screen ─────────────
 const PROGRESS_STAGES = [
   { pct: 10, label: 'Uploading your photo...', delay: 0 },
-  { pct: 20, label: 'Analyzing home structure...', delay: 2000 },
-  { pct: 30, label: 'Detecting roof, siding & trim...', delay: 5000 },
+  { pct: 20, label: 'Analyzing the space...', delay: 2000 },
+  { pct: 30, label: 'Detecting surfaces & features...', delay: 5000 },
   { pct: 40, label: 'Mapping material zones...', delay: 9000 },
   { pct: 50, label: 'Applying new design...', delay: 14000 },
   { pct: 60, label: 'Rendering new materials...', delay: 20000 },
@@ -57,13 +57,26 @@ const PROGRESS_STAGES = [
 ];
 
 const LOADING_TIPS = [
-  'AI analyzes every surface of your home individually',
-  'Each visualization is unique to your exact home',
+  'AI analyzes every surface in your photo individually',
+  'Each visualization is unique to your exact space',
   'Results typically look best with a straight-on photo',
   'Pro tip: try multiple styles to find your favorite',
-  'The AI preserves your landscaping and surroundings',
+  'The AI preserves elements you didn\'t change',
   'Higher quality = a little more wait time',
 ];
+
+// ─── Remodel types — the first choice after upload ────
+const REMODEL_TYPES = [
+  { id: 'exterior', label: 'Exterior Remodel', icon: '🏠', desc: 'Siding, roofing, paint, windows, doors & more', photo: 'Exterior photo works best' },
+  { id: 'kitchen',  label: 'Kitchen Remodel',  icon: '🍳', desc: 'Cabinets, countertops, backsplash & hardware', photo: 'Straight-on kitchen photo' },
+  { id: 'bathroom', label: 'Bathroom Remodel', icon: '🛁', desc: 'Tile, vanity, fixtures, shower & flooring', photo: 'Straight-on bathroom photo' },
+];
+
+const REMODEL_PROJECTS = {
+  exterior: ['siding', 'roofing', 'paint', 'windows', 'deck', 'garage', 'gutters', 'exterior'],
+  kitchen: ['kitchen'],
+  bathroom: ['bathroom'],
+};
 
 export default function Visualizer({ config }) {
   const c = config.colors || {};
@@ -83,6 +96,7 @@ export default function Visualizer({ config }) {
   const fileRef = useRef(null);
 
   const [mode, setMode] = useState('styles');
+  const [remodel, setRemodel] = useState(null); // 'exterior' | 'kitchen' | 'bathroom'
   const [selectedStyle, setSelectedStyle] = useState(null);
   const [project, setProject] = useState(null);
   const [material, setMaterial] = useState(null);
@@ -146,7 +160,10 @@ export default function Visualizer({ config }) {
     }
   }, []);
 
-  const enabledProjects = PROJECTS.filter(p => config.features?.[p.id] !== false);
+  const allEnabledProjects = PROJECTS.filter(p => config.features?.[p.id] !== false);
+  const enabledProjects = remodel
+    ? allEnabledProjects.filter(p => REMODEL_PROJECTS[remodel]?.includes(p.id))
+    : allEnabledProjects;
 
   // Live social stats for social proof counter
   const [socialStats, setSocialStats] = useState({ totalDesigns: 0, thisWeek: 0 });
@@ -250,7 +267,7 @@ export default function Visualizer({ config }) {
           original_kb: Math.round(file.size / 1024),
           resized_kb: Math.round((resized.length * 3 / 4) / 1024),
         });
-        setStep('design');
+        setStep('remodel-type');
       };
       img.onerror = () => setUploadError('Could not read this image.');
       img.src = rawDataUrl;
@@ -330,6 +347,20 @@ export default function Visualizer({ config }) {
   };
 
   const handleStyleTap = (style) => { setSelectedStyle(style); setMaterial(null); setProject(null); setSelections({}); generate(style); };
+  const handleRemodelType = (type) => {
+    setRemodel(type);
+    trackEvent('remodel_type', config.tenantId, { type });
+    // For kitchen/bathroom, auto-set the project since there's only one
+    if (type === 'kitchen' || type === 'bathroom') {
+      const proj = PROJECTS.find(p => p.id === type);
+      if (proj) {
+        setProject(proj);
+        const sc = getSubcategories(proj.id);
+        setActiveSubcat(sc ? sc[0].id : null);
+      }
+    }
+    setStep('design');
+  };
   const handleMaterialTap = (mat, categoryOverride) => {
     const cat = categoryOverride || project?.id;
     if (!cat) return;
@@ -495,7 +526,7 @@ export default function Visualizer({ config }) {
 
   const startOver = () => {
     tryAnother(); setImage(null); setImageRaw(null); setProject(null);
-    setMode('styles'); setFavorites([]); setSelections({});
+    setMode('styles'); setFavorites([]); setSelections({}); setRemodel(null);
     setLead({ name: '', email: '', phone: '', address: '' });
     setLeadSubmitted(false); setStep('upload');
   };
@@ -537,8 +568,8 @@ export default function Visualizer({ config }) {
         {/* ═══════════ UPLOAD ═══════════════════════════ */}
         {step === 'upload' && (
           <div className="max-w-md mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2 leading-tight">See Your Home Transformed</h2>
-            <p className="text-sm mb-6" style={{ color: muted }}>Upload a photo and pick a style — see it in seconds</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 leading-tight">See Your Space Transformed</h2>
+            <p className="text-sm mb-6" style={{ color: muted }}>Upload a photo of your home, kitchen, or bathroom</p>
 
             <div
               className={`border-2 border-dashed rounded-2xl p-8 sm:p-10 cursor-pointer transition-all ${dragOver ? 'scale-[1.01]' : ''}`}
@@ -550,7 +581,7 @@ export default function Visualizer({ config }) {
             >
               <div className="text-5xl mb-3">📸</div>
               <p className="font-semibold text-lg mb-1">Take or upload a photo</p>
-              <p className="text-sm mb-4" style={{ color: muted }}>of your home</p>
+              <p className="text-sm mb-4" style={{ color: muted }}>of your space</p>
               <button
                 className="px-8 py-3 rounded-xl text-white font-bold shadow-lg active:scale-[0.98] transition"
                 style={{ background: primary }}
@@ -560,7 +591,7 @@ export default function Visualizer({ config }) {
             <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden"
               onChange={(e) => handleFile(e.target.files[0])} />
             {uploadError && <p className="mt-3 text-sm text-red-600 font-medium">{uploadError}</p>}
-            <p className="text-xs mt-4" style={{ color: muted + '80' }}>JPG, PNG · Max 10MB · Exterior photos work best</p>
+            <p className="text-xs mt-4" style={{ color: muted + '80' }}>JPG, PNG · Max 10MB · Straight-on photos work best</p>
 
             {/* Live counter */}
             {socialStats.totalDesigns > 5 && (
@@ -595,6 +626,42 @@ export default function Visualizer({ config }) {
           </div>
         )}
 
+        {/* ═══════════ REMODEL TYPE ═══════════════════════ */}
+        {step === 'remodel-type' && (
+          <div className="max-w-md mx-auto text-center">
+            <div className="flex items-center gap-3 mb-5">
+              <img src={image} alt="" className="w-14 h-14 rounded-xl object-cover shadow-sm flex-shrink-0" />
+              <div className="flex-1 min-w-0 text-left">
+                <h2 className="text-lg sm:text-xl font-bold leading-tight">What are you remodeling?</h2>
+                <button onClick={startOver} className="text-xs underline" style={{ color: muted }}>Change photo</button>
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              {REMODEL_TYPES.map(rt => {
+                // Check if this type is enabled (at least one project in the type is enabled)
+                const typeProjects = REMODEL_PROJECTS[rt.id] || [];
+                const hasEnabled = typeProjects.some(pid => !config.features || config.features[pid] !== false);
+                if (!hasEnabled) return null;
+                return (
+                  <button key={rt.id} onClick={() => handleRemodelType(rt.id)}
+                    className="rounded-2xl border-2 p-5 text-left transition-all hover:shadow-lg active:scale-[0.98] group"
+                    style={{ borderColor: border, background: surface }}>
+                    <div className="flex items-center gap-4">
+                      <div className="text-4xl flex-shrink-0">{rt.icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-lg leading-tight mb-0.5">{rt.label}</p>
+                        <p className="text-sm" style={{ color: muted }}>{rt.desc}</p>
+                      </div>
+                      <div className="text-lg" style={{ color: muted }}>→</div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* ═══════════ DESIGN ══════════════════════════ */}
         {step === 'design' && (
           <div>
@@ -602,9 +669,15 @@ export default function Visualizer({ config }) {
               <img src={image} alt="" className="w-14 h-14 rounded-xl object-cover shadow-sm flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg sm:text-xl font-bold leading-tight">
-                  {mode === 'styles' ? 'Pick a style makeover' : project ? `${project.icon} ${project.label}` : 'Build your design'}
+                  {mode === 'styles'
+                    ? `${remodel === 'kitchen' ? '🍳' : remodel === 'bathroom' ? '🛁' : '🏠'} Pick a style`
+                    : project ? `${project.icon} ${project.label}` : 'Build your design'}
                 </h2>
-                <button onClick={startOver} className="text-xs underline" style={{ color: muted }}>Change photo</button>
+                <div className="flex gap-2">
+                  <button onClick={() => { setStep('remodel-type'); setProject(null); setMaterial(null); setSelections({}); setMode('styles'); }}
+                    className="text-xs underline" style={{ color: muted }}>← Change type</button>
+                  <button onClick={startOver} className="text-xs underline" style={{ color: muted }}>Change photo</button>
+                </div>
               </div>
             </div>
 
@@ -613,9 +686,20 @@ export default function Visualizer({ config }) {
               <button onClick={() => { setMode('styles'); setProject(null); setMaterial(null); }}
                 className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
                 style={{ background: mode === 'styles' ? primary : text + '06', color: mode === 'styles' ? '#fff' : muted }}>
-                🏠 Style Makeover
+                ✨ Style Makeover
               </button>
-              <button onClick={() => { setMode('products'); setSelectedStyle(null); }}
+              <button onClick={() => {
+                setMode('products'); setSelectedStyle(null);
+                // For kitchen/bathroom, auto-enter the project since there's only one
+                if (remodel === 'kitchen' || remodel === 'bathroom') {
+                  const proj = PROJECTS.find(p => p.id === remodel);
+                  if (proj) {
+                    setProject(proj);
+                    const sc = getSubcategories(proj.id);
+                    setActiveSubcat(sc ? sc[0].id : null);
+                  }
+                }
+              }}
                 className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
                 style={{ background: mode === 'products' ? primary : text + '06', color: mode === 'products' ? '#fff' : muted }}>
                 🎨 By Product
@@ -641,11 +725,13 @@ export default function Visualizer({ config }) {
             {mode === 'styles' && (
               <>
                 <p className="text-xs mb-3 px-1" style={{ color: muted }}>
-                  These reimagine your home&apos;s entire look — architecture, materials, and colors.
-                  For material-only changes, use <button onClick={() => { setMode('products'); setSelectedStyle(null); }} className="underline font-semibold" style={{ color: primary }}>By Product</button>.
+                  {remodel === 'kitchen' ? 'Complete kitchen style transformations — tap one to generate.'
+                    : remodel === 'bathroom' ? 'Complete bathroom style transformations — tap one to generate.'
+                    : <>These reimagine your home&apos;s entire look — architecture, materials, and colors.
+                  For material-only changes, use <button onClick={() => { setMode('products'); setSelectedStyle(null); }} className="underline font-semibold" style={{ color: primary }}>By Product</button>.</>}
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {STYLE_PRESETS.map(style => {
+                {getStylesByCategory(remodel || 'exterior').map(style => {
                   const badge = getPopularityBadge(style.id);
                   return (
                   <button
@@ -761,7 +847,14 @@ export default function Visualizer({ config }) {
                 {project && (
                   <>
                     <div className="flex items-center gap-2 mb-3">
-                      <button onClick={() => { setProject(null); setMaterial(null); setMaterials([]); setActiveSubcat(null); }}
+                      <button onClick={() => {
+                        if (remodel === 'kitchen' || remodel === 'bathroom') {
+                          // For kitchen/bathroom, back goes to styles mode since there's no category grid
+                          setMode('styles'); setProject(null); setMaterial(null); setMaterials([]); setActiveSubcat(null);
+                        } else {
+                          setProject(null); setMaterial(null); setMaterials([]); setActiveSubcat(null);
+                        }
+                      }}
                         className="text-xs font-semibold px-2 py-1 rounded" style={{ color: primary }}>← Back</button>
                       <span className="text-xs ml-auto" style={{ color: muted }}>
                         {filteredMaterials.length} product{filteredMaterials.length !== 1 ? 's' : ''}
@@ -865,7 +958,16 @@ export default function Visualizer({ config }) {
                           ))}
                         </div>
                         <div className="flex gap-2">
-                          <button onClick={() => { setProject(null); setMaterial(null); setMaterials([]); setActiveSubcat(null); }}
+                          <button onClick={() => {
+                            if (remodel === 'kitchen' || remodel === 'bathroom') {
+                              // Stay in project, just reset subcategory to first one
+                              const sc = getSubcategories(project?.id);
+                              setActiveSubcat(sc ? sc[0].id : null);
+                              setSearchTerm(''); setFilterBrand(''); setFilterColor('');
+                            } else {
+                              setProject(null); setMaterial(null); setMaterials([]); setActiveSubcat(null);
+                            }
+                          }}
                             className="flex-1 py-2 rounded-lg text-xs font-semibold border transition"
                             style={{ borderColor: border, color: muted }}>
                             + Add more
@@ -990,7 +1092,12 @@ export default function Visualizer({ config }) {
                     style={{ background: primary }}>{refining ? '...' : 'Go'}</button>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {['Darker trim', 'Red door', 'Stone accents', 'Black windows', 'White gutters'].map(chip => (
+                  {(remodel === 'kitchen'
+                    ? ['Darker cabinets', 'White backsplash', 'Gold hardware', 'Butcher block island', 'Open shelving']
+                    : remodel === 'bathroom'
+                    ? ['Darker tile', 'White vanity', 'Gold fixtures', 'Frameless glass', 'Patterned floor']
+                    : ['Darker trim', 'Red door', 'Stone accents', 'Black windows', 'White gutters']
+                  ).map(chip => (
                     <button key={chip} onClick={() => setRefineText(chip)}
                       className="text-xs px-2.5 py-1 rounded-full border transition active:scale-[0.95]"
                       style={{ borderColor: border, color: muted }}>{chip}</button>

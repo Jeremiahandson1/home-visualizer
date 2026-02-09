@@ -5,69 +5,36 @@ import { useSearchParams } from 'next/navigation';
 
 const PLANS = [
   {
-    id: 'starter',
-    name: 'Starter',
-    price: 149,
-    genLimit: '50',
-    features: [
-      'Your branding & logo',
-      '50 AI visualizations/mo',
-      '179+ real products & 12 styles',
-      'Lead capture + email alerts',
-      'Before/after sharing',
-      'Embed on your website',
-    ],
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 349,
+    id: 'monthly',
+    name: 'Monthly',
+    price: 49,
     genLimit: '200',
     popular: true,
     features: [
-      'Everything in Starter',
+      'Your branding, logo, & colors',
       '200 AI visualizations/mo',
-      'Analytics dashboard',
-      'CRM webhook (Zapier/Jobber)',
-      'Custom materials library',
-      'A/B testing + priority support',
-    ],
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 749,
-    genLimit: 'Unlimited',
-    features: [
-      'Everything in Pro',
-      'Unlimited visualizations',
-      'No "Powered by" badge',
-      'API access',
-      'White-glove onboarding',
-      'Dedicated support',
+      '450+ real products & 12 styles',
+      'Lead capture + email alerts',
+      'Analytics dashboard + CRM webhooks',
+      'Embed on your site — one line of code',
     ],
   },
 ];
 
 const LICENSES = [
   {
-    id: 'license-starter',
-    name: 'Starter License',
-    price: 2497,
-    features: ['Full source code', 'All products & styles', 'Lead capture', 'Deploy on your server', '90 days support'],
-  },
-  {
-    id: 'license-pro',
-    name: 'Pro License',
-    price: 4997,
+    id: 'license',
+    name: 'One-Time License',
+    price: 1497,
     popular: true,
-    features: ['Everything in Starter', 'Analytics + webhooks', 'We deploy for you', '6 months support'],
-  },
-  {
-    id: 'license-agency',
-    name: 'Agency License',
-    price: 9997,
-    features: ['Multi-tenant (unlimited clients)', 'Resell rights', 'Full API', '12 months priority support'],
+    features: [
+      'Everything in Monthly — forever',
+      'Full source code',
+      'Deploy on your server',
+      'You own the code & data 100%',
+      'Pay ~$0.05/render direct to OpenAI',
+      'We deploy it for you (included)',
+    ],
   },
 ];
 
@@ -85,7 +52,7 @@ function SignupPageInner() {
   const initialModel = searchParams.get('model') === 'license' ? 'license' : 'saas';
 
   const [model, setModel] = useState(initialModel);
-  const [selectedPlan, setSelectedPlan] = useState(initialModel === 'license' ? 'license-pro' : 'pro');
+  const [selectedPlan, setSelectedPlan] = useState(initialModel === 'license' ? 'license' : 'monthly');
   const [form, setForm] = useState({ company_name: '', email: '', slug: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -168,7 +135,7 @@ function SignupPageInner() {
         <div className="flex justify-center mb-10">
           <div className="inline-flex bg-stone-800 rounded-xl p-1">
             <button
-              onClick={() => { setModel('saas'); setSelectedPlan('pro'); }}
+              onClick={() => { setModel('saas'); setSelectedPlan('monthly'); }}
               className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition ${
                 model === 'saas' ? 'bg-amber-600 text-white' : 'text-stone-400 hover:text-stone-200'
               }`}
@@ -176,7 +143,7 @@ function SignupPageInner() {
               🔄 Monthly
             </button>
             <button
-              onClick={() => { setModel('license'); setSelectedPlan('license-pro'); }}
+              onClick={() => { setModel('license'); setSelectedPlan('license'); }}
               className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition ${
                 model === 'license' ? 'bg-green-600 text-white' : 'text-stone-400 hover:text-stone-200'
               }`}
@@ -187,7 +154,7 @@ function SignupPageInner() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-5 mb-14">
+        <div className="max-w-md mx-auto mb-14">
           {(model === 'saas' ? PLANS : LICENSES).map(plan => (
             <div
               key={plan.id}

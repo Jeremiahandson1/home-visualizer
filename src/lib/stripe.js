@@ -29,50 +29,22 @@ export const stripe = typeof process !== 'undefined' && process.env.STRIPE_SECRE
 // Or use the seed script below to create them programmatically.
 
 export const PLANS = {
-  starter: {
-    name: 'Starter',
-    price: 14900,         // $149 in cents
-    priceId: process.env.STRIPE_PRICE_STARTER || '',
-    genLimit: 50,
-    mode: 'subscription',
-  },
-  pro: {
-    name: 'Pro',
-    price: 34900,        // $349
-    priceId: process.env.STRIPE_PRICE_PRO || '',
+  monthly: {
+    name: 'Monthly',
+    price: 4900,           // $49 in cents
+    priceId: process.env.STRIPE_PRICE_MONTHLY || '',
     genLimit: 200,
     mode: 'subscription',
     popular: true,
   },
-  enterprise: {
-    name: 'Enterprise',
-    price: 74900,        // $749
-    priceId: process.env.STRIPE_PRICE_ENTERPRISE || '',
-    genLimit: 999,
-    mode: 'subscription',
-  },
-  // One-time licenses
-  'license-starter': {
-    name: 'Starter License',
-    price: 249700,       // $2,497
-    priceId: process.env.STRIPE_PRICE_LICENSE_STARTER || '',
-    genLimit: 999,
-    mode: 'payment',
-  },
-  'license-pro': {
-    name: 'Pro License',
-    price: 499700,       // $4,997
-    priceId: process.env.STRIPE_PRICE_LICENSE_PRO || '',
+  // One-time license
+  license: {
+    name: 'One-Time License',
+    price: 149700,         // $1,497
+    priceId: process.env.STRIPE_PRICE_LICENSE || '',
     genLimit: 999,
     mode: 'payment',
     popular: true,
-  },
-  'license-agency': {
-    name: 'Agency License',
-    price: 999700,       // $9,997
-    priceId: process.env.STRIPE_PRICE_LICENSE_AGENCY || '',
-    genLimit: 999,
-    mode: 'payment',
   },
 };
 

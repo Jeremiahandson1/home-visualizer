@@ -53,7 +53,7 @@ export default function HomePage() {
             href="/signup"
             className="border-2 border-stone-300 text-stone-700 px-8 py-3.5 rounded-xl font-bold text-lg hover:border-stone-400 transition"
           >
-            Get Started · $99/mo
+            Get Started · $49/mo
           </Link>
         </div>
 
@@ -211,31 +211,31 @@ export default function HomePage() {
         <h2 className="font-display text-3xl font-bold text-center text-stone-900 mb-4">
           HomeVisualizer vs HOVER Instant Design
         </h2>
-        <p className="text-center text-stone-600 mb-12">HOVER charges $25 per project. We don&apos;t. Here&apos;s what that means.</p>
+        <p className="text-center text-stone-600 mb-12">HOVER charges $25 per project. We charge $49/mo flat — unlimited projects, unlimited savings.</p>
 
         {/* Cost comparison at volume */}
         <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 mb-10">
-          <h3 className="font-bold text-lg text-stone-900 mb-4 text-center">Annual Cost at 20 Projects/Month</h3>
+          <h3 className="font-bold text-lg text-stone-900 mb-4 text-center">What You Actually Pay Per Year</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b-2 border-amber-300">
                   <th className="text-left py-3 px-3 text-stone-500 font-medium"></th>
                   <th className="text-center py-3 px-3 text-stone-600 font-bold">HOVER<br /><span className="text-xs font-normal">$25/project</span></th>
-                  <th className="text-center py-3 px-3 text-amber-700 font-bold">Our SaaS<br /><span className="text-xs font-normal">$149/mo flat</span></th>
-                  <th className="text-center py-3 px-3 text-green-700 font-bold">Our License<br /><span className="text-xs font-normal">$2,497 once</span></th>
+                  <th className="text-center py-3 px-3 text-amber-700 font-bold">HomeVisualizer<br /><span className="text-xs font-normal">$49/mo flat</span></th>
+                  <th className="text-center py-3 px-3 text-green-700 font-bold">Own It<br /><span className="text-xs font-normal">$1,497 once</span></th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  ['10 projects/mo', '$3,000/yr', '$1,788/yr', '~$180/yr', ''],
-                  ['20 projects/mo', '$6,000/yr', '$1,788/yr', '~$180/yr', ''],
-                  ['50 projects/mo', '$15,000/yr', '$4,188/yr', '~$420/yr', ''],
-                  ['Year 1 total (20/mo)', '$6,000', '$1,788', '$2,677', 'License + API'],
-                  ['Year 2 total (20/mo)', '$12,000', '$3,576', '$2,857', 'API only'],
-                  ['Year 3 total (20/mo)', '$18,000', '$5,364', '$3,037', ''],
-                  ['3-year savings vs HOVER', '—', '$12,636 saved', '$14,963 saved', ''],
-                ].map(([label, hover, saas, license, note], i) => (
+                  ['10 projects/mo', '$3,000/yr', '$588/yr', '~$60/yr'],
+                  ['20 projects/mo', '$6,000/yr', '$588/yr', '~$120/yr'],
+                  ['50 projects/mo', '$15,000/yr', '$588/yr', '~$300/yr'],
+                  ['Year 1 total (20/mo)', '$6,000', '$588', '$1,617'],
+                  ['Year 2 total (20/mo)', '$12,000', '$1,176', '$1,737'],
+                  ['Year 3 total (20/mo)', '$18,000', '$1,764', '$1,857'],
+                  ['3-year savings vs HOVER', '—', '$16,236 saved', '$16,143 saved'],
+                ].map(([label, hover, saas, license], i) => (
                   <tr key={i} className={i === 6 ? 'bg-green-50 font-bold' : i % 2 === 0 ? 'bg-white' : 'bg-amber-50/30'}>
                     <td className="py-2.5 px-3 text-stone-700 font-medium">{label}</td>
                     <td className="py-2.5 px-3 text-center text-red-600">{hover}</td>
@@ -247,7 +247,7 @@ export default function HomePage() {
             </table>
           </div>
           <p className="text-xs text-stone-500 mt-3 text-center">
-            License API cost: ~$0.05/generation paid directly to OpenAI. SaaS includes all hosting and API costs.
+            Own It API cost: ~$0.05/generation paid directly to OpenAI. Monthly plan includes all hosting and API costs.
           </p>
         </div>
 
@@ -258,30 +258,28 @@ export default function HomePage() {
               <tr className="bg-stone-50 border-b border-stone-200">
                 <th className="text-left py-3 px-4 font-medium text-stone-500">Feature</th>
                 <th className="text-center py-3 px-4 font-medium text-stone-500">HOVER</th>
-                <th className="text-center py-3 px-4 font-bold text-amber-700">Our SaaS</th>
-                <th className="text-center py-3 px-4 font-bold text-green-700">Our License</th>
+                <th className="text-center py-3 px-4 font-bold text-amber-700">HomeVisualizer</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {[
-                ['Pricing model', '$25/project', 'Flat monthly', 'One-time purchase'],
-                ['Homeowner self-serve on your site', '✅', '✅', '✅'],
-                ['White-label (your brand only)', '⚠️ HOVER branded', '✅', '✅'],
-                ['Lead capture + CRM alerts', '⚠️ Limited', '✅', '✅'],
-                ['Real manufacturer products', '✅ (curated)', `✅ ${TOTAL_PRODUCTS}+`, `✅ ${TOTAL_PRODUCTS}+`],
-                ['Style presets', '✅', `✅ ${STYLE_PRESETS.length} styles`, `✅ ${STYLE_PRESETS.length} styles`],
-                ['Analytics dashboard', '⚠️ Basic', '✅ Full funnel', '✅ Full funnel'],
-                ['Custom materials', '❌', '✅', '✅'],
-                ['You own the code', '❌', '❌', '✅'],
-                ['You own the data', '❌ HOVER owns it', '⚠️ On our servers', '✅ 100% yours'],
-                ['Social sharing with your brand', '⚠️ HOVER branded', '✅', '✅'],
-                ['Works if vendor shuts down', '❌', '❌', '✅ You have the code'],
-              ].map(([feature, hover, saas, license], i) => (
+                ['Pricing model', '$25/project', '$49/mo flat or $1,497 once'],
+                ['200 renders/month cost', '$5,000/mo', '$49/mo'],
+                ['Homeowner self-serve', '✅', '✅'],
+                ['White-label (your brand only)', '⚠️ HOVER branded', '✅'],
+                ['Lead capture + CRM alerts', '⚠️ Limited', '✅'],
+                ['Real manufacturer products', '✅ (curated)', `✅ ${TOTAL_PRODUCTS}+`],
+                ['Style presets', '✅', `✅ ${STYLE_PRESETS.length} styles`],
+                ['Analytics dashboard', '⚠️ Basic', '✅ Full funnel'],
+                ['Custom materials', '❌', '✅'],
+                ['Social sharing with your brand', '⚠️ HOVER branded', '✅'],
+                ['You own the code (license)', '❌', '✅'],
+                ['You own the data (license)', '❌', '✅ 100% yours'],
+              ].map(([feature, hover, ours], i) => (
                 <tr key={i} className={i % 2 === 0 ? '' : 'bg-stone-50/50'}>
                   <td className="py-2.5 px-4 text-stone-700 font-medium">{feature}</td>
                   <td className="py-2.5 px-4 text-center text-stone-500">{hover}</td>
-                  <td className="py-2.5 px-4 text-center">{saas}</td>
-                  <td className="py-2.5 px-4 text-center">{license}</td>
+                  <td className="py-2.5 px-4 text-center">{ours}</td>
                 </tr>
               ))}
             </tbody>
@@ -331,246 +329,100 @@ export default function HomePage() {
 
       {/* Pricing */}
       <section id="pricing" className="px-6 py-20 bg-white border-t border-stone-200">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <h2 className="font-display text-3xl font-bold text-center text-stone-900 mb-4">
-            Two Ways to Buy. You Choose.
+            Simple Pricing. No Tiers. No Surprises.
           </h2>
           <p className="text-center text-stone-600 mb-12">
-            Monthly subscription or buy it once and own it forever. One extra closed job pays for a full year — or the whole thing.
+            One extra closed job pays for a full year — or the whole thing.
           </p>
 
-          {/* ─── Monthly SaaS ─────────────────────── */}
-          <div className="mb-16">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-lg">🔄</div>
-              <div>
-                <h3 className="font-display font-bold text-xl text-stone-900">Monthly — We Host, You Sell</h3>
-                <p className="text-sm text-stone-500">We handle everything. You focus on closing jobs.</p>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Monthly */}
+            <div className="p-8 rounded-2xl border-2 border-amber-700 bg-amber-50 shadow-lg shadow-amber-700/10 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-700 text-white text-xs font-bold px-3 py-1 rounded-full">
+                Most Popular
               </div>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                {
-                  name: 'Starter',
-                  price: '$149',
-                  annual: '$125',
-                  gens: '50 visualizations/mo',
-                  features: [
-                    'Your branding + logo',
-                    TOTAL_PRODUCTS + '+ real products',
-                    STYLE_PRESETS.length + ' instant styles',
-                    'Lead capture + email alerts',
-                    'Before/after sharing',
-                    'Embed on your website',
-                  ],
-                  cta: 'Start 14-Day Trial',
-                  highlighted: false,
-                },
-                {
-                  name: 'Pro',
-                  price: '$349',
-                  annual: '$290',
-                  gens: '200 visualizations/mo',
-                  features: [
-                    'Everything in Starter',
-                    'Analytics dashboard',
-                    'CRM webhook (Zapier/Jobber)',
-                    'Custom materials library',
-                    'A/B testing',
-                    'Priority support',
-                  ],
-                  cta: 'Start 14-Day Trial',
-                  highlighted: true,
-                },
-                {
-                  name: 'Enterprise',
-                  price: '$749',
-                  annual: '$625',
-                  gens: 'Unlimited visualizations',
-                  features: [
-                    'Everything in Pro',
-                    'No "Powered by" badge',
-                    'API access',
-                    'White-glove onboarding',
-                    'Dedicated support',
-                    'Custom integrations',
-                  ],
-                  cta: 'Contact Us',
-                  highlighted: false,
-                },
-              ].map((plan, i) => (
-                <div
-                  key={i}
-                  className={`p-8 rounded-2xl border-2 ${
-                    plan.highlighted
-                      ? 'border-amber-700 bg-amber-50 shadow-lg shadow-amber-700/10 relative'
-                      : 'border-stone-200 bg-white'
-                  }`}
-                >
-                  {plan.highlighted && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-700 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      Most Popular
-                    </div>
-                  )}
-                  <h3 className="font-display font-bold text-xl text-stone-900">{plan.name}</h3>
-                  <div className="mt-4 mb-1">
-                    <span className="text-4xl font-bold text-stone-900">{plan.price}</span>
-                    <span className="text-stone-500">/month</span>
-                  </div>
-                  <p className="text-xs text-stone-400 mb-1">
-                    or {plan.annual}/mo billed annually <span className="text-amber-700 font-semibold">(save 2 months)</span>
-                  </p>
-                  <p className="text-sm text-stone-600 mb-6">{plan.gens}</p>
-                  <ul className="space-y-2.5 mb-8">
-                    {plan.features.map((f, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm text-stone-700">
-                        <span className="text-amber-700 font-bold mt-0.5">✓</span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link
-                    href="/signup"
-                    className={`block w-full py-3 rounded-lg font-bold text-sm text-center transition ${
-                      plan.highlighted
-                        ? 'bg-amber-700 text-white hover:bg-amber-800'
-                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
-                </div>
-              ))}
-            </div>
-            <p className="text-center text-xs text-stone-400 mt-6">
-              All plans include a 14-day free trial. No credit card required to start. Cancel anytime.
-            </p>
-          </div>
-
-          {/* ─── One-Time Self-Hosted ────────────── */}
-          <div className="border-t border-stone-200 pt-16">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-lg">🏠</div>
-              <div>
-                <h3 className="font-display font-bold text-xl text-stone-900">Own It — One-Time Purchase</h3>
-                <p className="text-sm text-stone-500">Buy once, deploy on your server, no monthly fees ever.</p>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-lg">🔄</div>
+                <h3 className="font-display font-bold text-xl text-stone-900">Monthly</h3>
               </div>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {[
-                {
-                  name: 'Starter License',
-                  price: '$2,497',
-                  payback: 'Pays for itself in 17 months vs $149/mo',
-                  features: [
-                    'Full source code',
-                    'Your branding + white-label',
-                    'All ' + TOTAL_PRODUCTS + '+ products',
-                    'Lead capture + notifications',
-                    'Deploy on your server',
-                    '90 days email support',
-                    'Deployment documentation',
-                  ],
-                },
-                {
-                  name: 'Pro License',
-                  price: '$4,997',
-                  payback: 'Pays for itself in 15 months vs $349/mo',
-                  features: [
-                    'Everything in Starter License',
-                    'Analytics dashboard',
-                    'CRM webhook system',
-                    'Custom materials admin',
-                    'A/B testing framework',
-                    'We deploy it for you (included)',
-                    '6 months email support',
-                  ],
-                  highlighted: true,
-                },
-                {
-                  name: 'Agency License',
-                  price: '$9,997',
-                  payback: 'Deploy for unlimited clients. Infinite ROI.',
-                  features: [
-                    'Everything in Pro License',
-                    'Multi-tenant admin (unlimited clients)',
-                    'No "Powered by" badge',
-                    'Resell to your own customers',
-                    'Full API access',
-                    'White-glove setup + training call',
-                    '12 months priority support',
-                  ],
-                },
-              ].map((plan, i) => (
-                <div
-                  key={i}
-                  className={`p-8 rounded-2xl border-2 ${
-                    plan.highlighted
-                      ? 'border-green-600 bg-green-50 shadow-lg shadow-green-600/10 relative'
-                      : 'border-stone-200 bg-white'
-                  }`}
-                >
-                  {plan.highlighted && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                      Best Value
-                    </div>
-                  )}
-                  <h3 className="font-display font-bold text-xl text-stone-900">{plan.name}</h3>
-                  <div className="mt-4 mb-2">
-                    <span className="text-4xl font-bold text-stone-900">{plan.price}</span>
-                    <span className="text-stone-500 ml-1">one-time</span>
-                  </div>
-                  <p className="text-xs text-green-700 font-medium mb-6">{plan.payback}</p>
-                  <ul className="space-y-2.5 mb-8">
-                    {plan.features.map((f, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm text-stone-700">
-                        <span className="text-green-600 font-bold mt-0.5">✓</span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link
-                    href="/signup?model=license"
-                    className={`block w-full py-3 rounded-lg font-bold text-sm text-center transition ${
-                      plan.highlighted
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-                    }`}
-                  >
-                    Buy License
-                  </Link>
-                </div>
-              ))}
-            </div>
-
-            {/* Self-hosted add-ons */}
-            <div className="mt-8 bg-stone-50 rounded-2xl border border-stone-200 p-6">
-              <h4 className="font-bold text-stone-900 mb-3">Optional Add-Ons for Self-Hosted</h4>
-              <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="mb-1">
+                <span className="text-5xl font-bold text-stone-900">$49</span>
+                <span className="text-stone-500 text-lg">/month</span>
+              </div>
+              <p className="text-sm text-stone-600 mb-6">200 renders/month · We host everything</p>
+              <ul className="space-y-3 mb-8">
                 {[
-                  { name: 'Installation Service', desc: 'We deploy it on your server', price: '$500' },
-                  { name: 'Annual Updates', desc: 'Get every new feature for a year', price: '$499/yr' },
-                  { name: 'Support Contract', desc: 'Email + phone support', price: '$199/mo' },
-                  { name: 'Custom Development', desc: 'Features built to your spec', price: '$150/hr' },
-                ].map((addon, i) => (
-                  <div key={i} className="text-sm">
-                    <p className="font-semibold text-stone-900">{addon.name}</p>
-                    <p className="text-xs text-stone-500 mb-1">{addon.desc}</p>
-                    <p className="font-bold text-green-700">{addon.price}</p>
-                  </div>
+                  'Your branding, logo, & colors',
+                  `${TOTAL_PRODUCTS}+ real products · ${STYLE_PRESETS.length} instant styles`,
+                  '200 AI visualizations per month',
+                  'Lead capture + email alerts',
+                  'Analytics dashboard',
+                  'CRM webhook (Zapier/Jobber)',
+                  'Before/after social sharing',
+                  'Embed on your website — one line of code',
+                  'Priority support',
+                ].map((f, j) => (
+                  <li key={j} className="flex items-start gap-2 text-sm text-stone-700">
+                    <span className="text-amber-700 font-bold mt-0.5">✓</span>
+                    {f}
+                  </li>
                 ))}
-              </div>
+              </ul>
+              <Link
+                href="/signup"
+                className="block w-full py-3.5 rounded-lg font-bold text-sm text-center bg-amber-700 text-white hover:bg-amber-800 transition"
+              >
+                Start 14-Day Free Trial →
+              </Link>
+              <p className="text-center text-xs text-stone-500 mt-3">No credit card required. Cancel anytime.</p>
             </div>
 
-            <p className="text-center text-xs text-stone-400 mt-6">
-              Self-hosted licenses include full source code. You own it. You host it. You control it.
-              <br />Requires Node.js, Supabase (free tier works), and an OpenAI API key (~$0.05/generation).
-            </p>
+            {/* One-Time */}
+            <div className="p-8 rounded-2xl border-2 border-green-600 bg-green-50 shadow-lg shadow-green-600/10 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                Own It Forever
+              </div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-lg">🏠</div>
+                <h3 className="font-display font-bold text-xl text-stone-900">One-Time License</h3>
+              </div>
+              <div className="mb-1">
+                <span className="text-5xl font-bold text-stone-900">$1,497</span>
+                <span className="text-stone-500 text-lg"> once</span>
+              </div>
+              <p className="text-sm text-stone-600 mb-6">Bring your own API key · ~$0.05/render</p>
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Everything in Monthly — forever',
+                  'Full source code',
+                  'Deploy on your own server',
+                  'You own the code and data 100%',
+                  'No monthly fees ever',
+                  'Pay ~$0.05/render direct to OpenAI',
+                  'Pays for itself in 31 months vs $49/mo',
+                  'We deploy it for you (included)',
+                  '90 days email support',
+                ].map((f, j) => (
+                  <li key={j} className="flex items-start gap-2 text-sm text-stone-700">
+                    <span className="text-green-600 font-bold mt-0.5">✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/signup?model=license"
+                className="block w-full py-3.5 rounded-lg font-bold text-sm text-center bg-green-600 text-white hover:bg-green-700 transition"
+              >
+                Buy License →
+              </Link>
+              <p className="text-center text-xs text-stone-500 mt-3">Secure one-time payment via Stripe. Source code delivered immediately.</p>
+            </div>
           </div>
 
-          {/* SaaS vs License Comparison */}
-          <div className="mt-16 bg-stone-50 border-2 border-stone-200 rounded-2xl p-8">
+          {/* SaaS vs Own It comparison */}
+          <div className="mt-12 bg-stone-50 border-2 border-stone-200 rounded-2xl p-8">
             <h3 className="font-display text-2xl font-bold text-center text-stone-900 mb-2">SaaS vs. Own It — Real Numbers</h3>
             <p className="text-center text-stone-500 text-sm mb-8">Based on 200 visualizations per month</p>
 
@@ -579,27 +431,25 @@ export default function HomePage() {
                 <thead>
                   <tr className="border-b-2 border-stone-300">
                     <th className="text-left py-3 px-4 text-stone-500 font-medium"></th>
-                    <th className="text-center py-3 px-4 text-amber-700 font-bold">Pro SaaS<br /><span className="text-xs font-normal text-stone-400">$349/mo</span></th>
-                    <th className="text-center py-3 px-4 text-green-700 font-bold">Pro License<br /><span className="text-xs font-normal text-stone-400">$4,997 one-time</span></th>
+                    <th className="text-center py-3 px-4 text-amber-700 font-bold">Monthly<br /><span className="text-xs font-normal text-stone-400">$49/mo</span></th>
+                    <th className="text-center py-3 px-4 text-green-700 font-bold">Own It<br /><span className="text-xs font-normal text-stone-400">$1,497 one-time</span></th>
                   </tr>
                 </thead>
                 <tbody>
                   {[
-                    ['Year 1 cost', '$4,188', '$5,117', 'License: $4,997 + ~$10/mo API'],
-                    ['Year 2 cost', '$8,376', '$5,237', 'Only API fees after purchase'],
-                    ['Year 3 cost', '$12,564', '$5,357', ''],
-                    ['3-year savings', '—', '$7,207 saved', 'Savings grow every month'],
-                    ['Cost per generation', '~$1.75', '~$0.05', 'Direct API cost, no markup'],
-                    ['You own the code', '❌', '✅', 'Modify anything, anytime'],
-                    ['Hosting', 'We handle it', 'You host ($7–25/mo)', 'Render, Railway, or your server'],
-                    ['Updates', 'Automatic', '$499/yr optional', 'Or update code yourself'],
-                    ['Data ownership', 'On our servers', '100% yours', 'Your database, your leads'],
-                  ].map(([label, saas, license, note], i) => (
+                    ['Year 1 cost', '$588', '$1,617'],
+                    ['Year 2 cost', '$1,176', '$1,737'],
+                    ['Year 3 cost', '$1,764', '$1,857'],
+                    ['Break-even', '—', 'Month 31'],
+                    ['Cost per render', '~$0.25', '~$0.05'],
+                    ['You own the code', '❌', '✅'],
+                    ['Hosting', 'We handle it', 'You host ($7–25/mo)'],
+                    ['Data ownership', 'On our servers', '100% yours'],
+                  ].map(([label, saas, license], i) => (
                     <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}>
                       <td className="py-3 px-4 font-medium text-stone-700">{label}</td>
                       <td className="py-3 px-4 text-center text-stone-600">{saas}</td>
                       <td className="py-3 px-4 text-center font-semibold text-green-700">{license}</td>
-                      {note && <td className="py-3 px-4 text-xs text-stone-400 hidden lg:table-cell">{note}</td>}
                     </tr>
                   ))}
                 </tbody>
@@ -610,19 +460,19 @@ export default function HomePage() {
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <p className="text-xs text-stone-500 mb-1">Best if you want</p>
                 <p className="font-bold text-amber-800">Zero maintenance</p>
-                <p className="text-xs text-stone-500 mt-1">We host, update, and support. You focus on roofing.</p>
+                <p className="text-xs text-stone-500 mt-1">We host, update, and support. You focus on selling.</p>
               </div>
               <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                 <p className="text-xs text-stone-500 mb-1">Best if you want</p>
                 <p className="font-bold text-green-800">Maximum control &amp; savings</p>
-                <p className="text-xs text-stone-500 mt-1">Own the code. Pay ~$0.05/scan directly to OpenAI. No middleman.</p>
+                <p className="text-xs text-stone-500 mt-1">Own the code. Pay ~$0.05/render directly to OpenAI. No middleman.</p>
               </div>
             </div>
           </div>
 
           {/* ROI Calculator */}
           <div className="mt-8 bg-amber-50 border-2 border-amber-200 rounded-2xl p-8 text-center">
-            <h3 className="font-display text-2xl font-bold text-stone-900 mb-2">Either Way, The ROI is Insane</h3>
+            <h3 className="font-display text-2xl font-bold text-stone-900 mb-2">The ROI is Absurd</h3>
             <p className="text-stone-600 mb-6">Average exterior project: $8,000–$25,000</p>
             <div className="grid sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
               <div>
@@ -634,8 +484,8 @@ export default function HomePage() {
                 <p className="text-sm text-stone-600">Average project value</p>
               </div>
               <div>
-                <p className="text-3xl font-bold text-amber-700">100x</p>
-                <p className="text-sm text-stone-600">ROI on $149/mo</p>
+                <p className="text-3xl font-bold text-amber-700">306x</p>
+                <p className="text-sm text-stone-600">ROI on $49/mo</p>
               </div>
             </div>
             <p className="text-xs text-stone-500 mt-4">One extra &ldquo;yes&rdquo; pays for a full year — or the entire license. Everything after that is profit.</p>

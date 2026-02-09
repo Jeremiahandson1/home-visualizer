@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════════
-// MATERIALS CATALOG — 150+ Real Products from Real Manufacturers
+// MATERIALS CATALOG — 200+ Real Products from Real Manufacturers
 // Organized by category, filterable by brand, type, color family
 // ═══════════════════════════════════════════════════════════════
 
 export const PROJECTS = [
   { id: 'siding',   label: 'Siding',           icon: '◧', desc: 'Fiber cement, vinyl, engineered wood, stone veneer' },
-  { id: 'roofing',  label: 'Roofing',          icon: '⌂', desc: 'Architectural shingles, metal, shake, tile' },
+  { id: 'roofing',  label: 'Roofing',          icon: '⌂', desc: 'Architectural shingles, stone-coated steel, standing seam metal, shake, tile' },
   { id: 'paint',    label: 'Exterior Paint',    icon: '◉', desc: 'Sherwin-Williams, Benjamin Moore, PPG' },
   { id: 'windows',  label: 'Windows & Doors',   icon: '▣', desc: 'Andersen, Pella, Marvin, Milgard' },
   { id: 'deck',     label: 'Deck & Patio',      icon: '▦', desc: 'Composite, PVC, hardwood, stone' },
@@ -87,7 +87,7 @@ const SIDING = [
 
 // ─── ROOFING ───────────────────────────────────────────
 const ROOFING = [
-  // GAF Timberline HDZ
+  // ═══ GAF TIMBERLINE HDZ ══════════════════════════════
   { id: 'gaf-charcoal',        name: 'Charcoal',           color: '#374151', accent: '#1F2937', brand: 'GAF Timberline HDZ',     type: 'Architectural Shingle', colorFamily: 'gray',  aiHint: 'dark charcoal dimensional shingle roof, layered shadow lines, most popular color' },
   { id: 'gaf-weathered-wood',  name: 'Weathered Wood',     color: '#8B7355', accent: '#6B5740', brand: 'GAF Timberline HDZ',     type: 'Architectural Shingle', colorFamily: 'brown', aiHint: 'warm brown blend shingles with weathered look, tan-brown mix' },
   { id: 'gaf-barkwood',        name: 'Barkwood',           color: '#7A6B55', accent: '#5C5040', brand: 'GAF Timberline HDZ',     type: 'Architectural Shingle', colorFamily: 'brown', aiHint: 'rich tree bark brown dimensional shingles, warm earthy brown' },
@@ -97,19 +97,88 @@ const ROOFING = [
   { id: 'gaf-shakewood',       name: 'Shakewood',          color: '#9A8A72', accent: '#7A6A55', brand: 'GAF Timberline HDZ',     type: 'Architectural Shingle', colorFamily: 'beige', aiHint: 'light warm tan-brown blend, cedar shake inspired' },
   { id: 'gaf-mission-brown',   name: 'Mission Brown',      color: '#5A4535', accent: '#3E3025', brand: 'GAF Timberline HDZ',     type: 'Architectural Shingle', colorFamily: 'brown', aiHint: 'deep chocolate brown, Spanish mission inspired, very dark brown' },
 
-  // Owens Corning Duration
-  { id: 'oc-onyx-black',       name: 'Onyx Black',         color: '#1C1917', accent: '#0C0A09', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'black', aiHint: 'pure black dimensional shingles, bold dramatic black roof' },
-  { id: 'oc-estate-gray',      name: 'Estate Gray',        color: '#64748B', accent: '#475569', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'gray',  aiHint: 'sophisticated blue-tinted gray, elegant estate style' },
-  { id: 'oc-driftwood',        name: 'Driftwood',          color: '#A09080', accent: '#857060', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'beige', aiHint: 'weathered sandy gray-brown, coastal driftwood look' },
-  { id: 'oc-desert-tan',       name: 'Desert Tan',         color: '#C4AD8A', accent: '#A89570', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'beige', aiHint: 'light sandy tan, warm desert-inspired, popular in warm climates' },
-  { id: 'oc-teak',             name: 'Teak',               color: '#7A5E42', accent: '#5C4530', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'brown', aiHint: 'rich teak wood brown with warm red undertone' },
+  // ═══ OWENS CORNING TRUDEFINITION DURATION ═════════════
+  { id: 'oc-onyx-black',       name: 'Onyx Black',         color: '#1C1917', accent: '#0C0A09', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'black', aiHint: 'pure black dimensional shingles, bold dramatic black roof, deep rich black' },
+  { id: 'oc-estate-gray',      name: 'Estate Gray',        color: '#64748B', accent: '#475569', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'gray',  aiHint: 'sophisticated blue-tinted gray, elegant estate style, cool gray roof' },
+  { id: 'oc-driftwood',        name: 'Driftwood',          color: '#A09080', accent: '#857060', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'beige', aiHint: 'weathered sandy gray-brown, coastal driftwood look, warm neutral blend' },
+  { id: 'oc-desert-tan',       name: 'Desert Tan',         color: '#C4AD8A', accent: '#A89570', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'beige', aiHint: 'light sandy tan, warm desert-inspired, popular in warm climates, soft neutral' },
+  { id: 'oc-teak',             name: 'Teak',               color: '#7A5E42', accent: '#5C4530', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'brown', aiHint: 'rich teak wood brown with warm red undertone, deep luxurious brown' },
+  { id: 'oc-brownwood',        name: 'Brownwood',          color: '#6B5040', accent: '#503A2A', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'brown', aiHint: 'deep earthy brown dimensional shingles, warm rustic brown, best seller' },
+  { id: 'oc-sierra-gray',      name: 'Sierra Gray',        color: '#8A8580', accent: '#706B66', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'gray',  aiHint: 'warm medium gray with earthy undertone, sierra-inspired neutral gray' },
+  { id: 'oc-quarry-gray',      name: 'Quarry Gray',        color: '#9A9590', accent: '#807B76', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'gray',  aiHint: 'light warm gray, quarry stone inspired, soft neutral gray roof' },
+  { id: 'oc-colonial-slate',   name: 'Colonial Slate',     color: '#4A5565', accent: '#354050', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'blue',  aiHint: 'dark blue-gray blend, colonial slate look, dramatic cool dark roof' },
+  { id: 'oc-williamsburg-gray',name: 'Williamsburg Gray',  color: '#6E6E6A', accent: '#555550', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'gray',  aiHint: 'rich gray with slate and earthy brown flecks, river stone inspired, 2024 color of the year' },
+  { id: 'oc-chateau-green',    name: 'Chateau Green',      color: '#3A5540', accent: '#2A4030', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'green', aiHint: 'deep rich green dimensional shingles, chateau-inspired forest green' },
+  { id: 'oc-harbor-blue',      name: 'Harbor Blue',        color: '#4A5E72', accent: '#354858', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'blue',  aiHint: 'dimensional blue-toned shingles, harbor blue with gray undertone' },
+  { id: 'oc-peppercorn',       name: 'Peppercorn',         color: '#3A3836', accent: '#252320', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'black', aiHint: 'dark charcoal with warm brown-black flecks, peppercorn texture, nearly black' },
+  { id: 'oc-terra-cotta',      name: 'Terra Cotta',        color: '#8B5E45', accent: '#6E4530', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'brown', aiHint: 'warm reddish-brown terra cotta shingles, earthy red-brown blend' },
+  { id: 'oc-sand-castle',      name: 'Sand Castle',        color: '#BBA888', accent: '#A09070', brand: 'Owens Corning Duration', type: 'Architectural Shingle', colorFamily: 'beige', aiHint: 'warm sandy beige shingles, sand castle inspired, light warm neutral' },
 
-  // CertainTeed Landmark
+  // ═══ OWENS CORNING DURATION DESIGNER ══════════════════
+  { id: 'oc-aged-copper',      name: 'Aged Copper',        color: '#7A5D48', accent: '#5E4535', brand: 'OC Duration Designer',   type: 'Designer Shingle',      colorFamily: 'brown', aiHint: 'warm copper-brown designer shingles, aged copper patina with rich brown and amber tones' },
+  { id: 'oc-summer-harvest',   name: 'Summer Harvest',     color: '#9A7A50', accent: '#7A5E3A', brand: 'OC Duration Designer',   type: 'Designer Shingle',      colorFamily: 'brown', aiHint: 'golden warm brown designer shingles, summer harvest blend, rich amber-brown' },
+  { id: 'oc-pacific-wave',     name: 'Pacific Wave',       color: '#4A6070', accent: '#354858', brand: 'OC Duration Designer',   type: 'Designer Shingle',      colorFamily: 'blue',  aiHint: 'deep ocean blue-gray designer shingles, pacific wave inspired, dramatic cool tones' },
+  { id: 'oc-sedona-canyon',    name: 'Sedona Canyon',      color: '#8A5A40', accent: '#6E4530', brand: 'OC Duration Designer',   type: 'Designer Shingle',      colorFamily: 'red',   aiHint: 'warm red-brown designer shingles, Sedona canyon inspired, earthy red with brown' },
+  { id: 'oc-midnight-plum',    name: 'Midnight Plum',      color: '#3A2838', accent: '#251828', brand: 'OC Duration Designer',   type: 'Designer Shingle',      colorFamily: 'red',   aiHint: 'deep plum-purple designer shingles, 2023 color of the year, dark dramatic purple-black' },
+  { id: 'oc-desert-rose',      name: 'Desert Rose',        color: '#9A7A6E', accent: '#7A5E52', brand: 'OC Duration Designer',   type: 'Designer Shingle',      colorFamily: 'brown', aiHint: 'soft rose-brown designer shingles, warm pink-brown desert inspired' },
+  { id: 'oc-evergreen-mist',   name: 'Evergreen Mist',     color: '#5A7060', accent: '#425548', brand: 'OC Duration Designer',   type: 'Designer Shingle',      colorFamily: 'green', aiHint: 'muted evergreen designer shingles, 2026 color of the year, misty garden green' },
+  { id: 'oc-gray-tweed',       name: 'Gray Tweed',         color: '#7A7570', accent: '#5E5A55', brand: 'OC Duration Designer',   type: 'Designer Shingle',      colorFamily: 'gray',  aiHint: 'rich dimensional gray designer shingles with brown and black flecks, textile-inspired' },
+  { id: 'oc-mountain-pine',    name: 'Mountain Pine',      color: '#4A5A42', accent: '#354530', brand: 'OC Duration Designer',   type: 'Designer Shingle',      colorFamily: 'green', aiHint: 'nature-inspired green designer shingles with earthy brown-gray tones, mountain forest' },
+
+  // ═══ OWENS CORNING DURATION FLEX (Impact Resistant) ════
+  { id: 'oc-flex-onyx',        name: 'Onyx Black FLEX',    color: '#1C1917', accent: '#0C0A09', brand: 'OC Duration FLEX',       type: 'Impact Resistant Shingle', colorFamily: 'black', aiHint: 'Class 4 impact resistant black shingles, SBS rubber modified, hail resistant pure black' },
+  { id: 'oc-flex-estate',      name: 'Estate Gray FLEX',   color: '#64748B', accent: '#475569', brand: 'OC Duration FLEX',       type: 'Impact Resistant Shingle', colorFamily: 'gray',  aiHint: 'Class 4 impact resistant gray shingles, SBS rubber modified, hail resistant estate gray' },
+  { id: 'oc-flex-driftwood',   name: 'Driftwood FLEX',     color: '#A09080', accent: '#857060', brand: 'OC Duration FLEX',       type: 'Impact Resistant Shingle', colorFamily: 'beige', aiHint: 'Class 4 impact resistant driftwood shingles, SBS rubber modified, hail resistant sandy brown' },
+  { id: 'oc-flex-brownwood',   name: 'Brownwood FLEX',     color: '#6B5040', accent: '#503A2A', brand: 'OC Duration FLEX',       type: 'Impact Resistant Shingle', colorFamily: 'brown', aiHint: 'Class 4 impact resistant brown shingles, SBS rubber modified, hail resistant deep brown' },
+  { id: 'oc-flex-teak',        name: 'Teak FLEX',          color: '#7A5E42', accent: '#5C4530', brand: 'OC Duration FLEX',       type: 'Impact Resistant Shingle', colorFamily: 'brown', aiHint: 'Class 4 impact resistant teak shingles, SBS rubber modified, hail resistant warm brown' },
+  { id: 'oc-flex-sand-dune',   name: 'Sand Dune FLEX',     color: '#BBA888', accent: '#A09070', brand: 'OC Duration FLEX',       type: 'Impact Resistant Shingle', colorFamily: 'beige', aiHint: 'Class 4 impact resistant sand shingles, SBS rubber modified, hail resistant warm tan' },
+
+  // ═══ CERTAINTEED LANDMARK ═════════════════════════════
   { id: 'ct-moire-black',      name: 'Moire Black',        color: '#252525', accent: '#151515', brand: 'CertainTeed Landmark',  type: 'Architectural Shingle', colorFamily: 'black', aiHint: 'jet black shingle roof with subtle tonal variation' },
   { id: 'ct-georgetown-gray',  name: 'Georgetown Gray',    color: '#6A7078', accent: '#4E545C', brand: 'CertainTeed Landmark',  type: 'Architectural Shingle', colorFamily: 'gray',  aiHint: 'refined medium gray, sophisticated Georgetown colonial gray' },
   { id: 'ct-heather-blend',    name: 'Heather Blend',      color: '#8A7A6A', accent: '#6A5E50', brand: 'CertainTeed Landmark',  type: 'Architectural Shingle', colorFamily: 'brown', aiHint: 'warm brown-gray blend, heathered natural look' },
 
-  // Standing Seam Metal
+  // ═══ DECRA STONE-COATED STEEL — Shake XD ══════════════
+  { id: 'decra-shk-chestnut',  name: 'Antique Chestnut',   color: '#7A5840', accent: '#5E4230', brand: 'DECRA Shake XD',        type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel shake roof with hand-split wood texture, antique chestnut brown, warm rich cedar look with steel durability' },
+  { id: 'decra-shk-pinnacle',  name: 'Pinnacle Grey',      color: '#6A6E70', accent: '#505458', brand: 'DECRA Shake XD',        type: 'Stone Coated Steel',    colorFamily: 'gray',  aiHint: 'stone-coated steel shake roof, pinnacle grey with natural stone granule texture, modern gray wood shake look' },
+  { id: 'decra-shk-shadowood', name: 'Shadowood',          color: '#5A4E42', accent: '#423830', brand: 'DECRA Shake XD',        type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel shake roof, deep shadow brown with wood grain profile, dark rich cedar shake aesthetic' },
+  { id: 'decra-shk-royal-oak', name: 'Royal Oak',          color: '#8A6E52', accent: '#6E5840', brand: 'DECRA Shake XD',        type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel shake roof, warm royal oak brown, golden-brown wood shake with heavy shadow lines' },
+
+  // ═══ DECRA STONE-COATED STEEL — Shingle XD ════════════
+  { id: 'decra-shn-cobble',    name: 'Classic Cobblestone', color: '#8A8478', accent: '#6E6860', brand: 'DECRA Shingle XD',      type: 'Stone Coated Steel',    colorFamily: 'gray',  aiHint: 'stone-coated steel shingle roof mimicking architectural asphalt, classic cobblestone gray-brown blend' },
+  { id: 'decra-shn-midnight',  name: 'Midnight Eclipse',   color: '#1E2028', accent: '#0E1018', brand: 'DECRA Shingle XD',      type: 'Stone Coated Steel',    colorFamily: 'black', aiHint: 'stone-coated steel shingle roof, midnight eclipse deep black with subtle blue undertone' },
+  { id: 'decra-shn-slate',     name: 'Natural Slate',      color: '#5A6268', accent: '#404850', brand: 'DECRA Shingle XD',      type: 'Stone Coated Steel',    colorFamily: 'gray',  aiHint: 'stone-coated steel shingle roof, natural slate blue-gray, cool sophisticated look' },
+  { id: 'decra-shn-hickory',   name: 'Old Hickory',        color: '#7A6248', accent: '#5E4A35', brand: 'DECRA Shingle XD',      type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel shingle roof, old hickory warm brown, rustic aged wood appearance' },
+  { id: 'decra-shn-green',     name: 'Woodland Green',     color: '#3A5038', accent: '#283A28', brand: 'DECRA Shingle XD',      type: 'Stone Coated Steel',    colorFamily: 'green', aiHint: 'stone-coated steel shingle roof, deep woodland green, forest-inspired dark green' },
+
+  // ═══ DECRA STONE-COATED STEEL — Villa Tile ════════════
+  { id: 'decra-vt-amalfi',     name: 'Amalfi Sand',        color: '#C4AD8A', accent: '#A89570', brand: 'DECRA Villa Tile',       type: 'Stone Coated Steel',    colorFamily: 'beige', aiHint: 'stone-coated steel barrel tile roof, Amalfi sand warm beige, Italian villa clay tile look with steel core' },
+  { id: 'decra-vt-capri',      name: 'Capri Clay',         color: '#B87040', accent: '#9A5830', brand: 'DECRA Villa Tile',       type: 'Stone Coated Steel',    colorFamily: 'red',   aiHint: 'stone-coated steel barrel tile roof, Capri clay warm terracotta, Mediterranean orange-red villa tile' },
+  { id: 'decra-vt-pompeii',    name: 'Pompeii Ash',        color: '#7A7672', accent: '#5E5A58', brand: 'DECRA Villa Tile',       type: 'Stone Coated Steel',    colorFamily: 'gray',  aiHint: 'stone-coated steel barrel tile roof, Pompeii ash cool gray, weathered Roman stone look' },
+  { id: 'decra-vt-rustico',    name: 'Rustico Clay',       color: '#9A6A42', accent: '#7A5232', brand: 'DECRA Villa Tile',       type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel barrel tile roof, rustico warm brown-clay blend, rustic Tuscan villa' },
+  { id: 'decra-vt-venetian',   name: 'Venetian Gold',      color: '#C4A050', accent: '#A88838', brand: 'DECRA Villa Tile',       type: 'Stone Coated Steel',    colorFamily: 'yellow',aiHint: 'stone-coated steel barrel tile roof, Venetian gold warm golden, luxurious sun-kissed Italian tile' },
+  { id: 'decra-vt-tuscan',     name: 'Tuscan Sun',         color: '#B8884A', accent: '#9A7038', brand: 'DECRA Villa Tile',       type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel barrel tile roof, Tuscan sun warm amber gold, Italian countryside warmth' },
+
+  // ═══ DECRA STONE-COATED STEEL — Tile (Mediterranean) ══
+  { id: 'decra-t-charcoal',    name: 'Charcoal Tile',      color: '#3A3C3E', accent: '#252728', brand: 'DECRA Tile',             type: 'Stone Coated Steel',    colorFamily: 'gray',  aiHint: 'stone-coated steel scalloped Mediterranean tile, dark charcoal, S-shaped profile' },
+  { id: 'decra-t-chestnut',    name: 'Chestnut Tile',      color: '#6B4E37', accent: '#4D3825', brand: 'DECRA Tile',             type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel scalloped Mediterranean tile, warm chestnut brown, European elegance' },
+  { id: 'decra-t-garnet',      name: 'Garnet Tile',        color: '#6B2A2A', accent: '#4D1818', brand: 'DECRA Tile',             type: 'Stone Coated Steel',    colorFamily: 'red',   aiHint: 'stone-coated steel scalloped Mediterranean tile, deep garnet red, rich dramatic red' },
+  { id: 'decra-t-terracotta',  name: 'Terracotta Tile',    color: '#B86A3A', accent: '#9A5228', brand: 'DECRA Tile',             type: 'Stone Coated Steel',    colorFamily: 'red',   aiHint: 'stone-coated steel scalloped Mediterranean tile, classic terracotta orange-red' },
+  { id: 'decra-t-timber',      name: 'Weathered Timber',   color: '#7A6A55', accent: '#5E5040', brand: 'DECRA Tile',             type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel scalloped Mediterranean tile, weathered timber brown, aged wood tone' },
+
+  // ═══ DECRA STONE-COATED STEEL — Shake (Classic) ═══════
+  { id: 'decra-s-granite',     name: 'Granite Grey',       color: '#7A7E80', accent: '#5E6264', brand: 'DECRA Shake',            type: 'Stone Coated Steel',    colorFamily: 'gray',  aiHint: 'stone-coated steel classic shake, granite grey, cedar shake profile with stone granule finish' },
+  { id: 'decra-s-chestnut',    name: 'Shake Chestnut',     color: '#6B4E37', accent: '#4D3825', brand: 'DECRA Shake',            type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel classic shake, warm chestnut, heavy shadow lines like real cedar' },
+  { id: 'decra-s-charcoal',    name: 'Shake Charcoal',     color: '#3A3C3E', accent: '#252728', brand: 'DECRA Shake',            type: 'Stone Coated Steel',    colorFamily: 'gray',  aiHint: 'stone-coated steel classic shake, dark charcoal, deep gray cedar shake look' },
+  { id: 'decra-s-timber',      name: 'Shake Weathered Timber', color: '#7A6A55', accent: '#5E5040', brand: 'DECRA Shake',        type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'stone-coated steel classic shake, weathered timber brown, aged natural cedar patina' },
+
+  // ═══ TILCOR STONE-COATED STEEL ════════════════════════
+  { id: 'tilcor-cf-charcoal',  name: 'CF Shingle Charcoal',color: '#333538', accent: '#202225', brand: 'Tilcor',                type: 'Stone Coated Steel',    colorFamily: 'gray',  aiHint: 'Tilcor stone-coated steel shingle, concealed fastening, charcoal gray, asphalt shingle look with steel durability' },
+  { id: 'tilcor-cf-cedar',     name: 'CF Shake Cedar',     color: '#8A6848', accent: '#6E5038', brand: 'Tilcor',                type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'Tilcor stone-coated steel shake, concealed fastening, warm cedar brown, rustic wood grain texture' },
+  { id: 'tilcor-antica-clay',  name: 'Antica Clay',        color: '#B87040', accent: '#9A5830', brand: 'Tilcor',                type: 'Stone Coated Steel',    colorFamily: 'red',   aiHint: 'Tilcor Antica stone-coated steel barrel tile, Mediterranean clay, S-tile Spanish style' },
+  { id: 'tilcor-antica-tuscany',name:'Antica Tuscany',     color: '#9A7A50', accent: '#7A5E3A', brand: 'Tilcor',                type: 'Stone Coated Steel',    colorFamily: 'brown', aiHint: 'Tilcor Antica stone-coated steel barrel tile, Tuscany warm gold-brown, Italian villa aesthetic' },
+
+  // ═══ STANDING SEAM METAL ══════════════════════════════
   { id: 'metal-black',         name: 'Matte Black',        color: '#1C1917', accent: '#0F0E0D', brand: 'Englert',               type: 'Standing Seam Metal', colorFamily: 'black',  aiHint: 'matte black standing seam metal roof, clean vertical ribs, modern' },
   { id: 'metal-bronze',        name: 'Dark Bronze',        color: '#7B6843', accent: '#5C4D30', brand: 'Englert',               type: 'Standing Seam Metal', colorFamily: 'brown',  aiHint: 'dark bronze standing seam metal, warm metallic brown-gold' },
   { id: 'metal-galvalume',     name: 'Galvalume Silver',   color: '#A8A8A8', accent: '#888888', brand: 'Englert',               type: 'Standing Seam Metal', colorFamily: 'gray',   aiHint: 'silver galvalume standing seam metal, industrial clean look' },
@@ -118,11 +187,11 @@ const ROOFING = [
   { id: 'metal-charcoal',      name: 'Charcoal Metal',     color: '#3A3C3E', accent: '#252728', brand: 'Englert',               type: 'Standing Seam Metal', colorFamily: 'gray',   aiHint: 'dark charcoal gray standing seam metal roof, sleek modern' },
   { id: 'metal-copper',        name: 'Aged Copper',        color: '#6B8B73', accent: '#4A6B52', brand: 'Custom',                type: 'Standing Seam Metal', colorFamily: 'green',  aiHint: 'patina copper standing seam metal, verdigris green, aged copper roof' },
 
-  // Cedar Shake
+  // ═══ CEDAR SHAKE ══════════════════════════════════════
   { id: 'shake-cedar',         name: 'Natural Cedar',      color: '#A0784A', accent: '#7B5B3A', brand: 'Maibec',                type: 'Cedar Shake',         colorFamily: 'brown',  aiHint: 'natural cedar shake roof, split cedar with warm honey-brown tones, rustic' },
   { id: 'shake-weathered',     name: 'Weathered Gray',     color: '#8A8A82', accent: '#6A6A62', brand: 'Maibec',                type: 'Cedar Shake',         colorFamily: 'gray',   aiHint: 'weathered silver-gray cedar shake, aged natural patina' },
 
-  // Tile
+  // ═══ CLAY & SYNTHETIC TILE ════════════════════════════
   { id: 'tile-terracotta',     name: 'Terracotta',         color: '#C46A3A', accent: '#A55228', brand: 'Boral',                 type: 'Clay Tile',           colorFamily: 'red',    aiHint: 'traditional terracotta barrel clay tile roof, Mediterranean style, warm orange-red' },
   { id: 'tile-slate-gray',     name: 'Slate Gray Tile',    color: '#5A5E62', accent: '#404448', brand: 'DaVinci',               type: 'Synthetic Tile',      colorFamily: 'gray',   aiHint: 'flat gray slate-look synthetic roof tiles, European style, clean gray' },
 ];

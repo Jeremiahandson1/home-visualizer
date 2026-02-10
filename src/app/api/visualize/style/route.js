@@ -12,7 +12,7 @@ export const maxDuration = 60;
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { imageBase64, styleId, tenantSlug } = body;
+    const { imageBase64, styleId, tenantSlug, customPrompt } = body;
 
     if (!imageBase64 || !styleId || !tenantSlug) {
       return NextResponse.json(
@@ -21,9 +21,15 @@ export async function POST(request) {
       );
     }
 
-    const style = getStyleById(styleId);
-    if (!style) {
-      return NextResponse.json({ error: 'Style not found' }, { status: 400 });
+    // Support custom prompts (from Shower Builder) or preset styles
+    let style;
+    if (customPrompt && styleId === 'custom-shower') {
+      style = { id: 'custom-shower', name: 'Custom Shower', prompt: customPrompt, category: 'bathroom' };
+    } else {
+      style = getStyleById(styleId);
+      if (!style) {
+        return NextResponse.json({ error: 'Style not found' }, { status: 400 });
+      }
     }
 
     // AI quality gate — is this a home photo? (~$0.002)

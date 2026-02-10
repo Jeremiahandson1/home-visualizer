@@ -7,6 +7,7 @@ import { trackEvent } from '@/lib/analytics';
 import { getVariant, getAllAssignments } from '@/lib/ab-test';
 import { EXAMPLE_TRANSFORMATIONS, TESTIMONIALS, getPopularityBadge } from '@/lib/social-proof';
 import CompareSlider from './CompareSlider';
+import ShowerBuilder from './ShowerBuilder';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const RESIZE_MAX_PX = 1024; // Resize to 1024px max before sending
@@ -704,6 +705,13 @@ export default function Visualizer({ config }) {
                 style={{ background: mode === 'products' ? primary : text + '06', color: mode === 'products' ? '#fff' : muted }}>
                 🎨 By Product
               </button>
+              {remodel === 'bathroom' && (
+                <button onClick={() => { setMode('builder'); setSelectedStyle(null); setProject(null); }}
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
+                  style={{ background: mode === 'builder' ? primary : text + '06', color: mode === 'builder' ? '#fff' : muted }}>
+                  🚿 Shower Builder
+                </button>
+              )}
             </div>
 
             {genError && (
@@ -983,6 +991,60 @@ export default function Visualizer({ config }) {
                   </>
                 )}
               </>
+            )}
+
+            {/* ── BUILDER — shower/tub configurator ────────── */}
+            {mode === 'builder' && (
+              <ShowerBuilder
+                onGenerate={async ({ prompt, summary }) => {
+                  // Use the style API path with a custom style object
+                  setSelectedStyle({ id: 'custom-shower', name: summary, prompt, category: 'bathroom' });
+                  setMaterial(null); setProject(null); setSelections({});
+                  setStep('generating');
+                  setGenError(null); setShowLeadForm(false);
+                  trackEvent('generate', config.tenantId, { mode: 'shower-builder', summary });
+
+                  let lastError = 'Generation failed';
+                  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+                    try {
+                      if (attempt > 0) {
+                        setProgressLabel(`Retrying... (attempt ${attempt + 1})`);
+                        await new Promise(r => setTimeout(r, 1500 * attempt));
+                      }
+                      const response = await fetch('/api/visualize/style', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          imageBase64: imageRaw,
+                          styleId: 'custom-shower',
+                          customPrompt: prompt,
+                          tenantSlug: config.slug,
+                        }),
+                      });
+                      const data = await response.json();
+                      if (response.status === 422 || response.status === 400) {
+                        throw { message: data.error || 'Invalid request', noRetry: true };
+                      }
+                      if (!response.ok) throw { message: data.error || 'Generation failed', noRetry: false };
+
+                      setGeneratedImage(`data:image/jpeg;base64,${data.generatedBase64}`);
+                      setGeneratedBase64(data.generatedBase64);
+                      setOriginalUrl(data.originalUrl);
+                      setGeneratedUrl(data.generatedUrl);
+                      setGenTime(data.generationTimeMs);
+                      trackEvent('generate_complete', config.tenantId, { mode: 'shower-builder', time_ms: data.generationTimeMs, attempts: attempt + 1 });
+                      setStep('result');
+                      return;
+                    } catch (err) {
+                      lastError = err.message || 'Generation failed';
+                      if (err.noRetry) break;
+                    }
+                  }
+                  setGenError(lastError);
+                  setStep('design');
+                }}
+                onBack={() => setMode('styles')}
+                primary={primary} muted={muted} border={border} surface={surface} text={text}
+              />
             )}
           </div>
         )}

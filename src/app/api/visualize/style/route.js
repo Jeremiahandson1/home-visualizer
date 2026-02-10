@@ -26,8 +26,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Style not found' }, { status: 400 });
     }
 
-    // AI quality gate — is this a house exterior? (~$0.002)
-    const gate = await validateHomePhoto(imageBase64);
+    // AI quality gate — is this a home photo? (~$0.002)
+    const isInterior = style.category === 'kitchen' || style.category === 'bathroom';
+    const gate = await validateHomePhoto(imageBase64, { allowInterior: isInterior });
     if (!gate.ok) {
       return NextResponse.json({ error: gate.reason, gate: gate.type }, { status: 422 });
     }
@@ -91,7 +92,7 @@ export async function POST(request) {
     // Log
     supabase.from('generations').insert({
       tenant_id: tenant.id,
-      project_type: 'exterior',
+      project_type: style.category || 'exterior',
       material_id: styleId,
       prompt: style.prompt,
       model: result.model || 'unknown',

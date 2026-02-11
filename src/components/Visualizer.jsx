@@ -66,11 +66,13 @@ const LOADING_TIPS = [
   'Higher quality = a little more wait time',
 ];
 
-// ─── Remodel types — the first choice after upload ────
+// ─── Remodel types — feature-flagged, combineable ─────
+// Each type is toggled via config.features (e.g. remodel_exterior: true)
+// If only one is enabled, the selection step is skipped entirely
 const REMODEL_TYPES = [
-  { id: 'exterior', label: 'Exterior Remodel', icon: '🏠', desc: 'Siding, roofing, paint, windows, doors & more', photo: 'Exterior photo works best' },
-  { id: 'kitchen',  label: 'Kitchen Remodel',  icon: '🍳', desc: 'Cabinets, countertops, backsplash & hardware', photo: 'Straight-on kitchen photo' },
-  { id: 'bathroom', label: 'Bathroom Remodel', icon: '🛁', desc: 'Tile, vanity, fixtures, shower & flooring', photo: 'Straight-on bathroom photo' },
+  { id: 'exterior',  featureKey: 'remodel_exterior',  label: 'Exterior Remodel', icon: '🏠', desc: 'Siding, roofing, paint, windows, doors & more', default: true },
+  { id: 'kitchen',   featureKey: 'remodel_kitchen',   label: 'Kitchen Remodel',  icon: '🍳', desc: 'Cabinets, countertops, backsplash & hardware', default: false },
+  { id: 'bathroom',  featureKey: 'remodel_bathroom',  label: 'Bathroom Remodel', icon: '🛁', desc: 'Tile, vanity, fixtures, shower & flooring', default: false },
 ];
 
 const REMODEL_PROJECTS = {
@@ -166,6 +168,18 @@ export default function Visualizer({ config }) {
     ? allEnabledProjects.filter(p => REMODEL_PROJECTS[remodel]?.includes(p.id))
     : allEnabledProjects;
 
+  // ─── Enabled remodel types from config ──────────────
+  // ─── Brand filtering per tenant ──────────────────────
+  // config.features.allowed_brands = ['GAF', 'James Hardie', ...] — whitelist
+  // If not set or empty, all brands shown
+  const allowedBrands = config.features?.allowed_brands;
+  const brandFilter = (m) => !allowedBrands?.length || allowedBrands.includes(m.brand);
+
+  const enabledRemodels = REMODEL_TYPES.filter(rt => {
+    const val = config.features?.[rt.featureKey];
+    return val === true || (val === undefined && rt.default);
+  });
+
   // Live social stats for social proof counter
   const [socialStats, setSocialStats] = useState({ totalDesigns: 0, thisWeek: 0 });
 
@@ -226,8 +240,8 @@ export default function Visualizer({ config }) {
     if (config.tenantId) params.set('tenant_id', config.tenantId);
     fetch(`/api/materials?${params}`)
       .then(r => r.json())
-      .then(data => { if (!cancelled) { setMaterials(Array.isArray(data) ? data : []); setLoadingMaterials(false); } })
-      .catch(() => { if (!cancelled) { setMaterials(MATERIALS[project.id] || []); setLoadingMaterials(false); } });
+      .then(data => { if (!cancelled) { setMaterials((Array.isArray(data) ? data : []).filter(brandFilter)); setLoadingMaterials(false); } })
+      .catch(() => { if (!cancelled) { setMaterials((MATERIALS[project.id] || []).filter(brandFilter)); setLoadingMaterials(false); } });
     return () => { cancelled = true; };
   }, [project, config.tenantId]);
 
@@ -268,7 +282,17 @@ export default function Visualizer({ config }) {
           original_kb: Math.round(file.size / 1024),
           resized_kb: Math.round((resized.length * 3 / 4) / 1024),
         });
-        setStep('remodel-type');
+        // If only one remodel type enabled, skip type selection
+        const enabled = REMODEL_TYPES.filter(rt => {
+          const val = config.features?.[rt.featureKey];
+          return val === true || (val === undefined && rt.default);
+        });
+        if (enabled.length === 1) {
+          // Auto-select and go straight to design
+          handleRemodelType(enabled[0].id);
+        } else {
+          setStep('remodel-type');
+        }
       };
       img.onerror = () => setUploadError('Could not read this image.');
       img.src = rawDataUrl;
@@ -569,8 +593,15 @@ export default function Visualizer({ config }) {
         {/* ═══════════ UPLOAD ═══════════════════════════ */}
         {step === 'upload' && (
           <div className="max-w-md mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2 leading-tight">See Your Space Transformed</h2>
-            <p className="text-sm mb-6" style={{ color: muted }}>Upload a photo of your home, kitchen, or bathroom</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 leading-tight">
+              {enabledRemodels.length === 1 && enabledRemodels[0].id === 'exterior'
+                ? 'See Your Home Transformed' : 'See Your Space Transformed'}
+            </h2>
+            <p className="text-sm mb-6" style={{ color: muted }}>
+              {enabledRemodels.length === 1 && enabledRemodels[0].id === 'exterior'
+                ? 'Upload a photo and pick a style — see it in seconds'
+                : 'Upload a photo of your home, kitchen, or bathroom'}
+            </p>
 
             <div
               className={`border-2 border-dashed rounded-2xl p-8 sm:p-10 cursor-pointer transition-all ${dragOver ? 'scale-[1.01]' : ''}`}
@@ -582,7 +613,10 @@ export default function Visualizer({ config }) {
             >
               <div className="text-5xl mb-3">📸</div>
               <p className="font-semibold text-lg mb-1">Take or upload a photo</p>
-              <p className="text-sm mb-4" style={{ color: muted }}>of your space</p>
+              <p className="text-sm mb-4" style={{ color: muted }}>
+                {enabledRemodels.length === 1 && enabledRemodels[0].id === 'exterior'
+                  ? 'of your home' : 'of your space'}
+              </p>
               <button
                 className="px-8 py-3 rounded-xl text-white font-bold shadow-lg active:scale-[0.98] transition"
                 style={{ background: primary }}
@@ -592,7 +626,11 @@ export default function Visualizer({ config }) {
             <input ref={fileRef} type="file" accept="image/*" className="hidden"
               onChange={(e) => handleFile(e.target.files[0])} />
             {uploadError && <p className="mt-3 text-sm text-red-600 font-medium">{uploadError}</p>}
-            <p className="text-xs mt-4" style={{ color: muted + '80' }}>JPG, PNG · Max 10MB · Straight-on photos work best</p>
+            <p className="text-xs mt-4" style={{ color: muted + '80' }}>
+              {enabledRemodels.length === 1 && enabledRemodels[0].id === 'exterior'
+                ? 'JPG, PNG · Max 10MB · Exterior photos work best'
+                : 'JPG, PNG · Max 10MB · Straight-on photos work best'}
+            </p>
 
             {/* Live counter */}
             {socialStats.totalDesigns > 5 && (
@@ -639,12 +677,7 @@ export default function Visualizer({ config }) {
             </div>
 
             <div className="grid gap-3">
-              {REMODEL_TYPES.map(rt => {
-                // Check if this type is enabled (at least one project in the type is enabled)
-                const typeProjects = REMODEL_PROJECTS[rt.id] || [];
-                const hasEnabled = typeProjects.some(pid => !config.features || config.features[pid] !== false);
-                if (!hasEnabled) return null;
-                return (
+              {enabledRemodels.map(rt => (
                   <button key={rt.id} onClick={() => handleRemodelType(rt.id)}
                     className="rounded-2xl border-2 p-5 text-left transition-all hover:shadow-lg active:scale-[0.98] group"
                     style={{ borderColor: border, background: surface }}>
@@ -657,8 +690,7 @@ export default function Visualizer({ config }) {
                       <div className="text-lg" style={{ color: muted }}>→</div>
                     </div>
                   </button>
-                );
-              })}
+              ))}
             </div>
           </div>
         )}
@@ -675,8 +707,10 @@ export default function Visualizer({ config }) {
                     : project ? `${project.icon} ${project.label}` : 'Build your design'}
                 </h2>
                 <div className="flex gap-2">
-                  <button onClick={() => { setStep('remodel-type'); setProject(null); setMaterial(null); setSelections({}); setMode('styles'); }}
-                    className="text-xs underline" style={{ color: muted }}>← Change type</button>
+                  {enabledRemodels.length > 1 && (
+                    <button onClick={() => { setStep('remodel-type'); setProject(null); setMaterial(null); setSelections({}); setMode('styles'); }}
+                      className="text-xs underline" style={{ color: muted }}>← Change type</button>
+                  )}
                   <button onClick={startOver} className="text-xs underline" style={{ color: muted }}>Change photo</button>
                 </div>
               </div>
@@ -809,7 +843,7 @@ export default function Visualizer({ config }) {
 
                     <p className="text-xs font-semibold mb-2" style={{ color: muted }}>Popular Products — tap to add to your design</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
-                      {POPULAR_PRODUCTS.map(m => {
+                      {POPULAR_PRODUCTS.filter(brandFilter).map(m => {
                         const isSelected = selections[m.category]?.id === m.id;
                         return (
                         <button key={m.id} onClick={() => {

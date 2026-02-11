@@ -28,6 +28,10 @@ export default function DemoPage() {
       deck: true,
       windows: true,
       exterior: true,
+      // Remodel types — flip these to test
+      remodel_exterior: true,    // ON — ships now
+      remodel_kitchen: false,    // OFF — enable when AI quality improves
+      remodel_bathroom: false,   // OFF — enable when AI quality improves
     },
     plan: 'demo',
   };

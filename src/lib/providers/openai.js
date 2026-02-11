@@ -1,5 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
-// OPENAI PROVIDER — Uses Responses API for both generation & refinement
+// OPENAI PROVIDER — Uses Responses API with GPT Image 1
+// Upgraded: gpt-4o → gpt-image-1 for faster generation
+// and better edit precision
 // ═══════════════════════════════════════════════════════════════
 
 import sharp from 'sharp';
@@ -17,7 +19,8 @@ async function preprocessImage(imageBuffer) {
 
 /**
  * Standard generation via Responses API with image_generation tool.
- * Sends the original photo + prompt, gets back a transformed image.
+ * Uses gpt-image-1 for precise, targeted edits
+ * that preserve the original house structure.
  */
 export async function generateWithOpenAI({ imageBuffer, project, material, overridePrompt }) {
   const { instruction } = buildPrompt(project, material, overridePrompt);
@@ -34,6 +37,7 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
     '- Show realistic material texture and depth.',
     '- Professional architectural photography quality.',
     '- This is the photo of the house to transform. Apply the changes to THIS exact house.',
+    '- ONLY change the specified materials — keep everything else identical.',
   ].join('\n');
 
   const response = await fetch(RESPONSES_URL, {
@@ -43,7 +47,7 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: 'gpt-image-1',
       input: [{
         role: 'user',
         content: [
@@ -76,7 +80,7 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
   return {
     imageBase64: imageOutput.result,
     prompt,
-    model: 'gpt-4o-image',
+    model: 'gpt-image-1',
     costCents: COST.generate,
   };
 }
@@ -121,7 +125,7 @@ export async function refineWithOpenAI({ imageBuffer, instruction, context, orig
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: 'gpt-image-1',
       input: [{ role: 'user', content: inputContent }],
       tools: [{
         type: 'image_generation',
@@ -142,7 +146,7 @@ export async function refineWithOpenAI({ imageBuffer, instruction, context, orig
   return {
     imageBase64: imageOutput.result,
     prompt: refinementPrompt,
-    model: 'gpt-4o-image',
+    model: 'gpt-image-1',
     costCents: COST.refine,
   };
 }

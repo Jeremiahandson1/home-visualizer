@@ -47,7 +47,7 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-40',
+      model: 'gpt-4o',
       input: [{
         role: 'user',
         content: [

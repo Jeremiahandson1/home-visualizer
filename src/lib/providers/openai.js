@@ -125,7 +125,7 @@ export async function refineWithOpenAI({ imageBuffer, instruction, context, orig
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-image-1',
+      model: 'gpt-4o',
       input: [{ role: 'user', content: inputContent }],
       tools: [{
         type: 'image_generation',

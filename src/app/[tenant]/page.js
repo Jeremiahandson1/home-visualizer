@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from '@/lib/supabase';
 import Visualizer from '@/components/Visualizer';
 
+export const dynamic = 'force-dynamic';
 // Generate metadata per-tenant for SEO
 export async function generateMetadata({ params }) {
   const { tenant: slug } = params;

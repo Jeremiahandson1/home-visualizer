@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { MATERIALS, filterMaterials, getBrandsForProject, getTypesForProject } from '@/lib/materials';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/materials?tenant_id=&category=&brand=&type=&colorFamily=&search=
 // Returns merged: tenant custom materials first, then built-in defaults
 export async function GET(request) {
@@ -26,7 +28,10 @@ export async function GET(request) {
 
   // Try custom materials from database first
   let customMaterials = [];
+  let hiddenKeys = new Set();
+
   if (tenantId) {
+    // Fetch custom materials
     let query = supabase
       .from('materials')
       .select('*')
@@ -40,7 +45,8 @@ export async function GET(request) {
       id: m.id,
       name: m.name,
       brand: m.brand,
-      type: m.category,
+      type: m.type || m.category,
+      subcategory: m.subcategory || '',
       color: m.color_hex || '#888',
       accent: m.color_hex || '#666',
       colorFamily: m.color_family || 'gray',
@@ -49,6 +55,13 @@ export async function GET(request) {
       description: m.description,
       custom: true,
     }));
+
+    // Fetch hidden product keys for this tenant
+    const { data: hiddenRows } = await supabase
+      .from('tenant_hidden_materials')
+      .select('material_key')
+      .eq('tenant_id', tenantId);
+    hiddenKeys = new Set((hiddenRows || []).map(r => r.material_key));
   }
 
   // Get built-in materials with optional filters
@@ -59,13 +72,19 @@ export async function GET(request) {
     // Return all categories
     const all = {};
     for (const [cat, mats] of Object.entries(MATERIALS)) {
-      all[cat] = filterMaterials(cat, { brand, type, colorFamily, search });
+      all[cat] = filterMaterials(cat, { brand, type, colorFamily, search })
+        .filter(m => !hiddenKeys.has(m.id));
     }
     return NextResponse.json({
       custom: customMaterials,
       builtin: all,
       totalProducts: Object.values(all).reduce((s, a) => s + a.length, 0),
     });
+  }
+
+  // Filter out hidden products
+  if (hiddenKeys.size > 0) {
+    builtIn = builtIn.filter(m => !hiddenKeys.has(m.id));
   }
 
   // Merge: custom first, then built-in

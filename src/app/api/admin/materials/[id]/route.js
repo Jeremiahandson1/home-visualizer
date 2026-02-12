@@ -11,8 +11,9 @@ export async function PUT(request, { params }) {
   const supabase = getSupabaseAdmin();
 
   const allowed = [
-    'category', 'brand', 'name', 'color_name', 'color_hex',
-    'swatch_url', 'description', 'ai_prompt_hint', 'sort_order', 'active',
+    'category', 'subcategory', 'brand', 'name', 'color_name', 'color_hex',
+    'color_family', 'type', 'swatch_url', 'description', 'ai_prompt_hint',
+    'sort_order', 'active',
   ];
 
   const updates = {};
@@ -22,7 +23,7 @@ export async function PUT(request, { params }) {
     .from('materials')
     .update(updates)
     .eq('id', params.id)
-    .select()
+    .select('*, tenants(company_name, slug)')
     .single();
 
   if (error) {

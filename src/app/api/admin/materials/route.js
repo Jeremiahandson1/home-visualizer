@@ -39,8 +39,8 @@ export async function POST(request) {
 
   const body = await request.json();
   const {
-    tenant_id, category, brand, name, color_name, color_hex,
-    swatch_url, description, ai_prompt_hint, sort_order,
+    tenant_id, category, subcategory, brand, name, color_name, color_hex,
+    color_family, type, swatch_url, description, ai_prompt_hint, sort_order,
   } = body;
 
   if (!category || !brand || !name) {
@@ -52,19 +52,22 @@ export async function POST(request) {
   const { data, error } = await supabase
     .from('materials')
     .insert({
-      tenant_id: tenant_id || null, // null = global (available to all tenants)
+      tenant_id: tenant_id || null,
       category,
+      subcategory: subcategory || null,
       brand,
       name,
       color_name: color_name || '',
       color_hex: color_hex || null,
+      color_family: color_family || 'gray',
+      type: type || null,
       swatch_url: swatch_url || null,
       description: description || '',
       ai_prompt_hint: ai_prompt_hint || '',
       sort_order: sort_order || 0,
       active: true,
     })
-    .select()
+    .select('*, tenants(company_name, slug)')
     .single();
 
   if (error) {

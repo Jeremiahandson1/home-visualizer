@@ -144,7 +144,7 @@ function getFallbackKey(provider) {
 export function buildPrompt(project, material, overridePrompt) {
   if (overridePrompt) {
     return {
-      instruction: overridePrompt + PHOTO_RULES,
+      instruction: STRUCTURE_ANCHOR + overridePrompt + PHOTO_RULES,
       style: STYLE_DIRECTIVE,
       negative: NEGATIVE_PROMPT,
     };
@@ -157,7 +157,7 @@ export function buildPrompt(project, material, overridePrompt) {
   let materialDesc = `${material.brand} ${material.name}`;
   if (material.type) materialDesc += ` (${material.type})`;
 
-  let prompt = instruction(material, materialDesc);
+  let prompt = STRUCTURE_ANCHOR + instruction(material, materialDesc);
 
   // Append AI hint if available (from custom materials or built-in aiHint)
   const hint = material.aiPromptHint || material.aiHint;
@@ -195,7 +195,7 @@ export function buildMultiPrompt(selections) {
   });
 
   const combinedPrompt = [
-    'Make the following changes to this house simultaneously:',
+    STRUCTURE_ANCHOR + 'Make the following changes to this house simultaneously:',
     '',
     ...changes.map((c, i) => `CHANGE ${i + 1}:\n${c}`),
     '',
@@ -222,6 +222,11 @@ CRITICAL PHOTOREALISM RULES:
 6. Reflections in windows must be consistent with the environment.
 7. Only change what was specifically requested. Everything else stays identical.
 8. Material transitions and edges must look professionally installed — clean seams, proper flashing, appropriate trim.`;
+
+// Strong anchor that goes at the TOP of every prompt to prevent the AI from generating a new house
+const STRUCTURE_ANCHOR = `IMPORTANT: You are EDITING an existing photograph of a real house. Do NOT generate a new house. Do NOT change the house shape, roofline angles, number of windows, number of stories, garage position, or overall footprint. The output must be recognizably the SAME house from the SAME camera angle with the SAME surroundings. You are ONLY changing surface materials and finishes — like a renovation, not a rebuild.
+
+`;
 
 const PROJECT_PROMPTS = {
   siding: (mat, desc) =>
@@ -315,15 +320,15 @@ ONLY change the gutters and downspouts.`,
   },
 
   exterior: (mat, desc) =>
-    `Transform this home's entire exterior into a ${mat.name} style.
-Apply a cohesive ${mat.name} design language across the ENTIRE exterior:
+    `Restyle the exterior finishes of this house to achieve a ${mat.name} look.
+Apply a cohesive ${mat.name} design language to the surface materials ONLY:
 - Siding material and color appropriate for ${mat.name} style
 - Trim, corner boards, and fascia in complementary colors
-- Window treatment appropriate for the style
-- Entry and door treatment consistent with the style
-- Roof material/color if a change is necessary for style cohesion
+- Window frame color/style appropriate for the style (same positions and sizes)
+- Entry door treatment consistent with the style
+- Roof material/color change if needed for style cohesion (same roof shape)
 - All architectural accents and details consistent with ${mat.name}
-Keep the same basic house structure and lot.`,
+Keep the exact same house structure, shape, roofline, window positions, and camera angle. Only change surface finishes.`,
 
   kitchen: (mat, desc) => {
     const sub = mat.subcategory || 'cabinets';

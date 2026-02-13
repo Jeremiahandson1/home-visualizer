@@ -1,7 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// OPENAI PROVIDER — Uses Responses API with GPT Image 1
-// Upgraded: gpt-4o → gpt-image-1 for faster generation
-// and better edit precision
+// OPENAI PROVIDER — Uses Responses API for both generation & refinement
 // ═══════════════════════════════════════════════════════════════
 
 import sharp from 'sharp';
@@ -19,8 +17,7 @@ async function preprocessImage(imageBuffer) {
 
 /**
  * Standard generation via Responses API with image_generation tool.
- * Uses gpt-image-1 for precise, targeted edits
- * that preserve the original house structure.
+ * Sends the original photo + prompt, gets back a transformed image.
  */
 export async function generateWithOpenAI({ imageBuffer, project, material, overridePrompt }) {
   const { instruction } = buildPrompt(project, material, overridePrompt);
@@ -31,13 +28,13 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
     instruction,
     '',
     'QUALITY DIRECTIVES:',
+    '- This is a photo of a REAL house. EDIT this photo. Do NOT create a new house.',
+    '- The output must show the SAME house from the SAME angle — only surface materials change.',
     '- Output must be indistinguishable from a real photograph.',
-    '- Maintain exact structure, proportions, perspective.',
+    '- Maintain exact structure, proportions, perspective, window count, roofline.',
     '- Lighting and shadows consistent with original.',
     '- Show realistic material texture and depth.',
     '- Professional architectural photography quality.',
-    '- This is the photo of the house to transform. Apply the changes to THIS exact house.',
-    '- ONLY change the specified materials — keep everything else identical.',
   ].join('\n');
 
   const response = await fetch(RESPONSES_URL, {
@@ -80,7 +77,7 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
   return {
     imageBase64: imageOutput.result,
     prompt,
-    model: 'gpt-image-1',
+    model: 'gpt-4o-image',
     costCents: COST.generate,
   };
 }
@@ -146,7 +143,7 @@ export async function refineWithOpenAI({ imageBuffer, instruction, context, orig
   return {
     imageBase64: imageOutput.result,
     prompt: refinementPrompt,
-    model: 'gpt-image-1',
+    model: 'gpt-4o-image',
     costCents: COST.refine,
   };
 }

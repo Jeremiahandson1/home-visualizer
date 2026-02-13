@@ -98,7 +98,7 @@ export default function Visualizer({ config }) {
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef(null);
 
-  const [mode, setMode] = useState('styles');
+  const [mode, setMode] = useState('products');
   const [remodel, setRemodel] = useState(null); // 'exterior' | 'kitchen' | 'bathroom'
   const [selectedStyle, setSelectedStyle] = useState(null);
   const [project, setProject] = useState(null);
@@ -115,6 +115,9 @@ export default function Visualizer({ config }) {
   const [generatedBase64, setGeneratedBase64] = useState(null);
   const [originalUrl, setOriginalUrl] = useState(null);
   const [generatedUrl, setGeneratedUrl] = useState(null);
+  const [iterationBase, setIterationBase] = useState(null); // base64 for iterative stacking — null = use original
+  const [iterationCount, setIterationCount] = useState(0); // how many renders stacked
+  const MAX_SELECTIONS = 3; // max products per render
   const [genError, setGenError] = useState(null);
   const [genTime, setGenTime] = useState(null);
   const [resultRevealed, setResultRevealed] = useState(false);
@@ -327,12 +330,12 @@ export default function Visualizer({ config }) {
         if (style) {
           response = await fetch('/api/visualize/style', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageBase64: imageRaw, styleId: style.id, tenantSlug: config.slug }),
+            body: JSON.stringify({ imageBase64: iterationBase || imageRaw, styleId: style.id, tenantSlug: config.slug }),
           });
         } else {
           response = await fetch('/api/visualize', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageBase64: imageRaw, project: project.id, materialId: mat.id, tenantSlug: config.slug }),
+            body: JSON.stringify({ imageBase64: iterationBase || imageRaw, project: project.id, materialId: mat.id, tenantSlug: config.slug }),
           });
         }
 
@@ -351,9 +354,10 @@ export default function Visualizer({ config }) {
         setOriginalUrl(data.originalUrl);
         setGeneratedUrl(data.generatedUrl);
         setGenTime(data.generationTimeMs);
+        setIterationCount(c => c + 1);
         trackEvent('generate_complete', config.tenantId, {
           time_ms: data.generationTimeMs, provider: data.provider, isDemo: data.isDemo,
-          attempts: attempt + 1,
+          attempts: attempt + 1, iteration: iterationCount + 1,
         });
         setStep('result');
         return; // Success — exit retry loop
@@ -384,6 +388,8 @@ export default function Visualizer({ config }) {
         setActiveSubcat(sc ? sc[0].id : null);
       }
     }
+    // Exterior goes straight to products (styles removed for exterior)
+    if (type === 'exterior') setMode('products');
     setStep('design');
   };
   const handleMaterialTap = (mat, categoryOverride) => {
@@ -391,6 +397,9 @@ export default function Visualizer({ config }) {
     if (!cat) return;
     // For subcategorized projects (kitchen/bathroom), use subcategory as selection key
     const subcatKey = mat.subcategory ? `${cat}_${mat.subcategory}` : cat;
+    // Enforce max selections — allow replacing existing key, block new keys past limit
+    const isReplacing = selections[subcatKey] !== undefined;
+    if (!isReplacing && Object.keys(selections).length >= MAX_SELECTIONS) return;
     setSelections(prev => ({ ...prev, [subcatKey]: mat }));
     setMaterial(mat);
     // Auto-advance to next subcategory if available
@@ -444,7 +453,7 @@ export default function Visualizer({ config }) {
         }
         const response = await fetch('/api/visualize', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64: imageRaw, selections: sels, tenantSlug: config.slug }),
+          body: JSON.stringify({ imageBase64: iterationBase || imageRaw, selections: sels, tenantSlug: config.slug }),
         });
         const data = await response.json();
         if (response.status === 422 || response.status === 400) {
@@ -457,7 +466,8 @@ export default function Visualizer({ config }) {
         setOriginalUrl(data.originalUrl);
         setGeneratedUrl(data.generatedUrl);
         setGenTime(data.generationTimeMs);
-        trackEvent('generate_complete', config.tenantId, { time_ms: data.generationTimeMs, mode: 'multi', attempts: attempt + 1 });
+        setIterationCount(c => c + 1);
+        trackEvent('generate_complete', config.tenantId, { time_ms: data.generationTimeMs, mode: 'multi', attempts: attempt + 1, iteration: iterationCount + 1 });
         setStep('result');
         setResultRevealed(false);
         setTimeout(() => setResultRevealed(true), 100);
@@ -543,6 +553,17 @@ export default function Visualizer({ config }) {
   };
 
   const tryAnother = () => {
+    // Keep stacking — use last generated as new base for next render
+    if (generatedBase64) setIterationBase(generatedBase64);
+    setGeneratedImage(null); setGeneratedBase64(null); setGenError(null);
+    setRefineText(''); setSelectedStyle(null); setMaterial(null); setShowLeadForm(false);
+    setSelections({});
+    setStep('design');
+  };
+
+  const startFresh = () => {
+    // Reset to original photo — start over without re-uploading
+    setIterationBase(null); setIterationCount(0);
     setGeneratedImage(null); setGeneratedBase64(null); setGenError(null);
     setRefineText(''); setSelectedStyle(null); setMaterial(null); setShowLeadForm(false);
     setSelections({});
@@ -550,8 +571,9 @@ export default function Visualizer({ config }) {
   };
 
   const startOver = () => {
-    tryAnother(); setImage(null); setImageRaw(null); setProject(null);
-    setMode('styles'); setFavorites([]); setSelections({}); setRemodel(null);
+    startFresh(); setImage(null); setImageRaw(null); setProject(null);
+    setMode('products'); setFavorites([]); setSelections({}); setRemodel(null);
+    setIterationBase(null); setIterationCount(0);
     setLead({ name: '', email: '', phone: '', address: '' });
     setLeadSubmitted(false); setStep('upload');
   };
@@ -699,30 +721,40 @@ export default function Visualizer({ config }) {
         {step === 'design' && (
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={image} alt="" className="w-14 h-14 rounded-xl object-cover shadow-sm flex-shrink-0" />
+              <img src={iterationBase ? `data:image/jpeg;base64,${iterationBase}` : image} alt="" className="w-14 h-14 rounded-xl object-cover shadow-sm flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg sm:text-xl font-bold leading-tight">
                   {mode === 'styles'
                     ? `${remodel === 'kitchen' ? '🍳' : remodel === 'bathroom' ? '🛁' : '🏠'} Pick a style`
                     : project ? `${project.icon} ${project.label}` : 'Build your design'}
                 </h2>
+                {iterationCount > 0 && (
+                  <p className="text-xs font-medium mt-0.5" style={{ color: primary }}>
+                    🔄 Round {iterationCount + 1} — changes stack on your last render
+                  </p>
+                )}
                 <div className="flex gap-2">
                   {enabledRemodels.length > 1 && (
-                    <button onClick={() => { setStep('remodel-type'); setProject(null); setMaterial(null); setSelections({}); setMode('styles'); }}
+                    <button onClick={() => { setStep('remodel-type'); setProject(null); setMaterial(null); setSelections({}); setMode('products'); }}
                       className="text-xs underline" style={{ color: muted }}>← Change type</button>
+                  )}
+                  {iterationCount > 0 && (
+                    <button onClick={startFresh} className="text-xs underline" style={{ color: muted }}>Reset to original</button>
                   )}
                   <button onClick={startOver} className="text-xs underline" style={{ color: muted }}>Change photo</button>
                 </div>
               </div>
             </div>
 
-            {/* Mode tabs */}
+            {/* Mode tabs — styles only available for kitchen/bathroom */}
             <div className="flex gap-2 mb-4">
-              <button onClick={() => { setMode('styles'); setProject(null); setMaterial(null); }}
-                className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
-                style={{ background: mode === 'styles' ? primary : text + '06', color: mode === 'styles' ? '#fff' : muted }}>
-                ✨ Style Makeover
-              </button>
+              {(remodel === 'kitchen' || remodel === 'bathroom') && (
+                <button onClick={() => { setMode('styles'); setProject(null); setMaterial(null); }}
+                  className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
+                  style={{ background: mode === 'styles' ? primary : text + '06', color: mode === 'styles' ? '#fff' : muted }}>
+                  ✨ Style Makeover
+                </button>
+              )}
               <button onClick={() => {
                 setMode('products'); setSelectedStyle(null);
                 // For kitchen/bathroom, auto-enter the project since there's only one
@@ -769,8 +801,7 @@ export default function Visualizer({ config }) {
                 <p className="text-xs mb-3 px-1" style={{ color: muted }}>
                   {remodel === 'kitchen' ? 'Complete kitchen style transformations — tap one to generate.'
                     : remodel === 'bathroom' ? 'Complete bathroom style transformations — tap one to generate.'
-                    : <>These reimagine your home&apos;s entire look — architecture, materials, and colors.
-                  For material-only changes, use <button onClick={() => { setMode('products'); setSelectedStyle(null); }} className="underline font-semibold" style={{ color: primary }}>By Product</button>.</>}
+                    : 'Full style makeover — tap one to generate.'}
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {getStylesByCategory(remodel || 'exterior').map(style => {
@@ -821,7 +852,10 @@ export default function Visualizer({ config }) {
                     {Object.keys(selections).length > 0 && (
                       <div className="mb-4 p-3 rounded-xl border" style={{ borderColor: primary + '40', background: primary + '08' }}>
                         <p className="text-xs font-bold mb-2" style={{ color: primary }}>
-                          Your selections ({Object.keys(selections).length})
+                          Your selections ({Object.keys(selections).length}/{MAX_SELECTIONS})
+                          {Object.keys(selections).length >= MAX_SELECTIONS && (
+                            <span className="ml-1 font-normal" style={{ color: muted }}> — max {MAX_SELECTIONS} per render for best results</span>
+                          )}
                         </p>
                         <div className="flex flex-wrap gap-2 mb-3">
                           {Object.entries(selections).map(([key, mat]) => (
@@ -841,7 +875,11 @@ export default function Visualizer({ config }) {
                       </div>
                     )}
 
-                    <p className="text-xs font-semibold mb-2" style={{ color: muted }}>Popular Products — tap to add to your design</p>
+                    <p className="text-xs font-semibold mb-2" style={{ color: muted }}>
+                      {iterationCount > 0
+                        ? `Round ${iterationCount + 1} — pick up to ${MAX_SELECTIONS} more changes to layer on`
+                        : `Popular Products — pick up to ${MAX_SELECTIONS}, then add more in the next round`}
+                    </p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 mb-4">
                       {POPULAR_PRODUCTS.filter(brandFilter).map(m => {
                         const isSelected = selections[m.category]?.id === m.id;
@@ -1160,8 +1198,9 @@ export default function Visualizer({ config }) {
                 {step === 'submitted' ? '✅ Request sent!' : selectionLabel}
               </h2>
               <div className="flex gap-1.5 flex-shrink-0">
-                <Pill onClick={tryAnother} style={{ borderColor: border, color: muted }}>↺ New</Pill>
-                <Pill onClick={share} style={{ background: primary + '12', color: primary }}>
+                <Pill onClick={tryAnother} style={{ background: primary + '12', color: primary }}>✚ Keep & Change More</Pill>
+                <Pill onClick={startFresh} style={{ borderColor: border, color: muted }}>↺ Start Fresh</Pill>
+                <Pill onClick={share} style={{ borderColor: border, color: muted }}>
                   {copied ? '✓ Copied' : '↗ Share'}
                 </Pill>
                 {!favorites.find(f => f.image === generatedImage) && (

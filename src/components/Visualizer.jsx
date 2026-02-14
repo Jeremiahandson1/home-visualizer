@@ -779,7 +779,7 @@ export default function Visualizer({ config }) {
                   🚿 Shower Builder
                 </button>
               )}
-              <button onClick={() => { setMode('wand'); setSelectedStyle(null); setProject(null); setSelections({}); setWandZone(null); }}
+              <button onClick={() => { setMode('wand'); setSelectedStyle(null); setProject(null); setSelections({}); }}
                 className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
                 style={{ background: mode === 'wand' ? primary : text + '06', color: mode === 'wand' ? '#fff' : muted }}>
                 ✦ Magic Wand
@@ -1125,26 +1125,28 @@ export default function Visualizer({ config }) {
               />
             )}
 
-            {/* ── MAGIC WAND — click-to-segment zone editor ──── */}
+            {/* ── DESIGN MODE — Hover-style surface editor ──── */}
             {mode === 'wand' && (
-  <DesignMode
-    imageSrc={iterationBase ? `data:image/jpeg;base64,${iterationBase}` : image}
-    imageBase64={iterationBase || imageRaw}
-    tenantSlug={config.slug}
-    config={config}
-    onRenderStart={() => {
-      trackEvent('generate', config.tenantId, { mode: 'design' });
-    }}
-    onRenderComplete={(newBase64) => {
-      setIterationBase(newBase64);
-      setIterationCount(c => c + 1);
-      setGeneratedImage(`data:image/jpeg;base64,${newBase64}`);
-      setGeneratedBase64(newBase64);
-      setStep('design');
-      trackEvent('generate_complete', config.tenantId, { mode: 'design' });
-    }}
-  />
-)}
+              <DesignMode
+                imageSrc={iterationBase ? `data:image/jpeg;base64,${iterationBase}` : image}
+                imageBase64={iterationBase || imageRaw}
+                tenantSlug={config.slug}
+                config={config}
+                onRenderStart={() => {
+                  trackEvent('generate', config.tenantId, { mode: 'design' });
+                }}
+                onRenderComplete={(newBase64) => {
+                  setIterationBase(newBase64);
+                  setIterationCount(c => c + 1);
+                  setGeneratedImage(`data:image/jpeg;base64,${newBase64}`);
+                  setGeneratedBase64(newBase64);
+                  setStep('design');
+                  trackEvent('generate_complete', config.tenantId, { mode: 'design' });
+                }}
+              />
+            )}
+          </div>
+        )}
 
         {/* ═══════════ GENERATING — with progress ════ */}
         {step === 'generating' && (

@@ -117,33 +117,6 @@ export default function DesignMode({
     setLoadingMaterials(false);
   }
 
-  // Track original image dimensions for resize matching
-  const [originalDims, setOriginalDims] = useState(null);
-
-  useEffect(() => {
-    if (!imageSrc) return;
-    const img = new window.Image();
-    img.onload = () => setOriginalDims({ w: img.naturalWidth, h: img.naturalHeight });
-    img.src = imageSrc;
-  }, [imageSrc]);
-
-  // Resize a base64 image to match original dimensions
-  function resizeToMatch(base64, targetW, targetH) {
-    return new Promise((resolve) => {
-      const img = new window.Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = targetW;
-        canvas.height = targetH;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, targetW, targetH);
-        resolve(canvas.toDataURL('image/jpeg', 0.92).split(',')[1]);
-      };
-      img.onerror = () => resolve(base64);
-      img.src = `data:image/jpeg;base64,${base64}`;
-    });
-  }
-
   function selectMaterial(material) {
     setSelectedMaterials(prev => ({ ...prev, [activeCategory]: material }));
   }
@@ -178,12 +151,7 @@ export default function DesignMode({
       const data = await res.json();
       if (!res.ok) { setRenderError(data.error || 'Render failed'); return; }
 
-      // Resize render output to match original photo dimensions
-      let newBase64 = data.generatedBase64;
-      if (originalDims) {
-        newBase64 = await resizeToMatch(newBase64, originalDims.w, originalDims.h);
-      }
-
+      const newBase64 = data.generatedBase64;
       setRenderResult(`data:image/jpeg;base64,${newBase64}`);
       setCurrentBase64(newBase64);
       setCurrentSrc(`data:image/jpeg;base64,${newBase64}`);

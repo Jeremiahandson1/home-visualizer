@@ -185,7 +185,7 @@ export default function DesignMode({
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-5 lg:items-start">
 
         {/* ── LEFT: Photo ─────────────────────────────── */}
-        <div className="w-full lg:w-[60%] lg:flex-shrink-0">
+        <div className="w-full lg:w-[65%] lg:flex-shrink-0">
           <div className="relative rounded-2xl overflow-hidden shadow-lg border lg:sticky lg:top-4"
             style={{ borderColor: border }}>
 
@@ -244,7 +244,7 @@ export default function DesignMode({
         </div>
 
         {/* ── RIGHT: Picker panel ─────────────────────── */}
-        <div className="w-full lg:w-[40%] lg:min-w-0 flex flex-col">
+        <div className="w-full lg:w-[35%] lg:min-w-0 flex flex-col">
 
           {/* Panel header */}
           <div className="flex items-center justify-between mb-2">
@@ -332,8 +332,8 @@ export default function DesignMode({
                 </p>
               ) : (
                 <div
-                  className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2 overflow-y-auto flex-1 pr-0.5
-                    max-h-[280px] lg:max-h-[calc(100vh-320px)]"
+                  className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 gap-1.5 overflow-y-auto flex-1 pr-0.5
+                    max-h-[280px] lg:max-h-[calc(100vh-300px)]"
                   style={{ scrollbarWidth: 'thin' }}
                 >
                   {materials.map((mat, i) => {
@@ -344,7 +344,7 @@ export default function DesignMode({
                       <button
                         key={`${mat.brand}-${mat.name}-${i}`}
                         onClick={() => selectMaterial(mat)}
-                        className="flex flex-col items-center gap-1 p-1.5 rounded-xl border transition-all active:scale-95"
+                        className="flex flex-col items-center gap-0.5 p-1 rounded-lg border transition-all active:scale-95"
                         style={{
                           borderColor: isSelected ? primary : border,
                           background: isSelected ? primary + '10' : 'white',
@@ -352,19 +352,19 @@ export default function DesignMode({
                           boxShadow: isSelected ? `0 0 0 1px ${primary}40` : 'none',
                         }}
                       >
-                        <div className="w-full aspect-[4/3] rounded-lg border border-gray-200"
+                        <div className="w-full aspect-square rounded-md border border-gray-200"
                           style={{
                             background: mat.swatch
                               ? `url(${mat.swatch}) center/cover`
                               : (mat.colorHex || mat.color || '#E5E5E5'),
                           }}
                         />
-                        <span className="text-[10px] font-semibold text-center leading-tight line-clamp-2 w-full"
+                        <span className="text-[9px] font-semibold text-center leading-tight line-clamp-2 w-full px-0.5"
                           style={{ color: isSelected ? primary : '#374151' }}>
                           {mat.name}
                         </span>
                         {mat.brand && (
-                          <span className="text-[9px] text-gray-400 text-center leading-tight truncate w-full">
+                          <span className="text-[8px] text-gray-400 text-center leading-tight truncate w-full">
                             {mat.brand}
                           </span>
                         )}

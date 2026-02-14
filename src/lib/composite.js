@@ -9,6 +9,46 @@
 import sharp from 'sharp';
 
 /**
+ * Convert SAM grayscale mask to RGBA PNG for OpenAI edits API
+ * 
+ * SAM mask: white (255) = edit zone, black (0) = preserve
+ * OpenAI edits API: transparent (alpha=0) = edit zone, opaque (alpha=255) = preserve
+ * 
+ * So we INVERT the grayscale values and use them as the alpha channel.
+ * 
+ * @param {string} maskBase64 - SAM grayscale mask (base64 PNG, white=edit)
+ * @returns {string} RGBA mask as base64 PNG (transparent=edit)
+ */
+export async function convertMaskForOpenAI(maskBase64) {
+  const maskBuf = Buffer.from(maskBase64, 'base64');
+
+  // Read mask as single-channel grayscale raw pixels
+  const { data, info } = await sharp(maskBuf)
+    .grayscale()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const { width, height } = info;
+
+  // Build RGBA buffer: RGB=black, Alpha=INVERTED grayscale
+  // white(255) → alpha=0 (transparent → OpenAI edits this area)
+  // black(0) → alpha=255 (opaque → OpenAI preserves this area)
+  const rgba = Buffer.alloc(width * height * 4);
+  for (let i = 0; i < width * height; i++) {
+    rgba[i * 4 + 0] = 0;               // R — black
+    rgba[i * 4 + 1] = 0;               // G — black
+    rgba[i * 4 + 2] = 0;               // B — black
+    rgba[i * 4 + 3] = 255 - data[i];   // A — inverted mask
+  }
+
+  const result = await sharp(rgba, { raw: { width, height, channels: 4 } })
+    .png()
+    .toBuffer();
+
+  return result.toString('base64');
+}
+
+/**
  * Composite: blend AI-generated region into original photo using mask
  * 
  * @param {Buffer|string} originalBase64 - Original photo (base64)
@@ -28,8 +68,10 @@ export async function compositeWithMask(originalBase64, generatedBase64, maskBas
   const { width, height } = origMeta;
 
   // Resize generated + mask to match original exactly
+  // CRITICAL: .removeAlpha() ensures 3 channels even if OpenAI returns RGBA PNG
   const generatedResized = await sharp(generatedBuf)
     .resize(width, height, { fit: 'fill' })
+    .removeAlpha()
     .raw()
     .toBuffer();
 
@@ -47,9 +89,10 @@ export async function compositeWithMask(originalBase64, generatedBase64, maskBas
 
   const maskRaw = await maskProcessed.raw().toBuffer();
 
-  // Get original as raw pixels
+  // Get original as raw pixels — also force 3 channels
   const originalRaw = await sharp(originalBuf)
     .resize(width, height, { fit: 'fill' })
+    .removeAlpha()
     .raw()
     .toBuffer();
 

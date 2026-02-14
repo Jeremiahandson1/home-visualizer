@@ -12,7 +12,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { NextResponse } from 'next/server';
-import { compositeWithMask, combineMasks } from '@/lib/composite';
+import { compositeWithMask, combineMasks, convertMaskForOpenAI } from '@/lib/composite';
 
 // Optional: import your existing quota/storage utils if you have them
 // import { verifyRenderQuota, incrementRenderCount } from '@/lib/quota';
@@ -144,7 +144,12 @@ async function generateWithMask(imageBase64, maskBase64, prompt) {
     const { Blob } = await import('buffer');
 
     const imageBuf = Buffer.from(imageBase64, 'base64');
-    const maskBuf = Buffer.from(maskBase64, 'base64');
+
+    // ═══ CRITICAL: Convert SAM mask to OpenAI format ═══
+    // SAM mask: grayscale PNG, white=edit zone, black=preserve
+    // OpenAI wants: RGBA PNG, transparent(alpha=0)=edit, opaque(alpha=255)=preserve
+    const openaiMaskBase64 = await convertMaskForOpenAI(maskBase64);
+    const maskBuf = Buffer.from(openaiMaskBase64, 'base64');
 
     const form = new FormData();
     form.set('image', new Blob([imageBuf], { type: 'image/png' }), 'image.png');

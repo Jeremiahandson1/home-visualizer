@@ -59,15 +59,16 @@ export default function CompareSlider({ beforeSrc, afterSrc, primaryColor = '#B8
       onMouseDown={(e) => { setDragging(true); handleMove(e.clientX); }}
       onTouchStart={(e) => { setDragging(true); handleMove(e.touches[0].clientX); }}
     >
-      {/* After image (full, underneath) — object-cover crops square render to match container */}
+      {/* After image (full, underneath) */}
       <img
         src={afterSrc}
         alt="After visualization"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-contain"
+        style={{ background: '#000' }}
         draggable={false}
       />
 
-      {/* Before image (clipped) — same object-cover so both crop identically */}
+      {/* Before image (clipped) */}
       <div
         className="absolute inset-0"
         style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
@@ -75,7 +76,8 @@ export default function CompareSlider({ beforeSrc, afterSrc, primaryColor = '#B8
         <img
           src={beforeSrc}
           alt="Before"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
+          style={{ background: '#000' }}
           draggable={false}
         />
       </div>

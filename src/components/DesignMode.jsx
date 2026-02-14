@@ -129,6 +129,51 @@ export default function DesignMode({
     });
   }
 
+  // Crop-resize render to match original aspect ratio (no stretching)
+  // Takes a square 1024x1024 render and center-crops it to match e.g. 4:3 original
+  function cropToMatchAspect(base64, targetW, targetH) {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const srcW = img.naturalWidth;
+        const srcH = img.naturalHeight;
+        const targetRatio = targetW / targetH;
+        const srcRatio = srcW / srcH;
+
+        // Calculate crop region (center crop)
+        let cropX = 0, cropY = 0, cropW = srcW, cropH = srcH;
+        if (srcRatio > targetRatio) {
+          // Source is wider — crop sides
+          cropW = Math.round(srcH * targetRatio);
+          cropX = Math.round((srcW - cropW) / 2);
+        } else if (srcRatio < targetRatio) {
+          // Source is taller — crop top/bottom
+          cropH = Math.round(srcW / targetRatio);
+          cropY = Math.round((srcH - cropH) / 2);
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, targetW, targetH);
+        resolve(canvas.toDataURL('image/jpeg', 0.92).split(',')[1]);
+      };
+      img.onerror = () => resolve(base64);
+      img.src = base64.startsWith('data:') ? base64 : `data:image/jpeg;base64,${base64}`;
+    });
+  }
+
+  // Measure original image dimensions on mount
+  const [originalDims, setOriginalDims] = useState(null);
+  useEffect(() => {
+    const src = originalSrc || imageSrc;
+    if (!src) return;
+    const img = new window.Image();
+    img.onload = () => setOriginalDims({ w: img.naturalWidth, h: img.naturalHeight });
+    img.src = src;
+  }, [originalSrc, imageSrc]);
+
   async function applyDesign() {
     const changes = Object.entries(selectedMaterials).map(([category, mat]) => ({
       category,
@@ -151,7 +196,12 @@ export default function DesignMode({
       const data = await res.json();
       if (!res.ok) { setRenderError(data.error || 'Render failed'); return; }
 
-      const newBase64 = data.generatedBase64;
+      // Crop render to match original photo's aspect ratio (no stretching)
+      let newBase64 = data.generatedBase64;
+      if (originalDims) {
+        newBase64 = await cropToMatchAspect(newBase64, originalDims.w, originalDims.h);
+      }
+
       setRenderResult(`data:image/jpeg;base64,${newBase64}`);
       setCurrentBase64(newBase64);
       setCurrentSrc(`data:image/jpeg;base64,${newBase64}`);

@@ -185,7 +185,7 @@ export default function DesignMode({
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-3 lg:items-start">
 
         {/* ── LEFT: Photo ─────────────────────────────── */}
-        <div className="w-full lg:w-[75%] lg:flex-shrink-0">
+        <div className="w-full lg:w-[70%] lg:flex-shrink-0">
           <div className="relative rounded-2xl overflow-hidden shadow-lg border lg:sticky lg:top-4"
             style={{ borderColor: border }}>
 
@@ -193,7 +193,7 @@ export default function DesignMode({
               ref={imgRef}
               src={displaySrc}
               alt="House"
-              className="w-full block"
+              className="w-full block lg:max-h-[calc(100vh-140px)] lg:object-contain"
             />
 
             {/* Rendering overlay */}
@@ -244,10 +244,10 @@ export default function DesignMode({
         </div>
 
         {/* ── RIGHT: Picker panel ─────────────────────── */}
-        <div className="w-full lg:w-[25%] lg:min-w-[240px] flex flex-col">
+        <div className="w-full lg:w-[30%] lg:min-w-[280px] flex flex-col">
 
           {/* Category tabs */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="flex flex-wrap gap-1.5 pb-1">
             {categories.map(cat => {
               const cfg = CATEGORY_CONFIG[cat];
               const isActive = cat === activeCategory;
@@ -257,7 +257,7 @@ export default function DesignMode({
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 flex items-center gap-1"
+                  className="flex-shrink-0 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all active:scale-95 flex items-center gap-1"
                   style={{
                     background: isActive ? primary : (hasProduct ? '#22C55E15' : '#F5F5F4'),
                     color: isActive ? 'white' : (hasProduct ? '#22C55E' : muted),
@@ -323,7 +323,7 @@ export default function DesignMode({
               ) : (
                 <div
                   className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 overflow-y-auto flex-1 pr-0.5
-                    max-h-[280px] lg:max-h-[calc(100vh-300px)]"
+                    max-h-[280px] lg:max-h-[calc(100vh-420px)]"
                   style={{ scrollbarWidth: 'thin' }}
                 >
                   {materials.map((mat, i) => {

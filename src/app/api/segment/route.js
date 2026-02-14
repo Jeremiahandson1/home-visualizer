@@ -1,12 +1,13 @@
 // ═══════════════════════════════════════════════════════════════
 // POST /api/segment
 // User clicks a point on their photo → returns mask + zone label
-// Flow: click coords → Replicate SAM 2 → GPT-4o-mini zone ID → mask + category
-// Cost: ~$0.014 per click ($0.009 SAM + $0.005 zone ID)
+//
+// Flow: click coords → Replicate SAM 2 → mask geometry analysis → zone
+// Cost: ~$0.009 per click (SAM only — zone ID is now free)
 // ═══════════════════════════════════════════════════════════════
 
 import { NextResponse } from 'next/server';
-import { segmentByPoint, identifyZone, ZONE_TO_CATEGORY } from '@/lib/sam';
+import { segmentByPoint, identifyZoneFromMask, ZONE_TO_CATEGORY } from '@/lib/sam';
 
 export async function POST(req) {
   try {
@@ -19,7 +20,6 @@ export async function POST(req) {
     const start = Date.now();
 
     // Step 1: Get mask from Replicate SAM 2
-    // Returns { maskUrl, maskBase64 } — already a PNG
     let maskBase64;
 
     try {
@@ -36,13 +36,13 @@ export async function POST(req) {
       return NextResponse.json({ error: 'No mask returned' }, { status: 422 });
     }
 
-    // Step 2: Identify what zone was clicked (GPT-4o-mini vision)
-    let zone = 'unknown';
-    let category = 'exterior';
+    // Step 2: Identify zone from mask geometry (FREE — no API call)
+    let zone = 'siding';
+    let category = 'siding';
 
     try {
-      zone = await identifyZone(
-        imageBase64,
+      zone = await identifyZoneFromMask(
+        maskBase64,
         Math.round(x),
         Math.round(y),
         imageWidth || 1024,
@@ -51,7 +51,7 @@ export async function POST(req) {
       );
       category = ZONE_TO_CATEGORY[zone] || 'exterior';
     } catch (zoneErr) {
-      console.error('Zone identification error:', zoneErr.message);
+      console.error('Zone classification error:', zoneErr.message);
       // Non-fatal — user can still pick a product manually
     }
 

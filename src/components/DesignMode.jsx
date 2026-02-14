@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import CompareSlider from './CompareSlider';
 
 // ═══════════════════════════════════════════════════════════════
 // DESIGN MODE v3 — Side-by-side layout
@@ -189,12 +190,23 @@ export default function DesignMode({
           <div className="relative rounded-2xl overflow-hidden shadow-lg border lg:sticky lg:top-4"
             style={{ borderColor: border }}>
 
-            <img
-              ref={imgRef}
-              src={displaySrc}
-              alt="House"
-              className="w-full block lg:max-h-[calc(100vh-240px)] lg:object-contain"
-            />
+            {/* Before render: plain image. After render: compare slider */}
+            {iterationCount > 0 && !rendering ? (
+              <div className="lg:max-h-[calc(100vh-240px)] overflow-hidden">
+                <CompareSlider
+                  beforeSrc={imageSrc}
+                  afterSrc={currentSrc}
+                  primaryColor={primary}
+                />
+              </div>
+            ) : (
+              <img
+                ref={imgRef}
+                src={displaySrc}
+                alt="House"
+                className="w-full block lg:max-h-[calc(100vh-240px)] lg:object-contain"
+              />
+            )}
 
             {/* Rendering overlay */}
             {rendering && (
@@ -216,15 +228,9 @@ export default function DesignMode({
               </div>
             )}
 
-            {/* Original / Design toggle + Reset */}
+            {/* Reset button */}
             {iterationCount > 0 && !rendering && (
               <div className="absolute top-3 left-3 flex gap-1.5">
-                <button
-                  onClick={() => setShowOriginal(!showOriginal)}
-                  className="px-3 py-1.5 rounded-full text-xs font-bold text-white shadow-lg transition-all active:scale-95"
-                  style={{ background: showOriginal ? '#6B7280' : '#22C55E' }}>
-                  {showOriginal ? '◄ Original' : '✦ Design'}
-                </button>
                 <button
                   onClick={resetAll}
                   className="px-3 py-1.5 rounded-full text-xs font-bold shadow-lg transition-all active:scale-95 bg-white text-gray-600 border border-gray-200">
@@ -233,13 +239,6 @@ export default function DesignMode({
               </div>
             )}
 
-            {/* Iteration badge */}
-            {iterationCount > 0 && !rendering && (
-              <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold text-white shadow"
-                style={{ background: '#22C55E' }}>
-                Round {iterationCount + 1}
-              </div>
-            )}
           </div>
         </div>
 

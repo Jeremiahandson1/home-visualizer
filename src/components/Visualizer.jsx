@@ -593,7 +593,9 @@ export default function Visualizer({ config }) {
 
       {/* Header */}
       <header className="px-4 py-3 border-b" style={{ borderColor: border }}>
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+        <div className={`mx-auto flex items-center justify-between ${
+          step === 'design' && remodel === 'exterior' ? 'max-w-[1600px]' : 'max-w-4xl'
+        }`}>
           {config.logo ? (
             <img src={config.logo} alt={config.companyName} className="h-8 sm:h-10 object-contain" />
           ) : (
@@ -612,7 +614,9 @@ export default function Visualizer({ config }) {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-5 sm:py-8">
+      <main className={`mx-auto px-4 ${
+        step === 'design' && remodel === 'exterior' ? 'max-w-[1600px] sm:px-6 py-3 sm:py-4' : 'max-w-4xl py-5 sm:py-8'
+      }`}>
 
         {/* ═══════════ UPLOAD ═══════════════════════════ */}
         {step === 'upload' && (

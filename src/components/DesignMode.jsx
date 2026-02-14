@@ -15,37 +15,39 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 // No SAM. No click-per-zone. Just smart detection + rendering.
 // ═══════════════════════════════════════════════════════════════
 
-// Category display config
+// Category display config — labels match product database
 const CATEGORY_CONFIG = {
-  walls:      { label: 'Walls',      icon: '▦', order: 1 },
+  siding:     { label: 'Siding',     icon: '▦', order: 1 },
   trim:       { label: 'Trim',       icon: '▬', order: 2 },
   soffit:     { label: 'Soffit',     icon: '▭', order: 3 },
   fascia:     { label: 'Fascia',     icon: '━', order: 4 },
   gutters:    { label: 'Gutters',    icon: '⌐', order: 5 },
   windows:    { label: 'Windows',    icon: '⊞', order: 6 },
-  doors:      { label: 'Door',       icon: '▯', order: 7 },
-  roof:       { label: 'Roof',       icon: '⌂', order: 8 },
+  doors:      { label: 'Doors',      icon: '▯', order: 7 },
+  roofing:    { label: 'Roofing',    icon: '⌂', order: 8 },
   foundation: { label: 'Foundation', icon: '▩', order: 9 },
   railing:    { label: 'Railing',    icon: '╫', order: 10 },
   columns:    { label: 'Columns',    icon: '╽', order: 11 },
   shutters:   { label: 'Shutters',   icon: '║', order: 12 },
-  accent:     { label: 'Accent',     icon: '✦', order: 13 },
+  paint:      { label: 'Paint',      icon: '🎨', order: 13 },
+  accent:     { label: 'Accent',     icon: '✦', order: 14 },
 };
 
 // Map detected categories to material API categories (must match project IDs)
 const CATEGORY_TO_MATERIAL = {
-  walls: 'siding',
-  trim: 'siding',       // trim products are usually under siding
+  siding: 'siding',
+  trim: 'siding',
   soffit: 'siding',
   fascia: 'siding',
   gutters: 'gutters',
   windows: 'windows',
-  doors: 'windows',     // doors often grouped with windows
-  roof: 'roofing',
+  doors: 'windows',
+  roofing: 'roofing',
   foundation: 'siding',
   railing: 'siding',
   columns: 'siding',
   shutters: 'siding',
+  paint: 'paint',
   accent: 'paint',
 };
 

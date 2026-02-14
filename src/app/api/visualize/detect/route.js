@@ -12,35 +12,41 @@ const DETECTION_PROMPT = `You are an expert exterior home analyst. Study this ho
 
 For each surface, return its CATEGORY, a short LABEL, and its approximate CENTER POSITION as x,y percentages (0-100) of the image dimensions.
 
-CATEGORIES (use exactly these):
-- "walls" — main wall siding surfaces (board & batten, lap siding, shingles, stucco, brick, stone, etc.)
+CATEGORIES (use EXACTLY these strings):
+- "siding" — main wall siding surfaces (lap siding, board & batten, shingles, stucco, brick, vinyl, etc.)
 - "trim" — window trim, door trim, corner boards, fascia boards, decorative trim pieces
 - "soffit" — soffit panels under roof overhangs
 - "fascia" — fascia boards along roofline edges
 - "gutters" — rain gutters and downspouts
 - "windows" — window frames, sashes, glass areas
 - "doors" — entry doors, garage doors, storm doors
-- "roof" — visible roofing material
-- "foundation" — visible foundation, stone base, skirting
+- "roofing" — visible roofing material (shingles, metal, tile)
+- "foundation" — visible foundation, concrete base, skirting ONLY if visible (not ground/snow/dirt)
 - "railing" — porch railings, deck railings, balcony railings
 - "columns" — porch columns, support posts
-- "shutters" — window shutters
+- "shutters" — window shutters (decorative panels beside windows)
+- "paint" — painted accent areas
 - "accent" — any other decorative exterior element
 
-RULES:
-- Identify EVERY distinct surface piece you can see
-- Place the dot at the VISUAL CENTER of each piece
-- For large walls, place 1-2 dots on each distinct wall section visible
-- For repeated elements (multiple windows), mark each one
-- Be thorough — users need every surface identified
+POSITIONING RULES:
 - x=0 is left edge, x=100 is right edge
 - y=0 is top edge, y=100 is bottom edge
+- Place dots ONLY on the actual building surface, NEVER on sky, ground, snow, grass, or trees
+- For siding: place the dot on the CENTER of each visible wall section (not at the edge)
+- For windows: place the dot directly on the glass/frame of each window
+- For doors: place the dot on the center of the door panel
+- For roofing: place the dot on the visible roof surface (shingles/metal), not the sky above
+- For trim: place the dot on visible trim boards around windows or at corners
+- For foundation: ONLY include if you can clearly see a concrete/stone foundation strip. Do NOT guess.
+- For shutters: place on each shutter panel beside windows
+
+ACCURACY IS CRITICAL. Only identify surfaces you can clearly see. Do not guess or place dots on ambiguous areas.
 
 Return ONLY valid JSON, no markdown, no explanation:
 {
   "surfaces": [
-    { "category": "walls", "label": "Front wall upper", "x": 45, "y": 30 },
-    { "category": "trim", "label": "Window trim left", "x": 22, "y": 45 },
+    { "category": "siding", "label": "Front wall left", "x": 25, "y": 45 },
+    { "category": "windows", "label": "Left window", "x": 22, "y": 40 },
     ...
   ]
 }`;

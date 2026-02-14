@@ -182,10 +182,10 @@ export default function DesignMode({
     <div ref={containerRef} className="w-full">
 
       {/* ═══ SIDE-BY-SIDE: photo left, picker right ═══ */}
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-5 lg:items-start">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-3 lg:items-start">
 
         {/* ── LEFT: Photo ─────────────────────────────── */}
-        <div className="w-full lg:w-[65%] lg:flex-shrink-0">
+        <div className="w-full lg:w-[75%] lg:flex-shrink-0">
           <div className="relative rounded-2xl overflow-hidden shadow-lg border lg:sticky lg:top-4"
             style={{ borderColor: border }}>
 
@@ -244,20 +244,10 @@ export default function DesignMode({
         </div>
 
         {/* ── RIGHT: Picker panel ─────────────────────── */}
-        <div className="w-full lg:w-[35%] lg:min-w-0 flex flex-col">
+        <div className="w-full lg:w-[25%] lg:min-w-[240px] flex flex-col">
 
-          {/* Panel header */}
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold" style={{ color: primary }}>
-              Choose Materials
-            </span>
-            <span className="text-xs" style={{ color: muted }}>
-              {materials.length} products
-            </span>
-          </div>
-
-          {/* Category tabs — horizontal scroll on mobile, wrapping on desktop */}
-          <div className="flex lg:flex-wrap gap-1.5 overflow-x-auto lg:overflow-x-visible pb-1 lg:pb-0 scrollbar-hide">
+          {/* Category tabs */}
+          <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
             {categories.map(cat => {
               const cfg = CATEGORY_CONFIG[cat];
               const isActive = cat === activeCategory;
@@ -332,7 +322,7 @@ export default function DesignMode({
                 </p>
               ) : (
                 <div
-                  className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-5 xl:grid-cols-6 gap-1.5 overflow-y-auto flex-1 pr-0.5
+                  className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 overflow-y-auto flex-1 pr-0.5
                     max-h-[280px] lg:max-h-[calc(100vh-300px)]"
                   style={{ scrollbarWidth: 'thin' }}
                 >

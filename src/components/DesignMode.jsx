@@ -193,7 +193,7 @@ export default function DesignMode({
               ref={imgRef}
               src={displaySrc}
               alt="House"
-              className="w-full block lg:max-h-[calc(100vh-140px)] lg:object-contain"
+              className="w-full block lg:max-h-[calc(100vh-240px)] lg:object-contain"
             />
 
             {/* Rendering overlay */}

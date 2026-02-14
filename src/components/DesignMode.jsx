@@ -48,6 +48,7 @@ const CATEGORY_TO_MATERIAL = {
 const DEFAULT_CATEGORIES = ['siding', 'trim', 'windows', 'doors', 'roofing', 'shutters', 'gutters', 'soffit', 'fascia'];
 
 export default function DesignMode({
+  originalSrc,
   imageSrc,
   imageBase64,
   tenantSlug,
@@ -194,7 +195,7 @@ export default function DesignMode({
             {iterationCount > 0 && !rendering ? (
               <div className="lg:max-h-[calc(100vh-240px)] overflow-hidden">
                 <CompareSlider
-                  beforeSrc={imageSrc}
+                  beforeSrc={originalSrc || imageSrc}
                   afterSrc={currentSrc}
                   primaryColor={primary}
                 />

@@ -805,6 +805,7 @@ export default function Visualizer({ config }) {
             {/* ── EXTERIOR — DesignMode is the only mode ──── */}
             {remodel === 'exterior' && (
               <DesignMode
+                originalSrc={image}
                 imageSrc={iterationBase ? `data:image/jpeg;base64,${iterationBase}` : image}
                 imageBase64={iterationBase || imageRaw}
                 tenantSlug={config.slug}

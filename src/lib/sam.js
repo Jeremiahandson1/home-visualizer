@@ -166,12 +166,49 @@ async function urlToBase64(url) {
 
 /**
  * Identify what zone the user clicked using GPT-4o vision
- * Cost: ~$0.01 (low detail image)
+ * Draws a bright red crosshair on the image so the model can SEE the click point
+ * Cost: ~$0.01
  */
 export async function identifyZone(imageBase64, x, y, imageWidth, imageHeight, remodelType = 'exterior') {
   const zones = remodelType === 'kitchen' ? KITCHEN_ZONES
     : remodelType === 'bathroom' ? BATHROOM_ZONES
     : EXTERIOR_ZONES;
+
+  // Draw a visible red crosshair marker on the image at the click point
+  // This is critical — GPT-4o can't reliably map raw pixel coords to surfaces
+  let markedImage = imageBase64;
+  try {
+    const sharp = (await import('sharp')).default;
+    const imgBuf = Buffer.from(imageBase64, 'base64');
+    const meta = await sharp(imgBuf).metadata();
+    const w = meta.width;
+    const h = meta.height;
+
+    const cx = Math.round(x);
+    const cy = Math.round(y);
+    const r = Math.max(12, Math.round(Math.min(w, h) * 0.025));
+    const svg = Buffer.from(`<svg width="${w}" height="${h}">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="red" stroke-width="4"/>
+      <circle cx="${cx}" cy="${cy}" r="${Math.round(r * 0.3)}" fill="red"/>
+      <line x1="${cx - r * 1.5}" y1="${cy}" x2="${cx + r * 1.5}" y2="${cy}" stroke="red" stroke-width="3"/>
+      <line x1="${cx}" y1="${cy - r * 1.5}" x2="${cx}" y2="${cy + r * 1.5}" stroke="red" stroke-width="3"/>
+    </svg>`);
+
+    const markedBuf = await sharp(imgBuf)
+      .composite([{ input: svg, top: 0, left: 0 }])
+      .jpeg({ quality: 80 })
+      .toBuffer();
+
+    markedImage = markedBuf.toString('base64');
+  } catch (err) {
+    console.error('Could not draw marker, using raw image:', err.message);
+  }
+
+  // Compute relative position for text hint
+  const xPct = Math.round((x / imageWidth) * 100);
+  const yPct = Math.round((y / imageHeight) * 100);
+  const hPos = xPct < 33 ? 'left side' : xPct > 66 ? 'right side' : 'center';
+  const vPos = yPct < 33 ? 'upper' : yPct > 66 ? 'lower' : 'middle';
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -180,18 +217,19 @@ export async function identifyZone(imageBase64, x, y, imageWidth, imageHeight, r
       'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',  // Mini is cheaper and fast enough for zone ID
-      max_tokens: 30,
+      model: 'gpt-4o-mini',
+      max_tokens: 20,
+      temperature: 0,
       messages: [{
         role: 'user',
         content: [
           {
             type: 'image_url',
-            image_url: { url: `data:image/jpeg;base64,${imageBase64}`, detail: 'low' },
+            image_url: { url: `data:image/jpeg;base64,${markedImage}`, detail: 'auto' },
           },
           {
             type: 'text',
-            text: `Point clicked: (${x}, ${y}) in a ${imageWidth}x${imageHeight} image of a house ${remodelType}. What surface/element is at that point? Reply with ONLY one: ${zones.join(', ')}`,
+            text: `This is a photo of a house ${remodelType}. There is a RED CROSSHAIR marker on the image (${vPos} ${hPos} area). What building element is directly at the red crosshair? Reply with ONLY one from: ${zones.join(', ')}`,
           },
         ],
       }],

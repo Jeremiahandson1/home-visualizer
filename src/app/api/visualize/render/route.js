@@ -30,6 +30,9 @@ export async function POST(req) {
 
     const start = Date.now();
 
+    // Detect input image dimensions to pick matching output size
+    const outputSize = getOutputSize(imageBase64);
+
     // Build the prompt describing all material changes
     const prompt = buildRenderPrompt(changes);
 
@@ -59,7 +62,7 @@ export async function POST(req) {
         tools: [{
           type: 'image_generation',
           quality: 'high',
-          size: '1024x1024',
+          size: outputSize,
         }],
       }),
     });
@@ -107,12 +110,59 @@ export async function POST(req) {
       generationTimeMs: elapsed,
       changesApplied: changes.length,
       provider: 'openai-responses',
+      outputSize,
     });
 
   } catch (err) {
     console.error('Render error:', err);
     return NextResponse.json({ error: err.message || 'Render failed' }, { status: 500 });
   }
+}
+
+// ─── Detect input aspect ratio → pick closest API size ───────
+// Supported: 1024x1024 (square), 1536x1024 (landscape), 1024x1536 (portrait)
+function getOutputSize(base64) {
+  try {
+    const buf = Buffer.from(base64, 'base64');
+    const dims = getJpegDimensions(buf) || getPngDimensions(buf);
+
+    if (!dims) return '1536x1024'; // Default landscape for house photos
+
+    const ratio = dims.width / dims.height;
+
+    if (ratio > 1.2) return '1536x1024';      // Landscape
+    if (ratio < 0.83) return '1024x1536';      // Portrait
+    return '1024x1024';                         // Square-ish
+  } catch {
+    return '1536x1024'; // Default landscape
+  }
+}
+
+function getJpegDimensions(buf) {
+  if (buf[0] !== 0xFF || buf[1] !== 0xD8) return null; // Not JPEG
+  let offset = 2;
+  while (offset < buf.length - 1) {
+    if (buf[offset] !== 0xFF) break;
+    const marker = buf[offset + 1];
+    // SOF markers (Start of Frame) contain dimensions
+    if ((marker >= 0xC0 && marker <= 0xC3) || (marker >= 0xC5 && marker <= 0xC7) ||
+        (marker >= 0xC9 && marker <= 0xCB) || (marker >= 0xCD && marker <= 0xCF)) {
+      const height = buf.readUInt16BE(offset + 5);
+      const width = buf.readUInt16BE(offset + 7);
+      return { width, height };
+    }
+    const len = buf.readUInt16BE(offset + 2);
+    offset += 2 + len;
+  }
+  return null;
+}
+
+function getPngDimensions(buf) {
+  if (buf[0] !== 0x89 || buf[1] !== 0x50) return null; // Not PNG
+  return {
+    width: buf.readUInt32BE(16),
+    height: buf.readUInt32BE(20),
+  };
 }
 
 // ─── Build prompt describing all material changes ────────────

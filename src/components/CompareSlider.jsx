@@ -2,10 +2,21 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-export default function CompareSlider({ beforeSrc, afterSrc, primaryColor = '#B8860B' }) {
+export default function CompareSlider({ beforeSrc, afterSrc, primaryColor = '#B8860B', maxHeight }) {
   const containerRef = useRef(null);
   const [position, setPosition] = useState(50);
   const [dragging, setDragging] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState(null);
+
+  // Measure the before image's natural aspect ratio
+  useEffect(() => {
+    if (!beforeSrc) return;
+    const img = new Image();
+    img.onload = () => {
+      setAspectRatio(img.naturalWidth / img.naturalHeight);
+    };
+    img.src = beforeSrc;
+  }, [beforeSrc]);
 
   const handleMove = useCallback((clientX) => {
     if (!containerRef.current) return;
@@ -39,20 +50,25 @@ export default function CompareSlider({ beforeSrc, afterSrc, primaryColor = '#B8
   return (
     <div
       ref={containerRef}
-      className="relative w-full select-none"
-      style={{ aspectRatio: '16/10', cursor: 'col-resize' }}
+      className="relative w-full select-none overflow-hidden"
+      style={{
+        aspectRatio: aspectRatio ? `${aspectRatio}` : '16/10',
+        maxHeight: maxHeight || undefined,
+        cursor: 'col-resize',
+      }}
       onMouseDown={(e) => { setDragging(true); handleMove(e.clientX); }}
       onTouchStart={(e) => { setDragging(true); handleMove(e.touches[0].clientX); }}
     >
-      {/* After image (full, underneath) */}
+      {/* After image (full, underneath) — forced to fill container exactly */}
       <img
         src={afterSrc}
         alt="After visualization"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full"
+        style={{ objectFit: 'cover', objectPosition: 'center' }}
         draggable={false}
       />
 
-      {/* Before image (clipped) */}
+      {/* Before image (clipped) — same sizing so they align pixel-perfect */}
       <div
         className="absolute inset-0"
         style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
@@ -60,7 +76,8 @@ export default function CompareSlider({ beforeSrc, afterSrc, primaryColor = '#B8
         <img
           src={beforeSrc}
           alt="Before"
-          className="w-full h-full object-cover"
+          className="w-full h-full"
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
           draggable={false}
         />
       </div>

@@ -198,6 +198,7 @@ export default function DesignMode({
                   beforeSrc={originalSrc || imageSrc}
                   afterSrc={currentSrc}
                   primaryColor={primary}
+                  maxHeight="calc(100vh - 240px)"
                 />
               </div>
             ) : (

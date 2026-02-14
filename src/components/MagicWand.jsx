@@ -98,6 +98,14 @@ export default function MagicWand({
     return () => window.removeEventListener('resize', h);
   }, [drawCanvas]);
 
+  // ─── CRITICAL: Reset imageLoaded when source changes ───
+  // After render, currentSrc changes to new base64. The hidden <img>
+  // needs to load it. We must reset imageLoaded so the onLoad handler
+  // actually triggers a state change, which recreates drawCanvas.
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [currentSrc]);
+
   // ─── Draw individual mask with color coding ────────────
   function drawMask(ctx, maskB64, w, h, isActive, material) {
     const maskImg = new window.Image();

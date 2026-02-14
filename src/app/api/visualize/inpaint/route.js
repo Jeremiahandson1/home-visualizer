@@ -13,8 +13,10 @@
 
 import { NextResponse } from 'next/server';
 import { compositeWithMask, combineMasks } from '@/lib/composite';
-import { verifyRenderQuota, incrementRenderCount } from '@/lib/quota';
-import { uploadBase64 } from '@/lib/storage';
+
+// Optional: import your existing quota/storage utils if you have them
+// import { verifyRenderQuota, incrementRenderCount } from '@/lib/quota';
+// import { uploadBase64 } from '@/lib/storage';
 
 const STRUCTURE_ANCHOR = `CRITICAL: This is a REAL photograph. You are EDITING it, not creating a new image.
 Keep the EXACT same structure, camera angle, perspective, lighting, sky, landscaping, and all elements not listed below.
@@ -38,13 +40,11 @@ export async function POST(req) {
       return NextResponse.json({ error: 'No zones or prompt provided' }, { status: 400 });
     }
 
-    // Check quota
-    if (tenantSlug) {
-      const quota = await verifyRenderQuota(tenantSlug);
-      if (!quota.ok) {
-        return NextResponse.json({ error: quota.error }, { status: 429 });
-      }
-    }
+    // TODO: Wire up your existing quota check if you have one
+    // if (tenantSlug) {
+    //   const quota = await verifyRenderQuota(tenantSlug);
+    //   if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: 429 });
+    // }
 
     const start = Date.now();
 
@@ -96,22 +96,16 @@ export async function POST(req) {
       finalBase64 = aiGeneratedBase64;
     }
 
-    // ─── Step 5: Upload & track ────────────────────────────
-    const [originalUrl, generatedUrl] = await Promise.all([
-      uploadBase64(imageBase64, 'originals').catch(() => null),
-      uploadBase64(finalBase64, 'generated').catch(() => null),
-    ]);
-
-    if (tenantSlug) {
-      await incrementRenderCount(tenantSlug).catch(() => {});
-    }
+    // TODO: Wire up storage upload if you want to persist results
+    // const [originalUrl, generatedUrl] = await Promise.all([
+    //   uploadBase64(imageBase64, 'originals').catch(() => null),
+    //   uploadBase64(finalBase64, 'generated').catch(() => null),
+    // ]);
 
     const elapsed = Date.now() - start;
 
     return NextResponse.json({
       generatedBase64: finalBase64,
-      originalUrl,
-      generatedUrl,
       generationTimeMs: elapsed,
       zonesApplied: zones?.length || 0,
       provider: allMasks.length > 0 ? 'openai+composite' : 'openai',

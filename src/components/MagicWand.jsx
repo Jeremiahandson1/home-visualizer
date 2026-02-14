@@ -20,6 +20,7 @@ export default function MagicWand({
   remodelType,
   tenantSlug,
   config,
+  apiRef,               // parent passes useRef({}) — we populate with { setZoneMaterial, applyAll }
   enabledProjects,    // filtered project categories from Visualizer
   onZoneSelected,     // called when zone identified, parent shows product picker
   onRenderComplete,   // (newImageBase64) => void
@@ -323,15 +324,12 @@ export default function MagicWand({
   const readyCount = zoneEdits.filter(z => z.material && z.maskBase64).length;
   const pendingCount = zoneEdits.filter(z => z.maskBase64 && !z.material).length;
 
-  // ─── Expose setZoneMaterial for parent ─────────────────
-  // Parent calls: magicWandRef.current.setZoneMaterial(idx, material)
+  // ─── Expose API to parent via apiRef ─────────────────
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.__setZoneMaterial = setZoneMaterial;
-      containerRef.current.__applyAll = applyAll;
-      containerRef.current.__zoneEdits = zoneEdits;
+    if (apiRef) {
+      apiRef.current = { setZoneMaterial, applyAll, zoneEdits };
     }
-  }, [setZoneMaterial, zoneEdits]);
+  }, [setZoneMaterial, zoneEdits, apiRef]);
 
   return (
     <div ref={containerRef} className="w-full">

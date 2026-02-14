@@ -8,6 +8,7 @@ import { getVariant, getAllAssignments } from '@/lib/ab-test';
 import { EXAMPLE_TRANSFORMATIONS, TESTIMONIALS, getPopularityBadge } from '@/lib/social-proof';
 import CompareSlider from './CompareSlider';
 import ShowerBuilder from './ShowerBuilder';
+import MagicWand from './MagicWand';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const RESIZE_MAX_PX = 1024; // Resize to 1024px max before sending
@@ -138,6 +139,10 @@ export default function Visualizer({ config }) {
 
   const [copied, setCopied] = useState(false);
   const [favorites, setFavorites] = useState([]);
+
+  // Magic Wand state
+  const wandApi = useRef({}); // MagicWand populates this with { setZoneMaterial, applyAll }
+  const [wandZone, setWandZone] = useState(null); // { zone, category, maskBase64, zoneIdx }
 
   // Read UTM params from URL (passed through by embed)
   const [utm, setUtm] = useState({});
@@ -778,6 +783,11 @@ export default function Visualizer({ config }) {
                   🚿 Shower Builder
                 </button>
               )}
+              <button onClick={() => { setMode('wand'); setSelectedStyle(null); setProject(null); setSelections({}); setWandZone(null); }}
+                className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
+                style={{ background: mode === 'wand' ? primary : text + '06', color: mode === 'wand' ? '#fff' : muted }}>
+                ✦ Magic Wand
+              </button>
             </div>
 
             {genError && (
@@ -1117,6 +1127,96 @@ export default function Visualizer({ config }) {
                 onBack={() => setMode('styles')}
                 primary={primary} muted={muted} border={border} surface={surface} text={text}
               />
+            )}
+
+            {/* ── MAGIC WAND — click-to-segment zone editor ──── */}
+            {mode === 'wand' && (
+              <div>
+                <MagicWand
+                  apiRef={wandApi}
+                  imageSrc={iterationBase ? `data:image/jpeg;base64,${iterationBase}` : image}
+                  imageBase64={iterationBase || imageRaw}
+                  remodelType={remodel || 'exterior'}
+                  tenantSlug={config.slug}
+                  config={config}
+                  enabledProjects={enabledProjects}
+                  onZoneSelected={(zoneInfo) => {
+                    setWandZone(zoneInfo);
+                    // Auto-select the project for this zone's category
+                    const proj = enabledProjects.find(p => p.id === zoneInfo.category);
+                    if (proj) {
+                      setProject(proj);
+                      const sc = getSubcategories(proj.id);
+                      setActiveSubcat(sc ? sc[0].id : null);
+                    }
+                  }}
+                  onRenderStart={() => {
+                    trackEvent('generate', config.tenantId, { mode: 'magic-wand' });
+                  }}
+                  onRenderComplete={(newBase64) => {
+                    setIterationBase(newBase64);
+                    setIterationCount(c => c + 1);
+                    setWandZone(null);
+                    setProject(null);
+                    trackEvent('generate_complete', config.tenantId, { mode: 'magic-wand' });
+                  }}
+                />
+
+                {/* Product picker — slides up when zone is selected */}
+                {wandZone && project && (
+                  <div className="mt-4 p-3 rounded-xl border" style={{ borderColor: primary + '30', background: primary + '05' }}>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-bold" style={{ color: primary }}>
+                        Pick a product for: <span className="capitalize">{wandZone.zone?.replace(/-/g, ' ')}</span>
+                      </p>
+                      <button onClick={() => { setWandZone(null); setProject(null); }}
+                        className="text-xs" style={{ color: muted }}>✕</button>
+                    </div>
+
+                    {/* Search + filters */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <input type="text" placeholder="Search..." value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="px-3 py-1.5 rounded-lg border text-sm flex-1 min-w-[100px] max-w-[180px]"
+                        style={{ borderColor: border, background: surface }} />
+                      {brands.length > 1 && (
+                        <select value={filterBrand} onChange={e => setFilterBrand(e.target.value)}
+                          className="px-2 py-1.5 rounded-lg border text-sm" style={{ borderColor: border, background: surface }}>
+                          <option value="">All brands</option>
+                          {brands.map(b => <option key={b}>{b}</option>)}
+                        </select>
+                      )}
+                    </div>
+
+                    {/* Material grid */}
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[240px] overflow-y-auto">
+                      {loadingMaterials ? (
+                        <div className="col-span-full text-center py-4 text-xs" style={{ color: muted }}>Loading...</div>
+                      ) : filteredMaterials.length === 0 ? (
+                        <div className="col-span-full text-center py-4 text-xs" style={{ color: muted }}>No products found</div>
+                      ) : filteredMaterials.map(m => (
+                        <button key={m.id} onClick={() => {
+                          // Pass material to MagicWand
+                          if (wandApi.current?.setZoneMaterial) {
+                            wandApi.current.setZoneMaterial(wandZone.zoneIdx, {
+                              id: m.id, name: m.name, brand: m.brand,
+                              color: m.color || m.colorHex, colorHex: m.colorHex,
+                            });
+                          }
+                          setWandZone(null); setProject(null);
+                        }}
+                          className="rounded-lg border p-2 text-left transition-all hover:shadow-md active:scale-[0.97]"
+                          style={{ borderColor: border, background: surface }}>
+                          <div className="w-full h-6 rounded mb-1 border"
+                            style={{ background: m.color || m.colorHex || '#888', borderColor: text + '10' }} />
+                          <p className="font-semibold text-[11px] leading-tight truncate">{m.name}</p>
+                          <p className="text-[10px] truncate" style={{ color: muted }}>{m.brand}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}

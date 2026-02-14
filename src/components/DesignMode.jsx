@@ -1,39 +1,38 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 // ═══════════════════════════════════════════════════════════════
-// DESIGN MODE — Hover-style surface detection + material picker
+// DESIGN MODE v2 — Fixed category tabs + material picker
 //
 // Flow:
-// 1. Photo loads → auto-detect ALL surfaces via GPT-4o vision
-// 2. Dots appear on image at each detected surface
-// 3. Category tabs filter by surface type (Walls, Trim, etc.)
-// 4. Pick a material → applies to all surfaces in that category
+// 1. Photo loads → category tabs appear immediately (no detection)
+// 2. User picks a category tab (Siding, Trim, Windows, etc.)
+// 3. User picks a material from the picker
+// 4. Repeat for as many categories as they want
 // 5. "Apply Design" → ONE render → result displayed
 //
-// No SAM. No click-per-zone. Just smart detection + rendering.
+// No dots. No GPT-4o detect. No coordinate guessing.
+// The render API handles "change the siding to X" semantically.
 // ═══════════════════════════════════════════════════════════════
 
-// Category display config — labels match product database
+// Category display config
 const CATEGORY_CONFIG = {
   siding:     { label: 'Siding',     icon: '▦', order: 1 },
   trim:       { label: 'Trim',       icon: '▬', order: 2 },
-  soffit:     { label: 'Soffit',     icon: '▭', order: 3 },
-  fascia:     { label: 'Fascia',     icon: '━', order: 4 },
-  gutters:    { label: 'Gutters',    icon: '⌐', order: 5 },
-  windows:    { label: 'Windows',    icon: '⊞', order: 6 },
-  doors:      { label: 'Doors',      icon: '▯', order: 7 },
-  roofing:    { label: 'Roofing',    icon: '⌂', order: 8 },
-  foundation: { label: 'Foundation', icon: '▩', order: 9 },
-  railing:    { label: 'Railing',    icon: '╫', order: 10 },
-  columns:    { label: 'Columns',    icon: '╽', order: 11 },
-  shutters:   { label: 'Shutters',   icon: '║', order: 12 },
-  paint:      { label: 'Paint',      icon: '🎨', order: 13 },
-  accent:     { label: 'Accent',     icon: '✦', order: 14 },
+  windows:    { label: 'Windows',    icon: '⊞', order: 3 },
+  doors:      { label: 'Doors',      icon: '▯', order: 4 },
+  roofing:    { label: 'Roofing',    icon: '⌂', order: 5 },
+  shutters:   { label: 'Shutters',   icon: '║', order: 6 },
+  gutters:    { label: 'Gutters',    icon: '⌐', order: 7 },
+  soffit:     { label: 'Soffit',     icon: '▭', order: 8 },
+  fascia:     { label: 'Fascia',     icon: '━', order: 9 },
+  foundation: { label: 'Foundation', icon: '▩', order: 10 },
+  railing:    { label: 'Railing',    icon: '╫', order: 11 },
+  columns:    { label: 'Columns',    icon: '╽', order: 12 },
 };
 
-// Map detected categories to material API categories (must match project IDs)
+// Map display categories → material API categories
 const CATEGORY_TO_MATERIAL = {
   siding: 'siding',
   trim: 'siding',
@@ -47,9 +46,10 @@ const CATEGORY_TO_MATERIAL = {
   railing: 'siding',
   columns: 'siding',
   shutters: 'siding',
-  paint: 'paint',
-  accent: 'paint',
 };
+
+// Default categories to show — tenant can override via config
+const DEFAULT_CATEGORIES = ['siding', 'trim', 'windows', 'doors', 'roofing', 'shutters'];
 
 export default function DesignMode({
   imageSrc,
@@ -58,17 +58,11 @@ export default function DesignMode({
   config,
   onRenderComplete,
   onRenderStart,
+  enabledCategories, // optional — tenant-specific category list
 }) {
-  // Detection state
-  const [surfaces, setSurfaces] = useState([]);
-  const [detecting, setDetecting] = useState(false);
-  const [detected, setDetected] = useState(false);
-  const [detectError, setDetectError] = useState(null);
-
   // Category & selection state
   const [activeCategory, setActiveCategory] = useState(null);
   const [selectedMaterials, setSelectedMaterials] = useState({});
-  // { "walls": { name: "Arctic White", brand: "James Hardie", color: "#F5F5F0", ... }, "trim": {...} }
 
   // Materials for picker
   const [materials, setMaterials] = useState([]);
@@ -78,11 +72,16 @@ export default function DesignMode({
   const [rendering, setRendering] = useState(false);
   const [renderResult, setRenderResult] = useState(null);
   const [showOriginal, setShowOriginal] = useState(false);
+  const [renderError, setRenderError] = useState(null);
 
-  // Image ref for sizing
+  // Iteration support
+  const [currentBase64, setCurrentBase64] = useState(imageBase64);
+  const [currentSrc, setCurrentSrc] = useState(imageSrc);
+  const [iterationCount, setIterationCount] = useState(0);
+
+  // Image ref
   const imgRef = useRef(null);
   const containerRef = useRef(null);
-  const [imgDims, setImgDims] = useState({ w: 0, h: 0 });
 
   const c = config?.colors || {};
   const primary = c.primary || '#B8860B';
@@ -90,47 +89,17 @@ export default function DesignMode({
   const border = c.border || '#E7E5E4';
   const surface = c.surface || '#FFFFFF';
 
-  // ─── Auto-detect surfaces on mount ──────────────────────
+  // ─── Categories to display ─────────────────────────────
+  const categories = (enabledCategories || config?.categories || DEFAULT_CATEGORIES)
+    .filter(cat => CATEGORY_CONFIG[cat])
+    .sort((a, b) => (CATEGORY_CONFIG[a]?.order || 99) - (CATEGORY_CONFIG[b]?.order || 99));
+
+  // Auto-select first category on mount
   useEffect(() => {
-    if (imageBase64 && !detected && !detecting) {
-      detectSurfaces();
+    if (!activeCategory && categories.length > 0) {
+      setActiveCategory(categories[0]);
     }
-  }, [imageBase64]);
-
-  async function detectSurfaces() {
-    setDetecting(true);
-    setDetectError(null);
-
-    try {
-      const res = await fetch('/api/visualize/detect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64 }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setDetectError(data.error || 'Detection failed');
-        return;
-      }
-
-      setSurfaces(data.surfaces || []);
-      setDetected(true);
-
-      // Auto-select first available category
-      if (data.surfaces?.length > 0) {
-        const cats = [...new Set(data.surfaces.map(s => s.category))];
-        const sorted = cats.sort((a, b) =>
-          (CATEGORY_CONFIG[a]?.order || 99) - (CATEGORY_CONFIG[b]?.order || 99)
-        );
-        setActiveCategory(sorted[0]);
-      }
-    } catch (err) {
-      setDetectError('Failed to analyze photo');
-    } finally {
-      setDetecting(false);
-    }
-  }
+  }, [categories]);
 
   // ─── Load materials when category changes ───────────────
   useEffect(() => {
@@ -142,8 +111,6 @@ export default function DesignMode({
   async function loadMaterials(category) {
     setLoadingMaterials(true);
 
-    // Try exact category first (tenant might have 'trim', 'soffit' etc.)
-    // Then fall back to mapped category
     const tryCategories = [category];
     const mapped = CATEGORY_TO_MATERIAL[category];
     if (mapped && mapped !== category) tryCategories.push(mapped);
@@ -152,6 +119,7 @@ export default function DesignMode({
       try {
         const params = new URLSearchParams({ category: cat });
         if (config?.tenantId) params.set('tenant_id', config.tenantId);
+        if (tenantSlug) params.set('tenant', tenantSlug);
         const res = await fetch(`/api/materials?${params}`);
         const data = await res.json();
         const mats = Array.isArray(data) ? data : (data.materials || []);
@@ -196,6 +164,7 @@ export default function DesignMode({
     if (changes.length === 0) return;
 
     setRendering(true);
+    setRenderError(null);
     onRenderStart?.();
 
     try {
@@ -203,7 +172,7 @@ export default function DesignMode({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          imageBase64,
+          imageBase64: currentBase64,
           changes,
           tenantSlug,
         }),
@@ -211,51 +180,48 @@ export default function DesignMode({
 
       const data = await res.json();
       if (!res.ok) {
-        setDetectError(data.error || 'Render failed');
+        setRenderError(data.error || 'Render failed');
         return;
       }
 
-      setRenderResult(`data:image/jpeg;base64,${data.generatedBase64}`);
-      onRenderComplete?.(data.generatedBase64);
+      const newBase64 = data.generatedBase64;
+      setRenderResult(`data:image/jpeg;base64,${newBase64}`);
+      setCurrentBase64(newBase64);
+      setCurrentSrc(`data:image/jpeg;base64,${newBase64}`);
+      setIterationCount(c => c + 1);
+
+      // Clear selections for next round
+      setSelectedMaterials({});
+
+      onRenderComplete?.(newBase64);
     } catch {
-      setDetectError('Render failed. Please try again.');
+      setRenderError('Render failed. Please try again.');
     } finally {
       setRendering(false);
     }
   }
 
-  // ─── Image load handler ─────────────────────────────────
-  function handleImageLoad() {
-    const img = imgRef.current;
-    if (!img) return;
-    setImgDims({ w: img.clientWidth, h: img.clientHeight });
+  // ─── Reset to original ─────────────────────────────────
+  function resetAll() {
+    setCurrentBase64(imageBase64);
+    setCurrentSrc(imageSrc);
+    setRenderResult(null);
+    setSelectedMaterials({});
+    setIterationCount(0);
+    setRenderError(null);
+    setShowOriginal(false);
   }
 
-  useEffect(() => {
-    function handleResize() {
-      const img = imgRef.current;
-      if (img) setImgDims({ w: img.clientWidth, h: img.clientHeight });
-    }
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   // ─── Derived state ──────────────────────────────────────
-  const availableCategories = [...new Set(surfaces.map(s => s.category))].sort(
-    (a, b) => (CATEGORY_CONFIG[a]?.order || 99) - (CATEGORY_CONFIG[b]?.order || 99)
-  );
-
-  const activeSurfaces = surfaces.filter(s => s.category === activeCategory);
   const changeCount = Object.keys(selectedMaterials).length;
-  const displaySrc = showOriginal ? imageSrc : (renderResult || imageSrc);
-
+  const displaySrc = showOriginal ? imageSrc : (currentSrc || imageSrc);
   const selectedForCategory = activeCategory ? selectedMaterials[activeCategory] : null;
 
   // ─── Render ─────────────────────────────────────────────
   return (
     <div ref={containerRef} className="w-full">
 
-      {/* ── Image with dots ────────────────────────────── */}
+      {/* ── Image (clean — no dots) ──────────────────────── */}
       <div className="relative rounded-2xl overflow-hidden shadow-lg border"
         style={{ borderColor: border }}>
 
@@ -264,61 +230,7 @@ export default function DesignMode({
           src={displaySrc}
           alt="House"
           className="w-full block"
-          onLoad={handleImageLoad}
         />
-
-        {/* Surface dots */}
-        {detected && imgDims.w > 0 && surfaces.map(s => {
-          const isActive = s.category === activeCategory;
-          const hasProduct = !!selectedMaterials[s.category];
-          const dotColor = hasProduct ? '#22C55E' : (isActive ? primary : '#9CA3AF');
-          const dotSize = isActive ? 20 : 14;
-          const dotOpacity = isActive ? 1 : 0.6;
-
-          return (
-            <button
-              key={s.id}
-              onClick={() => setActiveCategory(s.category)}
-              className="absolute transition-all duration-200"
-              style={{
-                left: `${s.x}%`,
-                top: `${s.y}%`,
-                transform: 'translate(-50%, -50%)',
-                zIndex: isActive ? 20 : 10,
-              }}
-              title={s.label}
-            >
-              <div
-                className="rounded-full border-2 border-white shadow-lg transition-all duration-200 flex items-center justify-center"
-                style={{
-                  width: dotSize,
-                  height: dotSize,
-                  backgroundColor: dotColor,
-                  opacity: dotOpacity,
-                  boxShadow: isActive ? `0 0 0 3px ${primary}40, 0 2px 8px rgba(0,0,0,0.3)` : '0 2px 4px rgba(0,0,0,0.3)',
-                }}
-              >
-                {hasProduct && (
-                  <svg width="10" height="10" viewBox="0 0 16 16" fill="white">
-                    <path d="M13.5 4.5L6 12l-3.5-3.5L3.5 7.5 6 10l6.5-6.5z" />
-                  </svg>
-                )}
-              </div>
-            </button>
-          );
-        })}
-
-        {/* Detecting overlay */}
-        {detecting && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-            <div className="bg-white rounded-xl px-5 py-4 shadow-xl flex flex-col items-center gap-2">
-              <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
-                style={{ borderColor: primary, borderTopColor: 'transparent' }} />
-              <span className="text-sm font-medium">Analyzing surfaces...</span>
-              <span className="text-xs text-gray-500">Detecting walls, trim, windows...</span>
-            </div>
-          </div>
-        )}
 
         {/* Rendering overlay */}
         {rendering && (
@@ -340,58 +252,71 @@ export default function DesignMode({
           </div>
         )}
 
-        {/* Original / Result toggle */}
-        {renderResult && !rendering && (
-          <button
-            onClick={() => setShowOriginal(!showOriginal)}
-            className="absolute top-3 left-3 px-3 py-1.5 rounded-full text-xs font-bold text-white shadow-lg transition-all active:scale-95"
-            style={{ background: showOriginal ? '#6B7280' : '#22C55E' }}>
-            {showOriginal ? '◄ Original' : '✦ Design'}
-          </button>
+        {/* Original / Designed toggle */}
+        {iterationCount > 0 && !rendering && (
+          <div className="absolute top-3 left-3 flex gap-1.5">
+            <button
+              onClick={() => setShowOriginal(!showOriginal)}
+              className="px-3 py-1.5 rounded-full text-xs font-bold text-white shadow-lg transition-all active:scale-95"
+              style={{ background: showOriginal ? '#6B7280' : '#22C55E' }}>
+              {showOriginal ? '◄ Original' : '✦ Design'}
+            </button>
+            <button
+              onClick={resetAll}
+              className="px-3 py-1.5 rounded-full text-xs font-bold shadow-lg transition-all active:scale-95 bg-white text-gray-600 border border-gray-200">
+              ↺ Reset
+            </button>
+          </div>
+        )}
+
+        {/* Iteration badge */}
+        {iterationCount > 0 && !rendering && (
+          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold text-white shadow"
+            style={{ background: '#22C55E' }}>
+            Round {iterationCount + 1}
+          </div>
         )}
       </div>
 
       {/* ── Category tabs ──────────────────────────────── */}
-      {detected && (
-        <div className="mt-3 flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
-          {availableCategories.map(cat => {
-            const cfg = CATEGORY_CONFIG[cat] || { label: cat, icon: '•' };
-            const isActive = cat === activeCategory;
-            const hasProduct = !!selectedMaterials[cat];
+      <div className="mt-3 flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+        {categories.map(cat => {
+          const cfg = CATEGORY_CONFIG[cat];
+          const isActive = cat === activeCategory;
+          const hasProduct = !!selectedMaterials[cat];
 
-            return (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5"
-                style={{
-                  background: isActive ? primary : (hasProduct ? '#22C55E15' : '#F5F5F4'),
-                  color: isActive ? 'white' : (hasProduct ? '#22C55E' : muted),
-                  border: `1.5px solid ${isActive ? primary : (hasProduct ? '#22C55E50' : border)}`,
-                }}
-              >
-                {hasProduct && !isActive && (
-                  <svg width="10" height="10" viewBox="0 0 16 16" fill="#22C55E">
-                    <path d="M13.5 4.5L6 12l-3.5-3.5L3.5 7.5 6 10l6.5-6.5z" />
-                  </svg>
-                )}
-                {cfg.label}
-              </button>
-            );
-          })}
-        </div>
-      )}
+          return (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className="flex-shrink-0 px-3.5 py-2 rounded-full text-xs font-bold transition-all active:scale-95 flex items-center gap-1.5"
+              style={{
+                background: isActive ? primary : (hasProduct ? '#22C55E15' : '#F5F5F4'),
+                color: isActive ? 'white' : (hasProduct ? '#22C55E' : muted),
+                border: `1.5px solid ${isActive ? primary : (hasProduct ? '#22C55E50' : border)}`,
+              }}
+            >
+              {hasProduct && !isActive && (
+                <svg width="10" height="10" viewBox="0 0 16 16" fill="#22C55E">
+                  <path d="M13.5 4.5L6 12l-3.5-3.5L3.5 7.5 6 10l6.5-6.5z" />
+                </svg>
+              )}
+              {cfg.label}
+            </button>
+          );
+        })}
+      </div>
 
       {/* ── Selected materials summary ─────────────────── */}
       {changeCount > 0 && (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {Object.entries(selectedMaterials).map(([cat, mat]) => (
             <div key={cat}
-              className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs border"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs border"
               style={{ borderColor: '#22C55E50', background: '#22C55E08' }}>
-              <div className="w-3 h-3 rounded-sm border border-gray-300"
+              <div className="w-3.5 h-3.5 rounded-sm border border-gray-300"
                 style={{ background: mat.colorHex || mat.color || '#ccc' }} />
-              <span className="font-medium capitalize">{CATEGORY_CONFIG[cat]?.label}</span>
+              <span className="font-semibold capitalize">{CATEGORY_CONFIG[cat]?.label}</span>
               <span className="text-gray-500">→ {mat.name}</span>
               <button onClick={() => removeMaterial(cat)}
                 className="ml-0.5 text-gray-400 hover:text-red-500 transition">✕</button>
@@ -401,7 +326,7 @@ export default function DesignMode({
       )}
 
       {/* ── Material picker ────────────────────────────── */}
-      {activeCategory && detected && (
+      {activeCategory && (
         <div className="mt-3 p-3 rounded-xl border" style={{
           borderColor: primary + '30',
           background: primary + '05',
@@ -410,9 +335,11 @@ export default function DesignMode({
             <span className="text-xs font-bold capitalize" style={{ color: primary }}>
               Pick {CATEGORY_CONFIG[activeCategory]?.label || activeCategory}
             </span>
-            <span className="text-xs" style={{ color: muted }}>
-              {activeSurfaces.length} {activeSurfaces.length === 1 ? 'piece' : 'pieces'} detected
-            </span>
+            {selectedForCategory && (
+              <span className="text-xs text-green-600 font-medium">
+                ✓ {selectedForCategory.name}
+              </span>
+            )}
           </div>
 
           {loadingMaterials ? (
@@ -442,7 +369,6 @@ export default function DesignMode({
                       borderWidth: isSelected ? 2 : 1,
                     }}
                   >
-                    {/* Color swatch */}
                     <div className="w-full aspect-square rounded-md border border-gray-200"
                       style={{
                         background: mat.swatch
@@ -482,21 +408,14 @@ export default function DesignMode({
       )}
 
       {/* ── Error ──────────────────────────────────────── */}
-      {detectError && (
+      {renderError && (
         <div className="mt-2 p-2 rounded-lg bg-red-50 border border-red-200">
-          <p className="text-xs text-red-700">{detectError}</p>
-          <button onClick={() => { setDetectError(null); detectSurfaces(); }}
+          <p className="text-xs text-red-700">{renderError}</p>
+          <button onClick={() => setRenderError(null)}
             className="text-xs text-red-600 font-bold mt-1 underline">
-            Try again
+            Dismiss
           </button>
         </div>
-      )}
-
-      {/* ── Help text ──────────────────────────────────── */}
-      {!detected && !detecting && (
-        <p className="mt-3 text-center text-xs text-gray-400">
-          Upload a photo to auto-detect surfaces
-        </p>
       )}
     </div>
   );

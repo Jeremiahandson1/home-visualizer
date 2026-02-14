@@ -49,7 +49,7 @@ const CATEGORY_TO_MATERIAL = {
 };
 
 // Default categories to show — tenant can override via config
-const DEFAULT_CATEGORIES = ['siding', 'trim', 'windows', 'doors', 'roofing', 'shutters'];
+const DEFAULT_CATEGORIES = ['siding', 'trim', 'windows', 'doors', 'roofing', 'shutters', 'gutters', 'soffit', 'fascia'];
 
 export default function DesignMode({
   imageSrc,

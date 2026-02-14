@@ -9,6 +9,7 @@ import { EXAMPLE_TRANSFORMATIONS, TESTIMONIALS, getPopularityBadge } from '@/lib
 import CompareSlider from './CompareSlider';
 import ShowerBuilder from './ShowerBuilder';
 import DesignMode from './DesignMode';
+// MagicWand removed — DesignMode is the only mode for exterior
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const RESIZE_MAX_PX = 1024; // Resize to 1024px max before sending
@@ -747,7 +748,8 @@ export default function Visualizer({ config }) {
               </div>
             </div>
 
-            {/* Mode tabs — styles only available for kitchen/bathroom */}
+            {/* Mode tabs — only shown for kitchen/bathroom. Exterior uses DesignMode directly. */}
+            {(remodel === 'kitchen' || remodel === 'bathroom') && (
             <div className="flex gap-2 mb-4">
               {(remodel === 'kitchen' || remodel === 'bathroom') && (
                 <button onClick={() => { setMode('styles'); setProject(null); setMaterial(null); }}
@@ -758,7 +760,6 @@ export default function Visualizer({ config }) {
               )}
               <button onClick={() => {
                 setMode('products'); setSelectedStyle(null);
-                // For kitchen/bathroom, auto-enter the project since there's only one
                 if (remodel === 'kitchen' || remodel === 'bathroom') {
                   const proj = PROJECTS.find(p => p.id === remodel);
                   if (proj) {
@@ -779,12 +780,8 @@ export default function Visualizer({ config }) {
                   🚿 Shower Builder
                 </button>
               )}
-              <button onClick={() => { setMode('wand'); setSelectedStyle(null); setProject(null); setSelections({}); }}
-                className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition text-center"
-                style={{ background: mode === 'wand' ? primary : text + '06', color: mode === 'wand' ? '#fff' : muted }}>
-                ✦ Magic Wand
-              </button>
             </div>
+            )}
 
             {genError && (
               <div className="mb-4 px-4 py-3 rounded-xl text-sm bg-red-50 text-red-700 border border-red-200 flex items-start gap-2">
@@ -801,8 +798,29 @@ export default function Visualizer({ config }) {
               </div>
             )}
 
-            {/* ── STYLES — full architectural transformations ──── */}
-            {mode === 'styles' && (
+            {/* ── EXTERIOR — DesignMode is the only mode ──── */}
+            {remodel === 'exterior' && (
+              <DesignMode
+                imageSrc={iterationBase ? `data:image/jpeg;base64,${iterationBase}` : image}
+                imageBase64={iterationBase || imageRaw}
+                tenantSlug={config.slug}
+                config={config}
+                onRenderStart={() => {
+                  trackEvent('generate', config.tenantId, { mode: 'design' });
+                }}
+                onRenderComplete={(newBase64) => {
+                  setIterationBase(newBase64);
+                  setIterationCount(c => c + 1);
+                  setGeneratedImage(`data:image/jpeg;base64,${newBase64}`);
+                  setGeneratedBase64(newBase64);
+                  setStep('design');
+                  trackEvent('generate_complete', config.tenantId, { mode: 'design' });
+                }}
+              />
+            )}
+
+            {/* ── STYLES — full architectural transformations (kitchen/bathroom only) ──── */}
+            {mode === 'styles' && (remodel === 'kitchen' || remodel === 'bathroom') && (
               <>
                 <p className="text-xs mb-3 px-1" style={{ color: muted }}>
                   {remodel === 'kitchen' ? 'Complete kitchen style transformations — tap one to generate.'
@@ -848,8 +866,8 @@ export default function Visualizer({ config }) {
               </>
             )}
 
-            {/* ── PRODUCTS — popular first, then browse by category ── */}
-            {mode === 'products' && (
+            {/* ── PRODUCTS — popular first, then browse by category (kitchen/bathroom only) ── */}
+            {mode === 'products' && remodel !== 'exterior' && (
               <>
                 {/* Popular products — tap to add to your design */}
                 {!project && (
@@ -1125,26 +1143,7 @@ export default function Visualizer({ config }) {
               />
             )}
 
-            {/* ── DESIGN MODE — Hover-style surface editor ──── */}
-            {mode === 'wand' && (
-              <DesignMode
-                imageSrc={iterationBase ? `data:image/jpeg;base64,${iterationBase}` : image}
-                imageBase64={iterationBase || imageRaw}
-                tenantSlug={config.slug}
-                config={config}
-                onRenderStart={() => {
-                  trackEvent('generate', config.tenantId, { mode: 'design' });
-                }}
-                onRenderComplete={(newBase64) => {
-                  setIterationBase(newBase64);
-                  setIterationCount(c => c + 1);
-                  setGeneratedImage(`data:image/jpeg;base64,${newBase64}`);
-                  setGeneratedBase64(newBase64);
-                  setStep('design');
-                  trackEvent('generate_complete', config.tenantId, { mode: 'design' });
-                }}
-              />
-            )}
+            {/* DesignMode for exterior is rendered above — no wand mode needed */}
           </div>
         )}
 

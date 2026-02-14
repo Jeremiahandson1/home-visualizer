@@ -353,7 +353,8 @@ export default function DesignMode({
               No materials found for this category
             </p>
           ) : (
-            <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto">
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2.5 max-h-[360px] overflow-y-auto pr-1 pb-1"
+              style={{ scrollbarWidth: 'thin' }}>
               {materials.map((mat, i) => {
                 const isSelected = selectedForCategory?.name === mat.name
                   && selectedForCategory?.brand === mat.brand;
@@ -362,26 +363,27 @@ export default function DesignMode({
                   <button
                     key={`${mat.brand}-${mat.name}-${i}`}
                     onClick={() => selectMaterial(mat)}
-                    className="flex flex-col items-center gap-1 p-1.5 rounded-lg border transition-all active:scale-95"
+                    className="flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all active:scale-95"
                     style={{
                       borderColor: isSelected ? primary : border,
                       background: isSelected ? primary + '10' : 'white',
                       borderWidth: isSelected ? 2 : 1,
+                      boxShadow: isSelected ? `0 0 0 1px ${primary}40` : 'none',
                     }}
                   >
-                    <div className="w-full aspect-square rounded-md border border-gray-200"
+                    <div className="w-full aspect-[4/3] rounded-lg border border-gray-200"
                       style={{
                         background: mat.swatch
                           ? `url(${mat.swatch}) center/cover`
                           : (mat.colorHex || mat.color || '#E5E5E5'),
                       }}
                     />
-                    <span className="text-[10px] font-medium text-center leading-tight line-clamp-2"
+                    <span className="text-[11px] font-semibold text-center leading-tight line-clamp-2 w-full"
                       style={{ color: isSelected ? primary : '#374151' }}>
                       {mat.name}
                     </span>
                     {mat.brand && (
-                      <span className="text-[9px] text-gray-400 text-center leading-tight truncate w-full">
+                      <span className="text-[10px] text-gray-400 text-center leading-tight truncate w-full">
                         {mat.brand}
                       </span>
                     )}

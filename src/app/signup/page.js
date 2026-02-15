@@ -105,9 +105,9 @@ function SignupPageInner() {
       {/* Header */}
       <header className="border-b border-stone-800">
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-700 flex items-center justify-center text-white font-bold">H</div>
+          <div className="w-9 h-9 rounded-xl bg-amber-700 flex items-center justify-center text-white font-bold">B</div>
           <div>
-            <div className="font-bold text-white">HomeVisualizer</div>
+            <div className="font-bold text-white">BuildPro Vision</div>
             <div className="text-[11px] text-stone-500">AI-Powered Renovation Visualization</div>
           </div>
         </div>
@@ -186,7 +186,7 @@ function SignupPageInner() {
               <ul className="space-y-2.5">
                 {plan.features.map((f, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-stone-300">
-                    <span className={`mt-0.5 shrink-0 ${model === 'license' ? 'text-green-400' : 'text-green-400'}`}>✓</span>
+                    <span className={`mt-0.5 shrink-0 ${model === 'license' ? 'text-green-400' : 'text-green-400'}`}>✔</span>
                     {f}
                   </li>
                 ))}
@@ -198,7 +198,7 @@ function SignupPageInner() {
                   }`}>
                     <span className={`w-4 h-4 rounded-full flex items-center justify-center text-white text-[10px] ${
                       model === 'license' ? 'bg-green-500' : 'bg-amber-500'
-                    }`}>✓</span>
+                    }`}>✔</span>
                     Selected
                   </div>
                 </div>
@@ -238,7 +238,7 @@ function SignupPageInner() {
               <div>
                 <label className="block text-xs font-medium text-stone-400 mb-1.5">Your URL Slug</label>
                 <div className="flex items-center bg-stone-800 border border-stone-700 rounded-lg overflow-hidden">
-                  <span className="px-3 text-xs text-stone-500 border-r border-stone-700 py-3">visualizer.app/</span>
+                  <span className="px-3 text-xs text-stone-500 border-r border-stone-700 py-3">buildprovision.com/</span>
                   <input
                     type="text"
                     value={form.slug}

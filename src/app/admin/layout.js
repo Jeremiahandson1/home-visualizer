@@ -50,8 +50,8 @@ export default function AdminLayout({ children }) {
         <form onSubmit={handleLogin} className="w-full max-w-sm">
           <div className="bg-stone-900 border border-stone-800 rounded-2xl p-8">
             <div className="text-center mb-6">
-              <div className="w-12 h-12 rounded-xl bg-amber-700 flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">H</div>
-              <h1 className="text-white font-bold text-xl">HomeVisualizer</h1>
+              <div className="w-12 h-12 rounded-xl bg-amber-700 flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">B</div>
+              <h1 className="text-white font-bold text-xl">BuildPro Vision</h1>
               <p className="text-stone-500 text-sm mt-1">Admin Dashboard</p>
             </div>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
@@ -86,10 +86,10 @@ export default function AdminLayout({ children }) {
   return (
     <div className="min-h-screen bg-stone-950 text-stone-200">
 
-      {/* ─── Mobile header ─────────────────────── */}
+      {/* ——— Mobile header ——————————————————————— */}
       <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-stone-800 sticky top-0 bg-stone-950 z-40">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-amber-700 flex items-center justify-center text-white font-bold text-xs">H</div>
+          <div className="w-7 h-7 rounded-lg bg-amber-700 flex items-center justify-center text-white font-bold text-xs">B</div>
           <span className="font-bold text-sm text-white">Admin</span>
         </div>
         <button onClick={() => setMobileNav(!mobileNav)}
@@ -98,7 +98,7 @@ export default function AdminLayout({ children }) {
         </button>
       </div>
 
-      {/* ─── Mobile nav dropdown ───────────────── */}
+      {/* ——— Mobile nav dropdown ————————————————— */}
       {mobileNav && (
         <div className="lg:hidden fixed inset-0 top-[52px] bg-stone-950/95 backdrop-blur-sm z-30">
           <nav className="p-4 space-y-1">
@@ -120,13 +120,13 @@ export default function AdminLayout({ children }) {
       )}
 
       <div className="flex">
-        {/* ─── Desktop sidebar ─────────────────── */}
+        {/* ——— Desktop sidebar ——————————————————— */}
         <aside className="hidden lg:flex w-56 border-r border-stone-800 flex-col shrink-0 sticky top-0 h-screen">
           <div className="p-5 border-b border-stone-800">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-700 flex items-center justify-center text-white font-bold text-sm">H</div>
+              <div className="w-8 h-8 rounded-lg bg-amber-700 flex items-center justify-center text-white font-bold text-sm">B</div>
               <div>
-                <div className="font-bold text-sm text-white">HomeVisualizer</div>
+                <div className="font-bold text-sm text-white">BuildPro Vision</div>
                 <div className="text-[10px] text-stone-500 uppercase tracking-wider">Admin</div>
               </div>
             </div>
@@ -150,7 +150,7 @@ export default function AdminLayout({ children }) {
           </div>
         </aside>
 
-        {/* ─── Main content ────────────────────── */}
+        {/* ——— Main content —————————————————————— */}
         <main className="flex-1 min-w-0 overflow-auto">
           {children}
         </main>

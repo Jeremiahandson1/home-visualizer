@@ -66,7 +66,7 @@ export async function POST(request) {
     const emailPromises = [];
 
     // Create a share URL for the design if we have generated photos
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://homevisualizer.ai';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://buildprovision.com';
     let designUrl = null;
     if (generatedPhotoUrl) {
       try {
@@ -118,7 +118,7 @@ export async function POST(request) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            source: 'home-visualizer',
+            source: 'buildpro-vision',
             tenant: tenant.slug,
             lead: {
               name, email, phone, address, notes,

@@ -1,5 +1,5 @@
 /**
- * HomeVisualizer Embed Widget
+ * BuildPro Vision Embed Widget
  * 
  * Usage (one line on contractor's website):
  *   <script src="https://yourapp.com/embed.js" data-tenant="claflin-construction"></script>
@@ -37,7 +37,7 @@
   var base = script.src.replace(/\/embed\.js.*$/, '');
   var embedUrl = base + '/embed?tenant=' + encodeURIComponent(tenant);
 
-  // ─── INLINE MODE ──────────────────────────────────
+  // ——— INLINE MODE ——————————————————————————————————
   if (mode === 'inline') {
     var container = target ? document.querySelector(target) : script.parentNode;
     if (!container) return;
@@ -47,18 +47,18 @@
     iframe.style.cssText = 'width:' + width + ';height:' + height + ';border:none;border-radius:16px;';
     iframe.setAttribute('loading', 'lazy');
     iframe.setAttribute('allow', 'camera');
-    iframe.title = 'Home Visualizer';
+    iframe.title = 'BuildPro Vision';
     container.appendChild(iframe);
     return;
   }
 
-  // ─── MODAL OVERLAY ────────────────────────────────
+  // ——— MODAL OVERLAY ————————————————————————————————
   var overlay = null;
   var modalIframe = null;
 
   function createModal() {
     overlay = document.createElement('div');
-    overlay.id = 'hv-overlay';
+    overlay.id = 'bpv-overlay';
     overlay.style.cssText = [
       'position:fixed', 'top:0', 'left:0', 'right:0', 'bottom:0',
       'background:rgba(0,0,0,0.6)', 'z-index:999998',
@@ -90,7 +90,7 @@
     modalIframe.src = embedUrl;
     modalIframe.style.cssText = 'width:100%;height:100%;border:none;';
     modalIframe.setAttribute('allow', 'camera');
-    modalIframe.title = 'Home Visualizer';
+    modalIframe.title = 'BuildPro Vision';
 
     modal.appendChild(close);
     modal.appendChild(modalIframe);
@@ -132,7 +132,7 @@
     createModal();
   }
 
-  // ─── POPUP MODE (trigger from existing element) ───
+  // ——— POPUP MODE (trigger from existing element) ———
   if (mode === 'popup') {
     if (target) {
       var el = document.querySelector(target);
@@ -141,9 +141,9 @@
     return;
   }
 
-  // ─── BUTTON MODE (floating FAB) ───────────────────
+  // ——— BUTTON MODE (floating FAB) ———————————————————
   var btn = document.createElement('button');
-  btn.id = 'hv-button';
+  btn.id = 'bpv-button';
   btn.innerHTML = text;
   btn.onclick = openModal;
 

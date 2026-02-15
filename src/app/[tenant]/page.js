@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
   }
 
   return {
-    title: `Home Visualizer — ${tenant.company_name}`,
+    title: `BuildPro Vision — ${tenant.company_name}`,
     description: `See what your home could look like with ${tenant.company_name}. Upload a photo and preview real materials instantly.`,
     openGraph: {
       title: `Visualize Your Dream Home — ${tenant.company_name}`,

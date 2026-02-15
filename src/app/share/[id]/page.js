@@ -9,9 +9,9 @@ export async function generateMetadata({ params }) {
     .eq('id', params.id)
     .single();
 
-  const company = data?.tenants?.company_name || 'HomeVisualizer';
+  const company = data?.tenants?.company_name || 'BuildPro Vision';
   const material = [data?.material_brand, data?.material_name].filter(Boolean).join(' ') || data?.style_name || 'New Design';
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://homevisualizer.ai';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://buildprovision.com';
   const ogImage = data?.generated_photo_url || '';
   const pageUrl = baseUrl + '/share/' + params.id;
 
@@ -58,7 +58,7 @@ export default async function SharePage({ params }) {
 
   const tenant = data.tenants;
   const c = tenant?.colors || { primary: '#B8860B', bg: '#FDFBF7', text: '#1C1917' };
-  const company = tenant?.company_name || 'HomeVisualizer';
+  const company = tenant?.company_name || 'BuildPro Vision';
   const material = [data.material_brand, data.material_name].filter(Boolean).join(' ') || data.style_name || 'New Design';
   const projectLabel = data.project_type ? data.project_type.charAt(0).toUpperCase() + data.project_type.slice(1) : 'Exterior';
 
@@ -134,7 +134,7 @@ export default async function SharePage({ params }) {
       </main>
 
       <footer className="text-center py-4 text-xs" style={{ color: (c.text || '#1C1917') + '30' }}>
-        Powered by HomeVisualizer AI · {data.view_count || 0} views
+        Powered by BuildPro Vision · {data.view_count || 0} views
       </footer>
     </div>
   );

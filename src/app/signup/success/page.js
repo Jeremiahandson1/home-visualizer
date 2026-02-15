@@ -28,12 +28,12 @@ function SuccessPageInner() {
     <div className="min-h-screen bg-stone-950 flex items-center justify-center p-6">
       <div className="max-w-md text-center">
         <div className="w-16 h-16 rounded-full bg-green-500/15 flex items-center justify-center mx-auto mb-6">
-          <span className="text-green-400 text-3xl">✓</span>
+          <span className="text-green-400 text-3xl">✔</span>
         </div>
 
         <h1 className="text-2xl font-bold text-white mb-3">You're All Set!</h1>
         <p className="text-stone-400 mb-8">
-          Your HomeVisualizer account is being provisioned. You'll receive a confirmation email
+          Your BuildPro Vision account is being provisioned. You'll receive a confirmation email
           with login details and setup instructions shortly.
         </p>
 
@@ -67,7 +67,7 @@ function SuccessPageInner() {
             Set Up Your Visualizer →
           </a>
           <p className="text-xs text-stone-600">
-            Questions? Email support@homevisualizer.app
+            Questions? Email support@buildprovision.com
           </p>
         </div>
       </div>

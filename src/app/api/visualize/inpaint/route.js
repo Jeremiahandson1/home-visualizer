@@ -3,9 +3,9 @@
 // BATCH MODE: Multiple zones, ONE OpenAI call, surgical composite
 //
 // Flow:
-// 1. User clicks 6 zones, picks products for each
+// 1. User clicks zones, picks products for each
 // 2. We combine all zone descriptions into ONE prompt
-// 3. ONE OpenAI generation (~$0.08)
+// 3. ONE OpenAI generation (~$0.04-0.08)
 // 4. For each zone: extract AI pixels using that zone's SAM mask
 // 5. Layer all masked zones onto original photo
 // 6. Result: original photo with only the clicked zones changed
@@ -13,164 +13,216 @@
 
 import { NextResponse } from 'next/server';
 import { compositeWithMask, combineMasks, convertMaskForOpenAI } from '@/lib/composite';
+import { getSupabaseAdmin } from '@/lib/supabase';
 
-// Optional: import your existing quota/storage utils if you have them
-// import { verifyRenderQuota, incrementRenderCount } from '@/lib/quota';
-// import { uploadBase64 } from '@/lib/storage';
+export const maxDuration = 60;
+
+// ─── In-memory rate limiter (mirrors main visualize route) ────
+const rateLimits = new Map();
+function checkRateLimit(tenantSlug) {
+  const now = Date.now();
+  let bucket = rateLimits.get(tenantSlug);
+  if (!bucket || bucket.resetAt < now) {
+    bucket = { count: 0, resetAt: now + 60000, active: 0 };
+    rateLimits.set(tenantSlug, bucket);
+  }
+  if (bucket.active >= 5) return 'Too many concurrent requests. Please wait.';
+  if (bucket.count >= 20)  return 'Rate limit exceeded. Please wait a minute.';
+  bucket.count++;
+  bucket.active++;
+  return null;
+}
+function releaseRateLimit(tenantSlug) {
+  const bucket = rateLimits.get(tenantSlug);
+  if (bucket) bucket.active = Math.max(0, bucket.active - 1);
+}
 
 const STRUCTURE_ANCHOR = `CRITICAL: This is a REAL photograph. You are EDITING it, not creating a new image.
 Keep the EXACT same structure, camera angle, perspective, lighting, sky, landscaping, and all elements not listed below.
 ONLY change the specific elements described. Everything else must remain identical.`;
 
 export async function POST(req) {
+  let tenantSlug = null;
+
   try {
     const {
       imageBase64,     // Original photo (base64)
       zones,           // Array of { maskBase64, zone, materialName, materialBrand, materialColor }
       customPrompt,    // Optional freeform override
-      tenantSlug,
+      tenantSlug: slug,
       imageWidth,
       imageHeight,
     } = await req.json();
 
+    tenantSlug = slug;
+
     if (!imageBase64) {
       return NextResponse.json({ error: 'Missing imageBase64' }, { status: 400 });
+    }
+    if (!tenantSlug) {
+      return NextResponse.json({ error: 'Missing tenantSlug' }, { status: 400 });
     }
     if (!zones?.length && !customPrompt) {
       return NextResponse.json({ error: 'No zones or prompt provided' }, { status: 400 });
     }
 
-    // TODO: Wire up your existing quota check if you have one
-    // if (tenantSlug) {
-    //   const quota = await verifyRenderQuota(tenantSlug);
-    //   if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: 429 });
-    // }
+    // ─── Rate limit ──────────────────────────────────────────
+    const rateLimitError = checkRateLimit(tenantSlug);
+    if (rateLimitError) return NextResponse.json({ error: rateLimitError }, { status: 429 });
+
+    // ─── Quota check (same as main /api/visualize route) ─────
+    const supabase = getSupabaseAdmin();
+
+    let tenant;
+    if (tenantSlug === 'demo') {
+      tenant = { id: 'demo', slug: 'demo', monthly_gen_limit: 999, plan: 'demo' };
+    } else {
+      const { data, error } = await supabase
+        .from('tenants')
+        .select('id, slug, monthly_gen_limit, plan, active')
+        .eq('slug', tenantSlug)
+        .eq('active', true)
+        .single();
+
+      if (error || !data) {
+        releaseRateLimit(tenantSlug);
+        return NextResponse.json({ error: 'Tenant not found or inactive' }, { status: 404 });
+      }
+      tenant = data;
+    }
+
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const { data: usage } = await supabase
+      .from('monthly_usage')
+      .select('generation_count')
+      .eq('tenant_id', tenant.id)
+      .eq('month', currentMonth)
+      .single();
+
+    if ((usage?.generation_count || 0) >= tenant.monthly_gen_limit) {
+      releaseRateLimit(tenantSlug);
+      return NextResponse.json({ error: 'Monthly generation limit reached.' }, { status: 429 });
+    }
 
     const start = Date.now();
 
-    // ─── Step 1: Build ONE combined prompt for all zones ───
+    // ─── Step 1: Build ONE combined prompt for all zones ─────
     const prompt = customPrompt || buildBatchPrompt(zones);
 
-    // ─── Step 2: Combine all masks into one union mask ─────
-    // This goes to OpenAI as guidance (optional, helps focus)
+    // ─── Step 2: Combine all masks into one union mask ───────
     const allMasks = zones.map(z => z.maskBase64).filter(Boolean);
     let unionMask = null;
     if (allMasks.length > 0) {
       unionMask = await combineMasks(allMasks, imageWidth || 1024, imageHeight || 1024);
     }
 
-    // ─── Step 3: ONE OpenAI call ───────────────────────────
+    // ─── Step 3: ONE OpenAI call ─────────────────────────────
     let aiGeneratedBase64;
-
-    // Try with mask first (OpenAI edits endpoint)
     if (unionMask) {
       aiGeneratedBase64 = await generateWithMask(imageBase64, unionMask, prompt);
     }
-
-    // Fallback: generate without mask (Responses API)
     if (!aiGeneratedBase64) {
       aiGeneratedBase64 = await generateWithoutMask(imageBase64, prompt);
     }
-
     if (!aiGeneratedBase64) {
+      releaseRateLimit(tenantSlug);
       return NextResponse.json({ error: 'Image generation failed' }, { status: 500 });
     }
 
-    // ─── Step 4: Surgical composite ────────────────────────
-    // If we have individual masks, composite per-zone for precision
-    // If no masks (fallback), return the AI image directly
+    // ─── Step 4: Surgical composite ─────────────────────────
     let finalBase64;
-
     if (allMasks.length > 0) {
-      // Combine all zone masks into one union, then composite
-      // AI pixels only come through where ANY mask is white
-      // Original pixels preserved everywhere else
-      finalBase64 = await compositeWithMask(
-        imageBase64,        // original photo
-        aiGeneratedBase64,  // AI-generated full image
-        unionMask,          // union of all zone masks
-        3                   // 3px feather
-      );
+      finalBase64 = await compositeWithMask(imageBase64, aiGeneratedBase64, unionMask, 3);
     } else {
-      // No masks — return AI output directly (legacy behavior)
       finalBase64 = aiGeneratedBase64;
     }
 
-    // TODO: Wire up storage upload if you want to persist results
-    // const [originalUrl, generatedUrl] = await Promise.all([
-    //   uploadBase64(imageBase64, 'originals').catch(() => null),
-    //   uploadBase64(finalBase64, 'generated').catch(() => null),
-    // ]);
+    // ─── Step 5: Upload originals + generated to storage ─────
+    const imageBuffer    = Buffer.from(imageBase64, 'base64');
+    const generatedBuffer = Buffer.from(finalBase64, 'base64');
+    const ts = Date.now();
+    const photoPath     = `${tenant.slug}/${ts}-inpaint-original.jpg`;
+    const generatedPath = `${tenant.slug}/${ts}-inpaint-generated.jpg`;
 
-    const elapsed = Date.now() - start;
+    await supabase.storage.from('photos').upload(photoPath, imageBuffer, { contentType: 'image/jpeg' }).catch(() => {});
+    const { data: photoUrlData }     = supabase.storage.from('photos').getPublicUrl(photoPath);
+    await supabase.storage.from('generated').upload(generatedPath, generatedBuffer, { contentType: 'image/jpeg' }).catch(() => {});
+    const { data: generatedUrlData } = supabase.storage.from('generated').getPublicUrl(generatedPath);
+
+    // ─── Step 6: Log generation + increment quota ────────────
+    const INPAINT_COST_CENTS = 8; // ~$0.08 per inpaint call
+
+    supabase.from('generations').insert({
+      tenant_id: tenant.id,
+      project_type: 'inpaint',
+      prompt,
+      model: 'gpt-image-1',
+      provider: allMasks.length > 0 ? 'openai+composite' : 'openai',
+      cost_cents: INPAINT_COST_CENTS,
+      generation_time_ms: Date.now() - start,
+      status: 'success',
+    }).then(() => {}).catch(() => {});
+
+    if (tenant.id !== 'demo') {
+      await supabase.rpc('increment_monthly_usage', {
+        p_tenant_id: tenant.id,
+        p_month: currentMonth,
+        p_cost: INPAINT_COST_CENTS,
+      });
+    }
+
+    releaseRateLimit(tenantSlug);
 
     return NextResponse.json({
       generatedBase64: finalBase64,
-      generationTimeMs: elapsed,
+      generationTimeMs: Date.now() - start,
       zonesApplied: zones?.length || 0,
+      originalUrl: photoUrlData?.publicUrl,
+      generatedUrl: generatedUrlData?.publicUrl,
       provider: allMasks.length > 0 ? 'openai+composite' : 'openai',
     });
 
   } catch (err) {
+    if (tenantSlug) releaseRateLimit(tenantSlug);
     console.error('Inpaint API error:', err);
     return NextResponse.json({ error: err.message || 'Inpainting failed' }, { status: 500 });
   }
 }
 
-// ─── Build ONE prompt describing ALL zone changes ────────────
+// ─── Build ONE prompt describing ALL zone changes ─────────────
 function buildBatchPrompt(zones) {
   if (!zones?.length) return '';
-
   const changes = zones.map((z, i) => {
-    const product = [z.materialBrand, z.materialName].filter(Boolean).join(' ');
-    const color = z.materialColor ? ` (${z.materialColor})` : '';
+    const product  = [z.materialBrand, z.materialName].filter(Boolean).join(' ');
+    const color    = z.materialColor ? ` (${z.materialColor})` : '';
     const zoneName = (z.zone || 'surface').replace(/-/g, ' ');
     return `${i + 1}. Change the ${zoneName} to ${product}${color}`;
   });
-
-  return `${STRUCTURE_ANCHOR}
-
-Make these changes to the photo:
-${changes.join('\n')}
-
-Do NOT change anything else. Keep the exact same house shape, camera angle, sky, landscaping, driveway, and all unlisted elements pixel-identical.`;
+  return `${STRUCTURE_ANCHOR}\n\nMake these changes to the photo:\n${changes.join('\n')}\n\nDo NOT change anything else.`;
 }
 
-// ─── OpenAI generation with mask (edits endpoint) ────────────
+// ─── OpenAI generation with mask (edits endpoint) ─────────────
 async function generateWithMask(imageBase64, maskBase64, prompt) {
   try {
-    // Dynamic import for edge compatibility
     const { FormData } = await import('formdata-node');
-    const { Blob } = await import('buffer');
-
-    const imageBuf = Buffer.from(imageBase64, 'base64');
-
-    // ═══ CRITICAL: Convert SAM mask to OpenAI format ═══
-    // SAM mask: grayscale PNG, white=edit zone, black=preserve
-    // OpenAI wants: RGBA PNG, transparent(alpha=0)=edit, opaque(alpha=255)=preserve
+    const { Blob }     = await import('buffer');
+    const imageBuf     = Buffer.from(imageBase64, 'base64');
     const openaiMaskBase64 = await convertMaskForOpenAI(maskBase64);
     const maskBuf = Buffer.from(openaiMaskBase64, 'base64');
-
     const form = new FormData();
-    form.set('image', new Blob([imageBuf], { type: 'image/png' }), 'image.png');
-    form.set('mask', new Blob([maskBuf], { type: 'image/png' }), 'mask.png');
-    form.set('prompt', prompt);
-    form.set('model', 'gpt-image-1');
-    form.set('size', '1024x1024');
+    form.set('image',           new Blob([imageBuf], { type: 'image/png' }), 'image.png');
+    form.set('mask',            new Blob([maskBuf],  { type: 'image/png' }), 'mask.png');
+    form.set('prompt',          prompt);
+    form.set('model',           'gpt-image-1');
+    form.set('size',            '1024x1024');
     form.set('response_format', 'b64_json');
-    form.set('n', '1');
-
+    form.set('n',               '1');
     const res = await fetch('https://api.openai.com/v1/images/edits', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` },
       body: form,
     });
-
-    if (!res.ok) {
-      console.error('OpenAI edits failed:', res.status, await res.text());
-      return null;
-    }
-
+    if (!res.ok) { console.error('OpenAI edits failed:', res.status, await res.text()); return null; }
     const data = await res.json();
     return data.data?.[0]?.b64_json || null;
   } catch (err) {
@@ -179,7 +231,7 @@ async function generateWithMask(imageBase64, maskBase64, prompt) {
   }
 }
 
-// ─── Fallback: generate via Responses API (no mask) ──────────
+// ─── Fallback: generate via Responses API (no mask) ───────────
 async function generateWithoutMask(imageBase64, prompt) {
   try {
     const res = await fetch('https://api.openai.com/v1/responses', {
@@ -190,17 +242,13 @@ async function generateWithoutMask(imageBase64, prompt) {
       },
       body: JSON.stringify({
         model: 'gpt-4o',
-        input: [{
-          role: 'user',
-          content: [
-            { type: 'input_image', image_url: `data:image/jpeg;base64,${imageBase64}` },
-            { type: 'input_text', text: prompt },
-          ],
-        }],
-        tools: [{ type: 'image_generation', quality: 'high' }],
+        input: [{ role: 'user', content: [
+          { type: 'input_image', image_url: `data:image/jpeg;base64,${imageBase64}` },
+          { type: 'input_text',  text: prompt },
+        ]}],
+        tools: [{ type: 'image_generation', quality: 'medium' }],
       }),
     });
-
     const data = await res.json();
     const imgOut = data.output?.find(o => o.type === 'image_generation_call');
     return imgOut?.result || null;

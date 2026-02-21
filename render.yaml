@@ -7,7 +7,7 @@ services:
   - type: web
     name: home-visualizer
     runtime: node
-    plan: starter  # $7/mo — upgrade to standard ($25) for production
+    plan: standard  # $25/mo — required: visualize endpoint needs 60s timeout (starter caps at 30s)
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
@@ -16,6 +16,8 @@ services:
       - key: NEXT_PUBLIC_BASE_URL
         sync: false  # Set manually: https://home-visualizer.onrender.com
       - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_TOKEN_SECRET
         sync: false
       - key: NEXT_PUBLIC_SUPABASE_URL
         sync: false
@@ -31,17 +33,9 @@ services:
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
         sync: false
-      - key: STRIPE_PRICE_STARTER
+      - key: STRIPE_PRICE_MONTHLY
         sync: false
-      - key: STRIPE_PRICE_PRO
-        sync: false
-      - key: STRIPE_PRICE_ENTERPRISE
-        sync: false
-      - key: STRIPE_PRICE_LICENSE_STARTER
-        sync: false
-      - key: STRIPE_PRICE_LICENSE_PRO
-        sync: false
-      - key: STRIPE_PRICE_LICENSE_AGENCY
+      - key: STRIPE_PRICE_LICENSE
         sync: false
       - key: RESEND_API_KEY
         sync: false

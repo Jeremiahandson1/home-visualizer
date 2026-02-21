@@ -3,6 +3,20 @@
 import { useState, useRef, useEffect } from 'react';
 import CompareSlider from './CompareSlider';
 
+const PROGRESS_STAGES = [
+  { pct: 10, label: 'Uploading your photo...',         delay: 0 },
+  { pct: 20, label: 'Analyzing the space...',           delay: 2000 },
+  { pct: 30, label: 'Detecting surfaces & features...', delay: 5000 },
+  { pct: 40, label: 'Mapping material zones...',        delay: 9000 },
+  { pct: 50, label: 'Applying new design...',           delay: 14000 },
+  { pct: 60, label: 'Rendering new materials...',       delay: 20000 },
+  { pct: 70, label: 'Adding realistic shadows...',      delay: 28000 },
+  { pct: 80, label: 'Matching lighting conditions...',  delay: 36000 },
+  { pct: 88, label: 'Refining details & edges...',      delay: 45000 },
+  { pct: 94, label: 'Almost there — finalizing...',     delay: 52000 },
+  { pct: 97, label: 'Just a few more seconds...',       delay: 58000 },
+];
+
 // ═══════════════════════════════════════════════════════════════
 // DESIGN MODE v3 — Side-by-side layout
 //
@@ -68,6 +82,9 @@ export default function DesignMode({
   const [currentBase64, setCurrentBase64] = useState(imageBase64);
   const [currentSrc, setCurrentSrc] = useState(imageSrc);
   const [iterationCount, setIterationCount] = useState(0);
+  const [progressPct, setProgressPct] = useState(0);
+  const [progressLabel, setProgressLabel] = useState('');
+  const [elapsedSec, setElapsedSec] = useState(0);
 
   const imgRef = useRef(null);
   const containerRef = useRef(null);
@@ -174,6 +191,19 @@ export default function DesignMode({
     img.src = src;
   }, [originalSrc, imageSrc]);
 
+  // Progress animation tied to rendering state
+  useEffect(() => {
+    if (!rendering) {
+      setProgressPct(0); setProgressLabel(''); setElapsedSec(0);
+      return;
+    }
+    const timers = PROGRESS_STAGES.map(({ pct, label, delay }) =>
+      setTimeout(() => { setProgressPct(pct); setProgressLabel(label); }, delay)
+    );
+    const ticker = setInterval(() => setElapsedSec(s => s + 1), 1000);
+    return () => { timers.forEach(clearTimeout); clearInterval(ticker); };
+  }, [rendering]);
+
   async function applyDesign() {
     const changes = Object.entries(selectedMaterials).map(([category, mat]) => ({
       category,
@@ -260,25 +290,80 @@ export default function DesignMode({
               />
             )}
 
-            {/* Rendering overlay */}
-            {rendering && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                <div className="bg-white rounded-xl px-5 py-4 shadow-xl flex flex-col items-center gap-3 max-w-xs">
-                  <div className="w-8 h-8 border-3 border-t-transparent rounded-full animate-spin"
-                    style={{ borderColor: primary, borderTopColor: 'transparent', borderWidth: 3 }} />
-                  <div className="text-center">
-                    <div className="text-sm font-bold" style={{ color: primary }}>
-                      Applying {changeCount} {changeCount === 1 ? 'change' : 'changes'}
-                    </div>
-                    {Object.entries(selectedMaterials).map(([cat, mat]) => (
-                      <div key={cat} className="text-xs text-gray-500 mt-0.5">
-                        {CATEGORY_CONFIG[cat]?.label}: {mat.brand} {mat.name}
+            {/* Rendering overlay — step-by-step progress */}
+            {rendering && (() => {
+              const currentStageIdx = PROGRESS_STAGES.reduce((acc, s, i) => progressPct >= s.pct ? i : acc, 0);
+              return (
+              <div className="absolute inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(2px)' }}>
+                <div className="bg-white rounded-2xl shadow-2xl w-[calc(100%-2rem)] max-w-sm mx-4 overflow-hidden">
+
+                  {/* Header */}
+                  <div className="px-4 pt-4 pb-3 border-b" style={{ borderColor: '#E7E5E4' }}>
+                    <div className="flex items-center gap-2.5">
+                      {/* Animated logo/spinner */}
+                      <div className="relative flex-shrink-0 w-8 h-8">
+                        <div className="absolute inset-0 rounded-full border-2 border-transparent animate-spin"
+                          style={{ borderTopColor: primary, borderRightColor: primary + '40', animationDuration: '1.5s' }} />
+                        <div className="absolute inset-1 rounded-full" style={{ background: primary + '15' }} />
                       </div>
-                    ))}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold" style={{ color: primary }}>AI Rendering · {elapsedSec < 60 ? `${elapsedSec}s` : `${Math.floor(elapsedSec/60)}m ${elapsedSec%60}s`}</p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {Object.keys(selectedMaterials).length} change{Object.keys(selectedMaterials).length !== 1 ? 's' : ''}
+                          {' · '}Step {currentStageIdx + 1} of {PROGRESS_STAGES.length}
+                        </p>
+                      </div>
+                    </div>
+                    {/* Progress bar */}
+                    <div className="mt-2.5 h-2 rounded-full overflow-hidden" style={{ background: '#F5F5F4' }}>
+                      <div className="h-full rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${primary}bb, ${primary})` }} />
+                    </div>
+                  </div>
+
+                  {/* Step list */}
+                  <div className="overflow-y-auto max-h-64">
+                    {PROGRESS_STAGES.map((stage, i) => {
+                      const isDone = progressPct > stage.pct;
+                      const isActive = i === currentStageIdx;
+                      return (
+                        <div key={i}
+                          className="flex items-center gap-2.5 px-4 py-2 transition-all duration-400"
+                          style={{
+                            background: isActive ? primary + '10' : isDone ? '#00000004' : 'transparent',
+                            borderBottom: i < PROGRESS_STAGES.length - 1 ? '1px solid #F5F5F4' : 'none',
+                          }}>
+                          <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold transition-all duration-300"
+                            style={{
+                              background: isDone ? primary : isActive ? primary + '20' : '#F5F5F4',
+                              color: isDone ? '#fff' : isActive ? primary : '#A8A29E',
+                              boxShadow: isActive ? `0 0 0 3px ${primary}25` : 'none',
+                            }}>
+                            {isDone ? '✓' : i + 1}
+                          </div>
+                          <span className="text-xs flex-1 leading-tight"
+                            style={{
+                              color: isActive ? '#1C1917' : isDone ? '#A8A29E' : '#C4C0BD',
+                              fontWeight: isActive ? 600 : 400,
+                            }}>
+                            {stage.label}
+                          </span>
+                          {isActive && (
+                            <div className="flex gap-0.5 flex-shrink-0">
+                              {[0,1,2].map(d => (
+                                <div key={d} className="w-1 h-1 rounded-full animate-bounce"
+                                  style={{ background: primary, animationDelay: `${d * 0.15}s` }} />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
-            )}
+              );
+            })()}
 
             {/* Reset button */}
             {iterationCount > 0 && !rendering && (

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { checkRateLimit, releaseRateLimit } from '@/lib/rate-limit';
+import { VisualizeSchema, parseBody } from '@/lib/schemas';
 import { generateVisualization } from '@/lib/ai';
 import { buildMultiPrompt } from '@/lib/ai';
 import { getMaterial } from '@/lib/materials';
@@ -8,27 +10,7 @@ import { validateHomePhoto } from '@/lib/image-gate';
 
 export const maxDuration = 60;
 
-// ─── SIMPLE IN-MEMORY RATE LIMITER ───────────────────
-const rateLimits = new Map();
-
-function checkRateLimit(tenantSlug) {
-  const now = Date.now();
-  let bucket = rateLimits.get(tenantSlug);
-  if (!bucket || bucket.resetAt < now) {
-    bucket = { count: 0, resetAt: now + 60000, active: 0 };
-    rateLimits.set(tenantSlug, bucket);
-  }
-  if (bucket.active >= 5) return 'Too many concurrent requests. Please wait.';
-  if (bucket.count >= 20) return 'Rate limit exceeded. Please wait a minute.';
-  bucket.count++;
-  bucket.active++;
-  return null;
-}
-
-function releaseRateLimit(tenantSlug) {
-  const bucket = rateLimits.get(tenantSlug);
-  if (bucket) bucket.active = Math.max(0, bucket.active - 1);
-}
+// Rate limiting — Supabase-backed, survives cold starts (see src/lib/rate-limit.js)
 
 const MAX_IMAGE_SIZE = 15 * 1024 * 1024;
 
@@ -50,20 +32,16 @@ export async function POST(request) {
   let tenantSlug = null;
 
   try {
-    const body = await request.json();
+    const rawBody = await request.json();
+    const { ok, error: parseError, data: body } = parseBody(VisualizeSchema, rawBody);
+    if (!ok) return NextResponse.json({ error: parseError }, { status: 400 });
+
     const { imageBase64, selections } = body;
     // Support legacy single-material format too
     const { project, materialId } = body;
     tenantSlug = body.tenantSlug;
 
     const isMulti = Array.isArray(selections) && selections.length > 0;
-
-    if (!imageBase64 || !tenantSlug) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-    if (!isMulti && (!project || !materialId)) {
-      return NextResponse.json({ error: 'Missing required fields: project, materialId or selections[]' }, { status: 400 });
-    }
 
     const imageError = validateImage(imageBase64);
     if (imageError) return NextResponse.json({ error: imageError }, { status: 400 });
@@ -75,7 +53,7 @@ export async function POST(request) {
     const gate = await validateHomePhoto(imageBase64, { allowInterior: isInteriorProject });
     if (!gate.ok) return NextResponse.json({ error: gate.reason, gate: gate.type }, { status: 422 });
 
-    const rateLimitError = checkRateLimit(tenantSlug);
+    const rateLimitError = await checkRateLimit(tenantSlug);
     if (rateLimitError) return NextResponse.json({ error: rateLimitError }, { status: 429 });
 
     const supabase = getSupabaseAdmin();

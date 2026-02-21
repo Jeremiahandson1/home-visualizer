@@ -14,28 +14,12 @@
 import { NextResponse } from 'next/server';
 import { compositeWithMask, combineMasks, convertMaskForOpenAI } from '@/lib/composite';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { checkRateLimit, releaseRateLimit } from '@/lib/rate-limit';
+import { InpaintSchema, parseBody } from '@/lib/schemas';
 
 export const maxDuration = 60;
 
-// ─── In-memory rate limiter (mirrors main visualize route) ────
-const rateLimits = new Map();
-function checkRateLimit(tenantSlug) {
-  const now = Date.now();
-  let bucket = rateLimits.get(tenantSlug);
-  if (!bucket || bucket.resetAt < now) {
-    bucket = { count: 0, resetAt: now + 60000, active: 0 };
-    rateLimits.set(tenantSlug, bucket);
-  }
-  if (bucket.active >= 5) return 'Too many concurrent requests. Please wait.';
-  if (bucket.count >= 20)  return 'Rate limit exceeded. Please wait a minute.';
-  bucket.count++;
-  bucket.active++;
-  return null;
-}
-function releaseRateLimit(tenantSlug) {
-  const bucket = rateLimits.get(tenantSlug);
-  if (bucket) bucket.active = Math.max(0, bucket.active - 1);
-}
+// Rate limiting — Supabase-backed (see src/lib/rate-limit.js)
 
 const STRUCTURE_ANCHOR = `CRITICAL: This is a REAL photograph. You are EDITING it, not creating a new image.
 Keep the EXACT same structure, camera angle, perspective, lighting, sky, landscaping, and all elements not listed below.
@@ -45,29 +29,15 @@ export async function POST(req) {
   let tenantSlug = null;
 
   try {
-    const {
-      imageBase64,     // Original photo (base64)
-      zones,           // Array of { maskBase64, zone, materialName, materialBrand, materialColor }
-      customPrompt,    // Optional freeform override
-      tenantSlug: slug,
-      imageWidth,
-      imageHeight,
-    } = await req.json();
+    const rawBody = await req.json();
+    const { ok, error: parseError, data: body } = parseBody(InpaintSchema, rawBody);
+    if (!ok) return NextResponse.json({ error: parseError }, { status: 400 });
 
-    tenantSlug = slug;
-
-    if (!imageBase64) {
-      return NextResponse.json({ error: 'Missing imageBase64' }, { status: 400 });
-    }
-    if (!tenantSlug) {
-      return NextResponse.json({ error: 'Missing tenantSlug' }, { status: 400 });
-    }
-    if (!zones?.length && !customPrompt) {
-      return NextResponse.json({ error: 'No zones or prompt provided' }, { status: 400 });
-    }
+    const { imageBase64, zones, customPrompt, imageWidth, imageHeight } = body;
+    tenantSlug = body.tenantSlug;
 
     // ─── Rate limit ──────────────────────────────────────────
-    const rateLimitError = checkRateLimit(tenantSlug);
+    const rateLimitError = await checkRateLimit(tenantSlug);
     if (rateLimitError) return NextResponse.json({ error: rateLimitError }, { status: 429 });
 
     // ─── Quota check (same as main /api/visualize route) ─────

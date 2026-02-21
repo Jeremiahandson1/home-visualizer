@@ -8,6 +8,8 @@
 
 import { NextResponse } from 'next/server';
 
+export const maxDuration = 60; // 60s timeout — medium quality renders take ~35-45s
+
 const STRUCTURE_ANCHOR = `CRITICAL: This is a REAL photograph of a house. You are EDITING it, not creating a new image.
 Keep the EXACT same house structure, camera angle, perspective, lighting, sky, landscaping, and proportions.
 ONLY change the specific materials/colors described below. Everything else must remain pixel-identical.
@@ -19,6 +21,7 @@ export async function POST(req) {
       imageBase64,    // Original photo
       changes,        // Array of { category, materialName, materialBrand, materialColor }
       tenantSlug,
+      quality = 'medium',  // 'high' ~90s | 'medium' ~35-45s | 'low' ~15-20s
     } = await req.json();
 
     if (!imageBase64) {
@@ -61,7 +64,7 @@ export async function POST(req) {
         }],
         tools: [{
           type: 'image_generation',
-          quality: 'high',
+          quality,  // passed from client, default 'medium'
           size: outputSize,
         }],
       }),

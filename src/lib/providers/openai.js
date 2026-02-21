@@ -60,6 +60,7 @@ export async function generateWithOpenAI({ imageBuffer, project, material, overr
       }],
       tools: [{
         type: 'image_generation',
+        quality: 'medium',  // 'high'~90s | 'medium'~35s | 'low'~15s
         size: '1024x1024',
       }],
     }),
@@ -126,6 +127,7 @@ export async function refineWithOpenAI({ imageBuffer, instruction, context, orig
       input: [{ role: 'user', content: inputContent }],
       tools: [{
         type: 'image_generation',
+        quality: 'medium',  // 'high'~90s | 'medium'~35s | 'low'~15s
         size: '1024x1024',
       }],
     }),

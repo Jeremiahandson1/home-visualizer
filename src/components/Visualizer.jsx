@@ -1152,72 +1152,94 @@ export default function Visualizer({ config }) {
           </div>
         )}
 
-        {/* ═══════════ GENERATING — with progress ════ */}
-        {step === 'generating' && (
-          <div className="max-w-sm mx-auto text-center py-10 sm:py-16">
-            <div className="relative w-20 h-20 mx-auto mb-5">
-              <img src={image} alt="" className="w-20 h-20 rounded-xl object-cover" />
-              <div className="absolute inset-0 rounded-xl border-2 animate-pulse" style={{ borderColor: primary }} />
-              {/* Spinning ring */}
-              <div className="absolute -inset-2 rounded-2xl border-2 border-transparent animate-spin"
-                style={{ borderTopColor: primary, animationDuration: '2s' }} />
+        {/* ═══════════ GENERATING — step-by-step progress ════ */}
+        {step === 'generating' && (() => {
+          // Find which stage we're currently in
+          const currentStageIdx = PROGRESS_STAGES.reduce((acc, s, i) => progressPct >= s.pct ? i : acc, 0);
+          return (
+          <div className="max-w-md mx-auto py-6 sm:py-10 px-2">
+
+            {/* Header: photo thumb + title */}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="relative flex-shrink-0">
+                <img src={image} alt="" className="w-14 h-14 rounded-xl object-cover" />
+                {/* Animated border */}
+                <div className="absolute -inset-1 rounded-2xl border-2 border-transparent animate-spin"
+                  style={{ borderTopColor: primary, borderRightColor: primary + '40', animationDuration: '1.8s' }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wide mb-0.5" style={{ color: primary }}>AI Rendering</p>
+                <h3 className="text-base font-bold leading-tight truncate">
+                  {selectedStyle ? selectedStyle.name
+                    : Object.keys(selections).length > 1
+                      ? `${Object.keys(selections).length} material changes`
+                      : `${material?.brand} ${material?.name}`}
+                </h3>
+                <p className="text-xs tabular-nums mt-0.5" style={{ color: muted }}>
+                  {elapsedSec < 60 ? `${elapsedSec}s` : `${Math.floor(elapsedSec/60)}m ${elapsedSec%60}s`}
+                  {' · '}Step {currentStageIdx + 1} of {PROGRESS_STAGES.length}
+                </p>
+              </div>
             </div>
 
-            {/* Progress bar */}
-            <div className="w-full h-2 rounded-full mb-3 overflow-hidden" style={{ background: text + '10' }}>
+            {/* Big progress bar */}
+            <div className="w-full h-3 rounded-full mb-1 overflow-hidden" style={{ background: text + '12' }}>
               <div className="h-full rounded-full transition-all duration-1000 ease-out"
-                style={{ width: `${progressPct}%`, background: primary }} />
+                style={{ width: `${progressPct}%`, background: `linear-gradient(90deg, ${primary}cc, ${primary})` }} />
+            </div>
+            <div className="flex justify-between text-xs mb-5" style={{ color: muted }}>
+              <span>{progressPct}%</span>
+              <span className="animate-pulse">working...</span>
             </div>
 
-            <h3 className="text-base font-bold mb-1">{progressLabel || 'Starting...'}</h3>
-            <p className="text-sm" style={{ color: muted }}>
-              {selectedStyle ? selectedStyle.name
-                : Object.keys(selections).length > 1
-                  ? `${Object.keys(selections).length} changes`
-                  : `${material?.brand} ${material?.name}`}
-            </p>
+            {/* Step list — numbered, highlights active step */}
+            <div className="rounded-2xl border overflow-hidden" style={{ borderColor: border }}>
+              {PROGRESS_STAGES.map((stage, i) => {
+                const isDone = progressPct > stage.pct;
+                const isActive = i === currentStageIdx;
+                return (
+                  <div key={i}
+                    className="flex items-center gap-3 px-4 py-2.5 transition-all duration-500"
+                    style={{
+                      background: isActive ? primary + '12' : isDone ? text + '04' : 'transparent',
+                      borderBottom: i < PROGRESS_STAGES.length - 1 ? `1px solid ${border}` : 'none',
+                    }}>
+                    {/* Step indicator */}
+                    <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold transition-all duration-300"
+                      style={{
+                        background: isDone ? primary : isActive ? primary + '20' : text + '08',
+                        color: isDone ? '#fff' : isActive ? primary : muted,
+                        boxShadow: isActive ? `0 0 0 3px ${primary}30` : 'none',
+                      }}>
+                      {isDone ? '✓' : i + 1}
+                    </div>
+                    <span className="text-sm flex-1 leading-tight transition-all duration-300"
+                      style={{
+                        color: isActive ? text : isDone ? muted : muted + 'aa',
+                        fontWeight: isActive ? 600 : isDone ? 400 : 400,
+                      }}>
+                      {stage.label}
+                    </span>
+                    {isActive && (
+                      <div className="flex gap-0.5 flex-shrink-0">
+                        {[0,1,2].map(d => (
+                          <div key={d} className="w-1.5 h-1.5 rounded-full animate-bounce"
+                            style={{ background: primary, animationDelay: `${d * 0.15}s` }} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
 
-            {/* Elapsed timer */}
-            <p className="text-xs mt-2 tabular-nums" style={{ color: muted }}>
-              {elapsedSec < 60
-                ? `${elapsedSec}s elapsed`
-                : `${Math.floor(elapsedSec / 60)}m ${elapsedSec % 60}s elapsed`}
-              {elapsedSec > 5 && <span className="animate-pulse"> — still working</span>}
-            </p>
-
-            {/* Rotating tips */}
-            <div className="mt-4 px-4 py-2 rounded-lg text-xs transition-opacity duration-500"
-              style={{ background: text + '05', color: muted }}>
+            {/* Rotating tip */}
+            <div className="mt-4 px-4 py-2.5 rounded-xl text-xs" style={{ background: text + '06', color: muted }}>
               💡 {LOADING_TIPS[currentTip]}
             </div>
-
-            {/* Style preview hint */}
-            {selectedStyle && (
-              <div className="mt-4 p-3 rounded-xl border text-left" style={{ borderColor: border, background: surface }}>
-                <p className="text-xs font-semibold mb-1" style={{ color: muted }}>What to expect</p>
-                <p className="text-xs" style={{ color: muted }}>{selectedStyle.shortDesc}</p>
-                <div className="flex gap-1 mt-2">
-                  {[selectedStyle.colors.primary, selectedStyle.colors.secondary, selectedStyle.colors.accent].map((col, i) => (
-                    <div key={i} className="w-8 h-4 rounded" style={{ background: col, border: `1px solid ${text}15` }} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Multi-material preview */}
-            {!selectedStyle && Object.keys(selections).length > 0 && (
-              <div className="mt-4 p-3 rounded-xl border text-left" style={{ borderColor: border, background: surface }}>
-                <p className="text-xs font-semibold mb-1" style={{ color: muted }}>Applying {Object.keys(selections).length} changes</p>
-                {Object.entries(selections).map(([key, mat]) => (
-                    <div key={key} className="flex items-center gap-2 mt-1.5">
-                      <div className="w-4 h-4 rounded" style={{ background: mat.color || mat.colorHex || '#888' }} />
-                      <span className="text-xs" style={{ color: muted }}>{getSelectionLabel(key)}: {mat.brand} {mat.name}</span>
-                    </div>
-                ))}
-              </div>
-            )}
           </div>
-        )}
+          );
+        })()}
 
         {/* ═══════════ RESULT ══════════════════════════ */}
         {(step === 'result' || step === 'submitted') && (

@@ -40,14 +40,14 @@ export async function GET(request) {
 
 function buildInlineSnippet(name, url) {
   return [
-    '<!-- BuildPro Vision \u2014 ' + name + ' -->',
+    '<!-- Twomiah Vision \u2014 ' + name + ' -->',
     '<div id="bpv-visualizer" style="width:100%;max-width:900px;margin:0 auto;">',
     '  <iframe',
     '    id="bpv-frame"',
     '    style="width:100%;height:700px;border:none;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);"',
     '    allow="camera"',
     '    loading="lazy"',
-    '    title="BuildPro Vision"',
+    '    title="Twomiah Vision"',
     '  ></iframe>',
     '</div>',
     '<script>',
@@ -75,7 +75,7 @@ function buildInlineSnippet(name, url) {
 function buildPopupSnippet(name, url, primary) {
   // Mobile-friendly: goes full-screen on viewports < 640px
   return [
-    '<!-- BuildPro Vision Popup \u2014 ' + name + ' -->',
+    '<!-- Twomiah Vision Popup \u2014 ' + name + ' -->',
     '<style>',
     '#bpv-fab{position:fixed;bottom:24px;right:24px;z-index:9999;cursor:pointer;',
     '  background:' + primary + ';color:#fff;padding:14px 24px;border-radius:50px;',
@@ -113,7 +113,7 @@ function buildPopupSnippet(name, url, primary) {
     '  var u=["utm_source","utm_medium","utm_campaign","utm_term","utm_content"];',
     '  var x=[];u.forEach(function(k){var v=p.get(k);if(v)x.push(k+"="+encodeURIComponent(v));});',
     '  var src=base+(x.length?(base.indexOf("?")>-1?"&":"?")+x.join("&"):"");',
-    '  h+=\'<iframe src="\'+src+\'" style="width:100%;height:100%;border:none" allow="camera" title="BuildPro Vision"></iframe>\';',
+    '  h+=\'<iframe src="\'+src+\'" style="width:100%;height:100%;border:none" allow="camera" title="Twomiah Vision"></iframe>\';',
     '  h+=\'</div></div>\';',
     '  document.body.insertAdjacentHTML("beforeend",h);',
     '  document.getElementById("bpv-fab").onclick=open;',
@@ -126,7 +126,7 @@ function buildPopupSnippet(name, url, primary) {
 
 function buildButtonSnippet(name, url, primary) {
   return [
-    '<!-- BuildPro Vision Button \u2014 ' + name + ' -->',
+    '<!-- Twomiah Vision Button \u2014 ' + name + ' -->',
     '<a',
     '  href="' + url + '"',
     '  target="_blank"',

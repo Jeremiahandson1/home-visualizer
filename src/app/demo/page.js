@@ -8,7 +8,7 @@ export default function DemoPage() {
   const demoConfig = {
     tenantId: null,
     slug: 'demo',
-    companyName: 'BuildPro Vision Demo',
+    companyName: 'Twomiah Vision Demo',
     tagline: 'See what your home could look like',
     phone: '',
     email: '',

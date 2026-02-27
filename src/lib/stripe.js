@@ -58,7 +58,7 @@ export async function seedStripeProducts() {
     const isLicense = plan.mode === 'payment';
 
     const product = await stripe.products.create({
-      name: `BuildPro Vision ${plan.name}`,
+      name: `Twomiah Vision ${plan.name}`,
       description: isLicense
         ? `One-time license — ${plan.name}`
         : `${plan.genLimit} AI visualizations/month for contractors`,

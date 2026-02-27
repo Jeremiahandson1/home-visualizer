@@ -118,7 +118,7 @@ export async function POST(request) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            source: 'buildpro-vision',
+            source: 'twomiah-vision',
             tenant: tenant.slug,
             lead: {
               name, email, phone, address, notes,

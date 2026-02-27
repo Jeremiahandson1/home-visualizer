@@ -33,7 +33,7 @@ function SuccessPageInner() {
 
         <h1 className="text-2xl font-bold text-white mb-3">You're All Set!</h1>
         <p className="text-stone-400 mb-8">
-          Your BuildPro Vision account is being provisioned. You'll receive a confirmation email
+          Your Twomiah Vision account is being provisioned. You'll receive a confirmation email
           with login details and setup instructions shortly.
         </p>
 

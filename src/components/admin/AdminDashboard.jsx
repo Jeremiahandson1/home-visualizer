@@ -110,11 +110,11 @@ function AdminDashboard() {
           </Link>
           <Link to="/visualizer" className="admin-card">
             <h3>🎨 Visualizer Products</h3>
-            <p>Manage materials shown in your BuildPro Vision</p>
+            <p>Manage materials shown in your Twomiah Vision</p>
           </Link>
           <a href="https://claflinconstruction.net/visualize" target="_blank" rel="noopener" className="admin-card" style={{ textDecoration: 'none' }}>
             <h3>🏠 Preview Visualizer</h3>
-            <p>See your live BuildPro Vision as customers see it</p>
+            <p>See your live Twomiah Vision as customers see it</p>
           </a>
           <Link to="/media" className="admin-card">
             <h3>🖼️ Media Library</h3>

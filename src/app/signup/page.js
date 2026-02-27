@@ -107,7 +107,7 @@ function SignupPageInner() {
         <div className="max-w-5xl mx-auto px-6 py-5 flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-amber-700 flex items-center justify-center text-white font-bold">B</div>
           <div>
-            <div className="font-bold text-white">BuildPro Vision</div>
+            <div className="font-bold text-white">Twomiah Vision</div>
             <div className="text-[11px] text-stone-500">AI-Powered Renovation Visualization</div>
           </div>
         </div>

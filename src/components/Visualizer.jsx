@@ -1346,7 +1346,7 @@ export default function Visualizer({ config }) {
 
       {config.plan !== 'enterprise' && (
         <footer className="text-center py-2 text-xs" style={{ color: muted + '50' }}>
-          Powered by <a href="/" target="_blank" rel="noopener" className="underline">BuildPro Vision</a>
+          Powered by <a href="/" target="_blank" rel="noopener" className="underline">Twomiah Vision</a>
         </footer>
       )}
     </div>

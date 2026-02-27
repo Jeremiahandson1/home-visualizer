@@ -3,7 +3,7 @@ import { TOTAL_PRODUCTS, PROJECTS } from '@/lib/materials';
 import { STYLE_PRESETS } from '@/lib/styles';
 
 export const metadata = {
-  title: 'BuildPro Vision — AI Home Design for Contractors',
+  title: 'Twomiah Vision — AI Home Design for Contractors',
   description: 'White-label AI home visualization. Homeowners see real products on their home. Every visualization becomes a qualified lead.',
 };
 
@@ -13,7 +13,7 @@ export default function HomePage() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
         <div className="font-display font-bold text-xl text-stone-900">
-          BuildPro<span className="text-amber-700"> Vision</span>
+          Twomiah<span className="text-amber-700"> Vision</span>
         </div>
         <div className="flex items-center gap-6">
           <a href="#features" className="text-sm font-medium text-stone-600 hover:text-stone-900 hidden sm:block">Features</a>
@@ -90,7 +90,7 @@ export default function HomePage() {
               style={{ width: '100%', height: 680, border: 'none' }}
               allow="camera"
               loading="lazy"
-              title="Try BuildPro Vision"
+              title="Try Twomiah Vision"
             />
           </div>
           <p className="text-xs text-stone-400 mt-4">
@@ -209,7 +209,7 @@ export default function HomePage() {
       {/* vs HOVER */}
       <section id="vs-hover" className="px-6 py-20 max-w-5xl mx-auto">
         <h2 className="font-display text-3xl font-bold text-center text-stone-900 mb-4">
-          BuildPro Vision vs HOVER Instant Design
+          Twomiah Vision vs HOVER Instant Design
         </h2>
         <p className="text-center text-stone-600 mb-12">HOVER charges $25 per project. We charge $49/mo flat — unlimited projects, unlimited savings.</p>
 
@@ -222,7 +222,7 @@ export default function HomePage() {
                 <tr className="border-b-2 border-amber-300">
                   <th className="text-left py-3 px-3 text-stone-500 font-medium"></th>
                   <th className="text-center py-3 px-3 text-stone-600 font-bold">HOVER<br /><span className="text-xs font-normal">$25/project</span></th>
-                  <th className="text-center py-3 px-3 text-amber-700 font-bold">BuildPro Vision<br /><span className="text-xs font-normal">$49/mo flat</span></th>
+                  <th className="text-center py-3 px-3 text-amber-700 font-bold">Twomiah Vision<br /><span className="text-xs font-normal">$49/mo flat</span></th>
                   <th className="text-center py-3 px-3 text-green-700 font-bold">Own It<br /><span className="text-xs font-normal">$1,497 once</span></th>
                 </tr>
               </thead>
@@ -258,7 +258,7 @@ export default function HomePage() {
               <tr className="bg-stone-50 border-b border-stone-200">
                 <th className="text-left py-3 px-4 font-medium text-stone-500">Feature</th>
                 <th className="text-center py-3 px-4 font-medium text-stone-500">HOVER</th>
-                <th className="text-center py-3 px-4 font-bold text-amber-700">BuildPro Vision</th>
+                <th className="text-center py-3 px-4 font-bold text-amber-700">Twomiah Vision</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -519,7 +519,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-stone-200 px-6 py-8 text-center text-sm text-stone-500">
-        <p>© {new Date().getFullYear()} BuildPro Vision · Built by BreakPoint Digital</p>
+        <p>© {new Date().getFullYear()} Twomiah Vision · Built by Twomiah</p>
       </footer>
     </div>
   );

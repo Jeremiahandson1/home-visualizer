@@ -15,7 +15,7 @@ function esc(s) {
 
 async function send(to, subject, html) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM || 'BuildPro Vision <noreply@buildprovision.com>';
+  const from = process.env.EMAIL_FROM || 'Twomiah Vision <noreply@buildprovision.com>';
 
   if (!apiKey) {
     console.log('[EMAIL-SKIP] No RESEND_API_KEY. To:', to, 'Subject:', subject);
@@ -69,7 +69,7 @@ export async function notifyContractorNewLead({
   const html = [
     '<div style="font-family:system-ui,-apple-system,sans-serif;max-width:560px;margin:0 auto;padding:24px;">',
     '<h2 style="margin:0 0 4px;font-size:20px;color:#1C1917;">New Visualization Lead</h2>',
-    '<p style="margin:0 0 20px;color:#78716C;font-size:14px;">Someone used your BuildPro Vision visualizer and wants an estimate.</p>',
+    '<p style="margin:0 0 20px;color:#78716C;font-size:14px;">Someone used your Twomiah Vision visualizer and wants an estimate.</p>',
     '<div style="background:#FAFAF9;border:1px solid #E7E5E4;border-radius:12px;padding:16px;margin-bottom:16px;">',
     '<table style="width:100%;border-collapse:collapse;font-size:14px;">',
     '<tr><td style="padding:4px 8px 4px 0;color:#78716C;font-weight:600;">Name</td><td style="padding:4px 0;">' + esc(lead.name) + '</td></tr>',
@@ -79,7 +79,7 @@ export async function notifyContractorNewLead({
     '<tr><td style="padding:4px 8px 4px 0;color:#78716C;font-weight:600;">Project</td><td style="padding:4px 0;">' + esc(lead.materialBrand || '') + ' ' + esc(lead.materialName || '') + '</td></tr>',
     '</table></div>',
     viewBtn,
-    '<p style="color:#78716C;font-size:12px;margin-top:24px;">Tip: Respond within 5 minutes for the best conversion rate.<br/>This lead came from your BuildPro Vision widget.</p>',
+    '<p style="color:#78716C;font-size:12px;margin-top:24px;">Tip: Respond within 5 minutes for the best conversion rate.<br/>This lead came from your Twomiah Vision widget.</p>',
     '</div>',
   ].join('\n');
 
@@ -126,12 +126,12 @@ export async function sendHomeownerConfirmation({
 // ─── Welcome email after signup ──────────────────────
 export async function sendWelcomeEmail({ email, company_name, slug, plan }) {
   const appUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const subject = `Welcome to BuildPro Vision — Let's get you set up`;
+  const subject = `Welcome to Twomiah Vision — Let's get you set up`;
 
   const html = [
     '<div style="font-family:system-ui,-apple-system,sans-serif;max-width:560px;margin:0 auto;padding:24px;">',
     '<h2 style="margin:0 0 4px;font-size:22px;color:#1C1917;">Welcome aboard, ' + esc(company_name) + '!</h2>',
-    '<p style="margin:8px 0 20px;color:#78716C;font-size:14px;">Your BuildPro Vision account is live on the <strong>' + esc(plan) + '</strong> plan.</p>',
+    '<p style="margin:8px 0 20px;color:#78716C;font-size:14px;">Your Twomiah Vision account is live on the <strong>' + esc(plan) + '</strong> plan.</p>',
     '<div style="background:#FAFAF9;border:1px solid #E7E5E4;border-radius:12px;padding:16px;margin:16px 0;">',
     '<p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#1C1917;">Quick Start (2 minutes):</p>',
     '<ol style="margin:0;padding-left:20px;color:#44403C;font-size:14px;line-height:1.8;">',

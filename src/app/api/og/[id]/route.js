@@ -41,7 +41,7 @@ export async function GET(request, { params }) {
 
     // ─── Brand colors from tenant config ─────────────
     const primary = data.tenants?.colors?.primary || '#B8860B';
-    const companyName = data.tenants?.company_name || 'BuildPro Vision';
+    const companyName = data.tenants?.company_name || 'Twomiah Vision';
     const label = [data.material_brand, data.material_name, data.style_name]
       .filter(Boolean).join(' · ') || 'AI Visualization';
 
@@ -89,7 +89,7 @@ export async function GET(request, { params }) {
 
         <!-- Powered by (bottom right) -->
         <text x="${OG_W - 16}" y="${OG_H - 18}" font-family="system-ui,sans-serif" font-size="11"
-          fill="rgba(255,255,255,0.5)" text-anchor="end">Powered by BuildPro Vision</text>
+          fill="rgba(255,255,255,0.5)" text-anchor="end">Powered by Twomiah Vision</text>
       </svg>
     `);
 

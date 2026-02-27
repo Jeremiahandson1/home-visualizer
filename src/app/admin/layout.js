@@ -51,7 +51,7 @@ export default function AdminLayout({ children }) {
           <div className="bg-stone-900 border border-stone-800 rounded-2xl p-8">
             <div className="text-center mb-6">
               <div className="w-12 h-12 rounded-xl bg-amber-700 flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">B</div>
-              <h1 className="text-white font-bold text-xl">BuildPro Vision</h1>
+              <h1 className="text-white font-bold text-xl">Twomiah Vision</h1>
               <p className="text-stone-500 text-sm mt-1">Admin Dashboard</p>
             </div>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
@@ -126,7 +126,7 @@ export default function AdminLayout({ children }) {
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-amber-700 flex items-center justify-center text-white font-bold text-sm">B</div>
               <div>
-                <div className="font-bold text-sm text-white">BuildPro Vision</div>
+                <div className="font-bold text-sm text-white">Twomiah Vision</div>
                 <div className="text-[10px] text-stone-500 uppercase tracking-wider">Admin</div>
               </div>
             </div>

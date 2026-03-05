@@ -5,8 +5,15 @@
 
 import sharp from 'sharp';
 
+let _demoWarningLogged = false;
+
 export function isDemoMode() {
-  return !process.env.OPENAI_API_KEY && !process.env.BFL_API_KEY && !process.env.STABILITY_API_KEY;
+  const isDemo = !process.env.OPENAI_API_KEY && !process.env.BFL_API_KEY && !process.env.STABILITY_API_KEY;
+  if (isDemo && !_demoWarningLogged) {
+    _demoWarningLogged = true;
+    console.warn('[DEMO MODE] No AI API keys found (OPENAI_API_KEY, BFL_API_KEY, STABILITY_API_KEY). Running in demo mode — generations will be simulated. Set at least one key to enable real AI generation.');
+  }
+  return isDemo;
 }
 
 /**

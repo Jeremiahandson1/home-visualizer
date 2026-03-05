@@ -32,8 +32,9 @@ export async function validateHomePhoto(imageBase64, opts = {}) {
     const result = await checkWithVision(apiKey, imageBase64, allowInterior);
     return result;
   } catch (err) {
-    console.error('[GATE] Vision check failed, allowing through:', err.message);
-    return { ok: true, confidence: 'fallback', reason: err.message };
+    // Fail closed: reject rather than wasting $0.08 on a potentially bad image
+    console.error('[GATE] Vision check failed, rejecting as precaution:', err.message);
+    return { ok: false, reason: 'Unable to verify image. Please try again in a moment.' };
   }
 }
 
@@ -152,8 +153,8 @@ ${interiorRule}
       aiReason: result.reason,
     };
   } catch (parseErr) {
-    // Couldn't parse AI response — fail open
+    // Couldn't parse AI response — fail closed to avoid wasting generation cost
     console.error('[GATE] Could not parse vision response:', text);
-    return { ok: true, confidence: 'parse_error' };
+    return { ok: false, reason: 'Unable to verify image. Please try again.' };
   }
 }

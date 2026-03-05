@@ -97,14 +97,6 @@ export async function POST(request) {
           status: 'success',
         }).then(() => {}).catch(err => console.error('Generation log failed:', err.message));
 
-        // Update usage
-        const { error: usageError } = await supabase.rpc('increment_monthly_usage', {
-          p_tenant_id: tenant.id,
-          p_month: currentMonth,
-          p_cost: result.costCents,
-        });
-        if (usageError) console.error('Usage increment failed:', usageError.message);
-
         return {
           styleId: style.id,
           styleName: style.name,
@@ -112,6 +104,7 @@ export async function POST(request) {
           generatedBase64: result.imageBase64,
           generationTimeMs: result.generationTimeMs,
           provider: result.provider,
+          costCents: result.costCents || 0,
         };
       })
     );
@@ -123,6 +116,16 @@ export async function POST(request) {
     const failures = results
       .filter(r => r.status === 'rejected')
       .map((r, i) => ({ styleId: styles[i]?.id, error: r.reason?.message }));
+
+    // Only charge quota for successful generations (not failed ones)
+    for (const s of successes) {
+      const { error: usageError } = await supabase.rpc('increment_monthly_usage', {
+        p_tenant_id: tenant.id,
+        p_month: currentMonth,
+        p_cost: s.costCents || 0,
+      });
+      if (usageError) console.error('Usage increment failed:', usageError.message);
+    }
 
     return NextResponse.json({
       originalUrl: photoUrl?.publicUrl,

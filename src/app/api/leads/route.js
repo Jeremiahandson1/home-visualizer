@@ -94,7 +94,8 @@ export async function POST(request) {
           contractorName: tenant.company_name,
           lead: { name, email, phone, address, materialBrand, materialName },
           designUrl,
-        }).catch(err => console.error('Contractor email failed:', err))
+        }).then(() => ({ to: 'contractor', ok: true }))
+         .catch(err => { console.error('Contractor email failed:', err); return { to: 'contractor', ok: false, error: err.message }; })
       );
     }
 
@@ -107,7 +108,8 @@ export async function POST(request) {
           contractorName: tenant.company_name,
           contractorPhone: tenant.phone || '',
           designUrl,
-        }).catch(err => console.error('Homeowner email failed:', err))
+        }).then(() => ({ to: 'homeowner', ok: true }))
+         .catch(err => { console.error('Homeowner email failed:', err); return { to: 'homeowner', ok: false, error: err.message }; })
       );
     }
 
@@ -145,11 +147,18 @@ export async function POST(request) {
     }
 
     // Await emails/webhooks before responding
-    await Promise.allSettled(emailPromises);
+    const emailResults = await Promise.allSettled(emailPromises);
+    const notifications = emailResults
+      .map(r => r.status === 'fulfilled' ? r.value : { ok: false, error: 'unknown' })
+      .filter(Boolean);
+
+    const allNotificationsOk = notifications.every(n => n.ok);
 
     return NextResponse.json({
       success: true,
       leadId: lead.id,
+      notificationsDelivered: allNotificationsOk,
+      ...(allNotificationsOk ? {} : { notificationWarning: 'Some notifications may not have been delivered. The contractor has been alerted.' }),
     });
 
   } catch (error) {

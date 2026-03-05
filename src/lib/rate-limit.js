@@ -73,9 +73,21 @@ export async function checkRateLimit(tenantSlug) {
 
     return null;
   } catch (err) {
-    // If Supabase is unreachable, fall back to local-only (fail open, log it)
+    // If Supabase is unreachable, use local-only with conservative limits.
+    // Fail closed: enforce stricter local limits to prevent abuse during outages.
     console.warn('Rate limit DB check failed, using local fallback:', err.message);
-    localCache.set(cacheKey, { count: 1, active: 1 });
+    const localEntry = { count: 1, active: 1 };
+    localCache.set(cacheKey, localEntry);
+
+    // Count how many local entries exist for this tenant (across windows)
+    let totalLocalCount = 0;
+    for (const [key, val] of localCache) {
+      if (key.startsWith(tenantSlug + ':')) totalLocalCount += val.count;
+    }
+    // During DB outage, cap at half normal limit to be safe
+    if (totalLocalCount > Math.floor(MAX_PER_MIN / 2)) {
+      return 'Rate limit exceeded (degraded mode). Please try again shortly.';
+    }
     return null;
   }
 }

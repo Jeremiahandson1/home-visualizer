@@ -118,13 +118,19 @@ export async function POST(req) {
     }
 
     // Validate and normalize surfaces
-    const surfaces = (result.surfaces || []).map((s, i) => ({
-      id: `surface-${i}`,
-      category: s.category || 'accent',
-      label: s.label || `Surface ${i + 1}`,
-      x: Math.max(0, Math.min(100, Number(s.x) || 50)),
-      y: Math.max(0, Math.min(100, Number(s.y) || 50)),
-    }));
+    const validCategories = new Set([
+      'siding', 'trim', 'soffit', 'fascia', 'gutters', 'windows', 'doors',
+      'roofing', 'foundation', 'railing', 'columns', 'shutters', 'paint', 'accent',
+    ]);
+    const surfaces = (Array.isArray(result.surfaces) ? result.surfaces : [])
+      .filter(s => s && typeof s === 'object' && typeof s.x === 'number' && typeof s.y === 'number')
+      .map((s, i) => ({
+        id: `surface-${i}`,
+        category: validCategories.has(s.category) ? s.category : 'accent',
+        label: typeof s.label === 'string' ? s.label.slice(0, 100) : `Surface ${i + 1}`,
+        x: Math.max(0, Math.min(100, Number(s.x) || 50)),
+        y: Math.max(0, Math.min(100, Number(s.y) || 50)),
+      }));
 
     // Group by category for summary
     const categories = {};

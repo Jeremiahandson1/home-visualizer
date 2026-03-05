@@ -67,8 +67,8 @@ export async function checkRateLimit(tenantSlug) {
 
     // Clean stale cache keys (keep last 3 windows only)
     for (const key of localCache.keys()) {
-      const keyWindow = parseInt(key.split(':')[1], 10);
-      if (window - keyWindow > 3) localCache.delete(key);
+      const keyWindow = parseInt(key.split(':').pop(), 10);
+      if (Number.isNaN(keyWindow) || window - keyWindow > 3) localCache.delete(key);
     }
 
     return null;

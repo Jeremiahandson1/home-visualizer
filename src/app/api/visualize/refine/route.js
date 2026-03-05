@@ -63,7 +63,7 @@ export async function POST(request) {
     const refinedPath = `${tenant.slug}/${Date.now()}-refined.jpg`;
     await supabase.storage.from('generated').upload(refinedPath, refinedBuffer, {
       contentType: 'image/jpeg',
-    }).catch(() => {});
+    }).catch(err => console.error('Refined upload failed:', err.message));
     const { data: refinedUrl } = supabase.storage.from('generated').getPublicUrl(refinedPath);
 
     // Log generation
@@ -75,14 +75,15 @@ export async function POST(request) {
       cost_cents: result.costCents,
       generation_time_ms: result.generationTimeMs,
       status: 'success',
-    }).then(() => {}).catch(() => {});
+    }).then(() => {}).catch(err => console.error('Generation log failed:', err.message));
 
     // Update usage
-    await supabase.rpc('increment_monthly_usage', {
+    const { error: usageError } = await supabase.rpc('increment_monthly_usage', {
       p_tenant_id: tenant.id,
       p_month: currentMonth,
       p_cost: result.costCents,
     });
+    if (usageError) console.error('Usage increment failed:', usageError.message);
 
     return NextResponse.json({
       generatedUrl: refinedUrl?.publicUrl,

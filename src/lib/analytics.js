@@ -12,5 +12,5 @@ export function trackEvent(eventType, tenantId = null, metadata = {}) {
       event_type: eventType,
       metadata,
     }),
-  }).catch(() => {}); // Silently ignore errors
+  }).catch(err => { if (typeof window !== 'undefined') console.warn('Analytics event failed:', err.message); });
 }

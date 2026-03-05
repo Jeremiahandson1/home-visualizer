@@ -24,11 +24,21 @@ export async function POST(req) {
       quality = 'medium',  // 'high' ~90s | 'medium' ~35-45s | 'low' ~15-20s
     } = await req.json();
 
-    if (!imageBase64) {
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
       return NextResponse.json({ error: 'Missing imageBase64' }, { status: 400 });
     }
-    if (!changes?.length) {
+    if (!Array.isArray(changes) || !changes.length) {
       return NextResponse.json({ error: 'No changes specified' }, { status: 400 });
+    }
+    // Validate each change has required fields
+    for (const c of changes) {
+      if (!c.category || (!c.materialName && !c.materialBrand)) {
+        return NextResponse.json({ error: 'Each change needs category and materialName or materialBrand' }, { status: 400 });
+      }
+    }
+    const validQualities = ['low', 'medium', 'high'];
+    if (!validQualities.includes(quality)) {
+      return NextResponse.json({ error: 'quality must be low, medium, or high' }, { status: 400 });
     }
 
     const start = Date.now();

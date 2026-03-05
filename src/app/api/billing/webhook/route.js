@@ -11,6 +11,12 @@ export const dynamic = 'force-dynamic';
 export async function POST(request) {
   const body = await request.text();
   const sig = request.headers.get('stripe-signature');
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!webhookSecret) {
+    console.error('STRIPE_WEBHOOK_SECRET not configured');
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
+  }
 
   let event;
 
@@ -18,7 +24,7 @@ export async function POST(request) {
     event = getStripe().webhooks.constructEvent(
       body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET
+      webhookSecret
     );
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
@@ -34,7 +40,11 @@ export async function POST(request) {
         const session = event.data.object;
         if (session.mode !== 'subscription') break;
 
-        const { plan, company_name, slug, email } = session.metadata;
+        const { plan, company_name, slug, email } = session.metadata || {};
+        if (!slug || !plan) {
+          console.error('Webhook missing required metadata:', { slug, plan, company_name });
+          break;
+        }
         const customerId = session.customer;
         const subscriptionId = session.subscription;
 

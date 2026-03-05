@@ -13,7 +13,19 @@ const nextConfig = {
     },
   },
   async headers() {
+    const securityHeaders = [
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'X-DNS-Prefetch-Control', value: 'on' },
+      { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+      { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+    ];
     return [
+      {
+        // Global security headers
+        source: '/:path*',
+        headers: securityHeaders,
+      },
       {
         // Allow embedding as iframe on any contractor site
         source: '/embed/:path*',

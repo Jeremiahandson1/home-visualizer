@@ -71,7 +71,8 @@ export async function GET(request) {
     .from('shares')
     .update({ view_count: (data.view_count || 0) + 1 })
     .eq('id', id)
-    .then(() => {});
+    .then(() => {})
+    .catch(err => console.error('View count increment failed:', err.message));
 
   return NextResponse.json(data);
 }

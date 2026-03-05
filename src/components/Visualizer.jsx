@@ -164,9 +164,11 @@ export default function Visualizer({ config }) {
       // Assign A/B variants
       const assignments = getAllAssignments();
       setAbVariants(assignments);
-      trackEvent('ab_assignment', config.tenantId, assignments);
+      if (config.tenantId) {
+        trackEvent('ab_assignment', config.tenantId, assignments);
+      }
     }
-  }, []);
+  }, [config.tenantId]);
 
   const allEnabledProjects = PROJECTS.filter(p => config.features?.[p.id] !== false);
   const enabledProjects = remodel
@@ -189,13 +191,15 @@ export default function Visualizer({ config }) {
   const [socialStats, setSocialStats] = useState({ totalDesigns: 0, thisWeek: 0 });
 
   useEffect(() => {
-    trackEvent('page_view', config.tenantId, { slug: config.slug });
+    if (config.tenantId) {
+      trackEvent('page_view', config.tenantId, { slug: config.slug });
+    }
     // Fetch social proof stats
     fetch('/api/analytics/stats' + (config.tenantId ? '?tenant_id=' + config.tenantId : ''))
       .then(r => r.json())
       .then(setSocialStats)
       .catch(() => {});
-  }, []);
+  }, [config.tenantId, config.slug]);
 
   // Lead form behavior controlled by A/B test
   const leadFormVariant = getVariant('lead_form_timing');

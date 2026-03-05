@@ -29,8 +29,14 @@ export async function GET(request, { params }) {
 
     // ─── Fetch both photos in parallel ───────────────
     const [origBuf, genBuf] = await Promise.all([
-      fetch(data.original_photo_url).then(r => r.arrayBuffer()).then(Buffer.from),
-      fetch(data.generated_photo_url).then(r => r.arrayBuffer()).then(Buffer.from),
+      fetch(data.original_photo_url, { signal: AbortSignal.timeout(10000) }).then(r => {
+        if (!r.ok) throw new Error(`Failed to fetch original: ${r.status}`);
+        return r.arrayBuffer();
+      }).then(Buffer.from),
+      fetch(data.generated_photo_url, { signal: AbortSignal.timeout(10000) }).then(r => {
+        if (!r.ok) throw new Error(`Failed to fetch generated: ${r.status}`);
+        return r.arrayBuffer();
+      }).then(Buffer.from),
     ]);
 
     // ─── Resize both to left/right halves ────────────
@@ -115,9 +121,23 @@ export async function GET(request, { params }) {
 
   } catch (err) {
     console.error('OG image error:', err);
-    // Graceful fallback — redirect to raw generated photo rather than erroring
+    // Graceful fallback — proxy the generated photo rather than redirecting to an unvalidated URL
     if (data.generated_photo_url) {
-      return NextResponse.redirect(data.generated_photo_url);
+      try {
+        const url = new URL(data.generated_photo_url);
+        const allowedHosts = ['.supabase.co', '.supabase.in'];
+        const isAllowed = allowedHosts.some(h => url.hostname.endsWith(h));
+        if (isAllowed && url.protocol === 'https:') {
+          const fallbackRes = await fetch(data.generated_photo_url, { signal: AbortSignal.timeout(10000) });
+          if (fallbackRes.ok) {
+            const buf = Buffer.from(await fallbackRes.arrayBuffer());
+            return new NextResponse(buf, {
+              status: 200,
+              headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=3600' },
+            });
+          }
+        }
+      } catch { /* fallback failed, return 500 below */ }
     }
     return new NextResponse('Image generation failed', { status: 500 });
   }

@@ -76,7 +76,7 @@ export async function POST(request) {
     const photoPath = `${tenant.slug}/${Date.now()}-original.jpg`;
     await supabase.storage.from('photos').upload(photoPath, imageBuffer, {
       contentType: 'image/jpeg',
-    }).catch(() => {});
+    }).catch(err => console.error('Original upload failed:', err.message));
     const { data: photoUrl } = supabase.storage.from('photos').getPublicUrl(photoPath);
 
     // Generate
@@ -92,7 +92,7 @@ export async function POST(request) {
     const genPath = `${tenant.slug}/${Date.now()}-style-${styleId}.jpg`;
     await supabase.storage.from('generated').upload(genPath, genBuffer, {
       contentType: 'image/jpeg',
-    }).catch(() => {});
+    }).catch(err => console.error('Generated upload failed:', err.message));
     const { data: genUrl } = supabase.storage.from('generated').getPublicUrl(genPath);
 
     // Log
@@ -106,13 +106,14 @@ export async function POST(request) {
       cost_cents: result.costCents,
       generation_time_ms: result.generationTimeMs,
       status: 'success',
-    }).then(() => {}).catch(() => {});
+    }).then(() => {}).catch(err => console.error('Generation log failed:', err.message));
 
-    await supabase.rpc('increment_monthly_usage', {
+    const { error: usageError } = await supabase.rpc('increment_monthly_usage', {
       p_tenant_id: tenant.id,
       p_month: currentMonth,
       p_cost: result.costCents,
     });
+    if (usageError) console.error('Usage increment failed:', usageError.message);
 
     return NextResponse.json({
       originalUrl: photoUrl?.publicUrl,

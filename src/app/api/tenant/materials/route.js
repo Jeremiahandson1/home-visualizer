@@ -22,17 +22,19 @@ async function authenticateTenant(request) {
 }
 
 // ─── CORS headers ─────────────────────────────────────
-function corsHeaders() {
+function corsHeaders(request) {
+  const origin = request?.headers?.get?.('origin') || '*';
   return {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
   };
 }
 
 // ─── OPTIONS (CORS preflight) ─────────────────────────
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: corsHeaders() });
+export async function OPTIONS(request) {
+  return new NextResponse(null, { status: 204, headers: corsHeaders(request) });
 }
 
 // ─── GET /api/tenant/materials ────────────────────────
@@ -41,7 +43,7 @@ export async function OPTIONS() {
 export async function GET(request) {
   const tenant = await authenticateTenant(request);
   if (!tenant) {
-    return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders() });
+    return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders(request) });
   }
 
   const { searchParams } = new URL(request.url);
@@ -113,7 +115,7 @@ export async function GET(request) {
     custom,
     builtin,
     hiddenKeys: [...hiddenKeys],
-  }, { headers: corsHeaders() });
+  }, { headers: corsHeaders(request) });
 }
 
 // ─── POST /api/tenant/materials ───────────────────────
@@ -121,7 +123,7 @@ export async function GET(request) {
 export async function POST(request) {
   const tenant = await authenticateTenant(request);
   if (!tenant) {
-    return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders() });
+    return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders(request) });
   }
 
   const body = await request.json();
@@ -131,7 +133,7 @@ export async function POST(request) {
   } = body;
 
   if (!category || !brand || !name) {
-    return NextResponse.json({ error: 'category, brand, and name are required' }, { status: 400, headers: corsHeaders() });
+    return NextResponse.json({ error: 'category, brand, and name are required' }, { status: 400, headers: corsHeaders(request) });
   }
 
   const supabase = getSupabaseAdmin();
@@ -158,10 +160,10 @@ export async function POST(request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders() });
+    return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders(request) });
   }
 
-  return NextResponse.json(data, { status: 201, headers: corsHeaders() });
+  return NextResponse.json(data, { status: 201, headers: corsHeaders(request) });
 }
 
 // ─── PUT /api/tenant/materials ────────────────────────
@@ -170,7 +172,7 @@ export async function POST(request) {
 export async function PUT(request) {
   const tenant = await authenticateTenant(request);
   if (!tenant) {
-    return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders() });
+    return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders(request) });
   }
 
   const body = await request.json();
@@ -182,8 +184,8 @@ export async function PUT(request) {
       .from('tenant_hidden_materials')
       .upsert({ tenant_id: tenant.id, material_key: body.material_key }, { onConflict: 'tenant_id,material_key' });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders() });
-    return NextResponse.json({ success: true, hidden: true }, { headers: corsHeaders() });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders(request) });
+    return NextResponse.json({ success: true, hidden: true }, { headers: corsHeaders(request) });
   }
 
   // Show (unhide) a built-in product
@@ -194,8 +196,8 @@ export async function PUT(request) {
       .eq('tenant_id', tenant.id)
       .eq('material_key', body.material_key);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders() });
-    return NextResponse.json({ success: true, hidden: false }, { headers: corsHeaders() });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders(request) });
+    return NextResponse.json({ success: true, hidden: false }, { headers: corsHeaders(request) });
   }
 
   // Update a custom material
@@ -208,7 +210,7 @@ export async function PUT(request) {
       .single();
 
     if (!existing || existing.tenant_id !== tenant.id) {
-      return NextResponse.json({ error: 'Not found or not yours' }, { status: 404, headers: corsHeaders() });
+      return NextResponse.json({ error: 'Not found or not yours' }, { status: 404, headers: corsHeaders(request) });
     }
 
     const allowed = [
@@ -226,11 +228,11 @@ export async function PUT(request) {
       .select()
       .single();
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders() });
-    return NextResponse.json(data, { headers: corsHeaders() });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders(request) });
+    return NextResponse.json(data, { headers: corsHeaders(request) });
   }
 
-  return NextResponse.json({ error: 'Invalid action' }, { status: 400, headers: corsHeaders() });
+  return NextResponse.json({ error: 'Invalid action' }, { status: 400, headers: corsHeaders(request) });
 }
 
 // ─── DELETE /api/tenant/materials ─────────────────────
@@ -238,13 +240,13 @@ export async function PUT(request) {
 export async function DELETE(request) {
   const tenant = await authenticateTenant(request);
   if (!tenant) {
-    return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders() });
+    return NextResponse.json({ error: 'Invalid API key' }, { status: 401, headers: corsHeaders(request) });
   }
 
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
   if (!id) {
-    return NextResponse.json({ error: 'id required' }, { status: 400, headers: corsHeaders() });
+    return NextResponse.json({ error: 'id required' }, { status: 400, headers: corsHeaders(request) });
   }
 
   const supabase = getSupabaseAdmin();
@@ -257,11 +259,11 @@ export async function DELETE(request) {
     .single();
 
   if (!existing || existing.tenant_id !== tenant.id) {
-    return NextResponse.json({ error: 'Not found or not yours' }, { status: 404, headers: corsHeaders() });
+    return NextResponse.json({ error: 'Not found or not yours' }, { status: 404, headers: corsHeaders(request) });
   }
 
   const { error } = await supabase.from('materials').delete().eq('id', id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders() });
+  if (error) return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders(request) });
 
-  return NextResponse.json({ success: true }, { headers: corsHeaders() });
+  return NextResponse.json({ success: true }, { headers: corsHeaders(request) });
 }

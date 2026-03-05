@@ -59,7 +59,8 @@ function runHeuristics(base64) {
       return { ok: false, reason: 'Please upload a JPG, PNG, or WebP photo.' };
     }
   } catch (e) {
-    // Can't parse header, let it through
+    // Invalid base64 — reject rather than allowing through to expensive AI
+    return { ok: false, reason: 'Could not validate image format. Please upload a valid JPG, PNG, or WebP file.' };
   }
 
   return { ok: true };

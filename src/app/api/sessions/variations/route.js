@@ -4,13 +4,26 @@ import { getSupabaseAdmin } from '@/lib/supabase';
 // PATCH /api/sessions/variations — toggle favorite, add rating
 export async function PATCH(request) {
   try {
-    const { variationId, isFavorite, rating } = await request.json();
+    const { variationId, sessionToken, isFavorite, rating } = await request.json();
 
-    if (!variationId) {
-      return NextResponse.json({ error: 'variationId required' }, { status: 400 });
+    if (!variationId || !sessionToken) {
+      return NextResponse.json({ error: 'variationId and sessionToken required' }, { status: 400 });
     }
 
     const supabase = getSupabaseAdmin();
+
+    // Verify ownership: variation must belong to a session with this token
+    const { data: variation } = await supabase
+      .from('design_variations')
+      .select('id, session_id, design_sessions!inner(session_token)')
+      .eq('id', variationId)
+      .eq('design_sessions.session_token', sessionToken)
+      .single();
+
+    if (!variation) {
+      return NextResponse.json({ error: 'Variation not found or access denied' }, { status: 404 });
+    }
+
     const updates = {};
     if (typeof isFavorite === 'boolean') updates.is_favorite = isFavorite;
     if (typeof rating === 'number' && rating >= 1 && rating <= 5) updates.rating = rating;
@@ -35,13 +48,26 @@ export async function PATCH(request) {
 // DELETE /api/sessions/variations — remove a variation
 export async function DELETE(request) {
   try {
-    const { variationId } = await request.json();
+    const { variationId, sessionToken } = await request.json();
 
-    if (!variationId) {
-      return NextResponse.json({ error: 'variationId required' }, { status: 400 });
+    if (!variationId || !sessionToken) {
+      return NextResponse.json({ error: 'variationId and sessionToken required' }, { status: 400 });
     }
 
     const supabase = getSupabaseAdmin();
+
+    // Verify ownership: variation must belong to a session with this token
+    const { data: variation } = await supabase
+      .from('design_variations')
+      .select('id, session_id, design_sessions!inner(session_token)')
+      .eq('id', variationId)
+      .eq('design_sessions.session_token', sessionToken)
+      .single();
+
+    if (!variation) {
+      return NextResponse.json({ error: 'Variation not found or access denied' }, { status: 404 });
+    }
+
     const { error } = await supabase
       .from('design_variations')
       .delete()

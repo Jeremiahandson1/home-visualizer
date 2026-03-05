@@ -17,7 +17,8 @@ const TOKEN_EXPIRY = 60 * 60 * 24 * 7; // 7 days in seconds
  * an attacker can't verify guesses without the secret.
  */
 function makeToken(password) {
-  const secret = process.env.ADMIN_TOKEN_SECRET || process.env.ADMIN_PASSWORD || 'fallback-dev-secret';
+  const secret = process.env.ADMIN_TOKEN_SECRET || process.env.ADMIN_PASSWORD;
+  if (!secret) throw new Error('ADMIN_TOKEN_SECRET or ADMIN_PASSWORD must be set');
   return createHmac('sha256', secret).update(password).digest('hex');
 }
 

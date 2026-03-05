@@ -111,12 +111,19 @@ export async function POST(request) {
       );
     }
 
-    // 4. CRM webhook (non-blocking)
+    // 4. CRM webhook (non-blocking, validated)
     if (tenant.crm_webhook_url) {
-      emailPromises.push(
+      let isValidWebhook = false;
+      try {
+        const webhookUrl = new URL(tenant.crm_webhook_url);
+        isValidWebhook = webhookUrl.protocol === 'https:';
+      } catch { /* invalid URL */ }
+
+      if (isValidWebhook) emailPromises.push(
         fetch(tenant.crm_webhook_url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: AbortSignal.timeout(10000),
           body: JSON.stringify({
             source: 'twomiah-vision',
             tenant: tenant.slug,
@@ -137,8 +144,8 @@ export async function POST(request) {
       );
     }
 
-    // Fire and forget emails/webhooks
-    Promise.allSettled(emailPromises);
+    // Await emails/webhooks before responding
+    await Promise.allSettled(emailPromises);
 
     return NextResponse.json({
       success: true,

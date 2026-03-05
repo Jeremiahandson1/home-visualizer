@@ -10,7 +10,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const tenantSlug = searchParams.get('tenant');
   const status = searchParams.get('status');
-  const page = parseInt(searchParams.get('page') || '1');
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1);
   const perPage = 25;
 
   const supabase = getSupabaseAdmin();
@@ -34,7 +34,8 @@ export async function GET(request) {
   const { data, count, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Leads query error:', error);
+    return NextResponse.json({ error: 'Failed to fetch leads' }, { status: 500 });
   }
 
   return NextResponse.json({

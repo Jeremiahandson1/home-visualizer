@@ -114,9 +114,9 @@ export async function POST(req) {
     const photoPath     = `${tenant.slug}/${ts}-inpaint-original.jpg`;
     const generatedPath = `${tenant.slug}/${ts}-inpaint-generated.jpg`;
 
-    await supabase.storage.from('photos').upload(photoPath, imageBuffer, { contentType: 'image/jpeg' }).catch(() => {});
+    await supabase.storage.from('photos').upload(photoPath, imageBuffer, { contentType: 'image/jpeg' }).catch(err => console.error('Original upload failed:', err.message));
     const { data: photoUrlData }     = supabase.storage.from('photos').getPublicUrl(photoPath);
-    await supabase.storage.from('generated').upload(generatedPath, generatedBuffer, { contentType: 'image/jpeg' }).catch(() => {});
+    await supabase.storage.from('generated').upload(generatedPath, generatedBuffer, { contentType: 'image/jpeg' }).catch(err => console.error('Generated upload failed:', err.message));
     const { data: generatedUrlData } = supabase.storage.from('generated').getPublicUrl(generatedPath);
 
     // ─── Step 6: Log generation + increment quota ────────────
@@ -131,14 +131,15 @@ export async function POST(req) {
       cost_cents: INPAINT_COST_CENTS,
       generation_time_ms: Date.now() - start,
       status: 'success',
-    }).then(() => {}).catch(() => {});
+    }).then(() => {}).catch(err => console.error('Generation log failed:', err.message));
 
     if (tenant.id !== 'demo') {
-      await supabase.rpc('increment_monthly_usage', {
+      const { error: usageError } = await supabase.rpc('increment_monthly_usage', {
         p_tenant_id: tenant.id,
         p_month: currentMonth,
         p_cost: INPAINT_COST_CENTS,
       });
+      if (usageError) console.error('Usage increment failed:', usageError.message);
     }
 
     releaseRateLimit(tenantSlug);

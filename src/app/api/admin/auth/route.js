@@ -1,8 +1,34 @@
 import { NextResponse } from 'next/server';
 import { login, logout, isAuthenticated } from '@/lib/admin-auth';
 
+// Simple in-memory login rate limiter
+const loginAttempts = new Map();
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+
+function checkLoginRateLimit(ip) {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip);
+  if (entry && now - entry.firstAttempt < LOGIN_WINDOW_MS) {
+    if (entry.count >= MAX_LOGIN_ATTEMPTS) return true;
+    entry.count++;
+    return false;
+  }
+  loginAttempts.set(ip, { count: 1, firstAttempt: now });
+  // Clean old entries
+  for (const [key, val] of loginAttempts) {
+    if (now - val.firstAttempt > LOGIN_WINDOW_MS) loginAttempts.delete(key);
+  }
+  return false;
+}
+
 // POST /api/admin/auth — login
 export async function POST(request) {
+  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+  if (checkLoginRateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many login attempts. Try again later.' }, { status: 429 });
+  }
+
   const { password } = await request.json();
   const result = login(password);
 

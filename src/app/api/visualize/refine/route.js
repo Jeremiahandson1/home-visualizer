@@ -61,9 +61,10 @@ export async function POST(request) {
     // Upload refined image
     const refinedBuffer = Buffer.from(result.imageBase64, 'base64');
     const refinedPath = `${tenant.slug}/${Date.now()}-refined.jpg`;
-    await supabase.storage.from('generated').upload(refinedPath, refinedBuffer, {
+    const { error: refUploadErr } = await supabase.storage.from('generated').upload(refinedPath, refinedBuffer, {
       contentType: 'image/jpeg',
-    }).catch(err => console.error('Refined upload failed:', err.message));
+    });
+    if (refUploadErr) console.error('Refined upload failed:', refUploadErr.message);
     const { data: refinedUrl } = supabase.storage.from('generated').getPublicUrl(refinedPath);
 
     // Log generation

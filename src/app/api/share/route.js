@@ -67,13 +67,16 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Share not found' }, { status: 404 });
   }
 
-  // Fire-and-forget view count increment
-  supabase
-    .from('shares')
-    .update({ view_count: (data.view_count || 0) + 1 })
-    .eq('id', id)
-    .then(() => {})
-    .catch(err => console.error('View count increment failed:', err.message));
+  // Atomic view count increment (avoids race condition with concurrent reads)
+  supabase.rpc('increment_share_views', { p_share_id: id }).catch(err => {
+    // Fallback to non-atomic increment if RPC doesn't exist
+    supabase
+      .from('shares')
+      .update({ view_count: (data.view_count || 0) + 1 })
+      .eq('id', id)
+      .then(() => {})
+      .catch(err2 => console.error('View count increment failed:', err2.message));
+  });
 
   return NextResponse.json(data);
 }

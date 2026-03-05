@@ -124,7 +124,8 @@ export async function POST(request) {
     // ─── Upload original ─────────────────────────────
     const imageBuffer = Buffer.from(imageBase64, 'base64');
     const photoPath = `${tenant.slug}/${Date.now()}-original.jpg`;
-    await supabase.storage.from('photos').upload(photoPath, imageBuffer, { contentType: 'image/jpeg' }).catch(err => console.error('Original upload failed:', err.message));
+    const { error: origUploadErr } = await supabase.storage.from('photos').upload(photoPath, imageBuffer, { contentType: 'image/jpeg' });
+    if (origUploadErr) console.error('Original upload failed:', origUploadErr.message);
     const { data: photoUrl } = supabase.storage.from('photos').getPublicUrl(photoPath);
 
     // ─── Generate ────────────────────────────────────
@@ -141,7 +142,8 @@ export async function POST(request) {
     // ─── Upload generated ────────────────────────────
     const generatedBuffer = Buffer.from(result.imageBase64, 'base64');
     const generatedPath = `${tenant.slug}/${Date.now()}-generated.jpg`;
-    await supabase.storage.from('generated').upload(generatedPath, generatedBuffer, { contentType: 'image/jpeg' }).catch(err => console.error('Generated upload failed:', err.message));
+    const { error: genUploadErr } = await supabase.storage.from('generated').upload(generatedPath, generatedBuffer, { contentType: 'image/jpeg' });
+    if (genUploadErr) console.error('Generated upload failed:', genUploadErr.message);
     const { data: generatedUrl } = supabase.storage.from('generated').getPublicUrl(generatedPath);
 
     // ─── Log ─────────────────────────────────────────

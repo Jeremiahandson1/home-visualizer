@@ -129,6 +129,7 @@ export async function POST(req) {
     ]);
     const surfaces = (Array.isArray(result.surfaces) ? result.surfaces : [])
       .filter(s => s && typeof s === 'object' && typeof s.x === 'number' && typeof s.y === 'number')
+      .slice(0, 50) // Cap at 50 surfaces to prevent UI overload from AI hallucination
       .map((s, i) => ({
         id: `surface-${i}`,
         category: validCategories.has(s.category) ? s.category : 'accent',

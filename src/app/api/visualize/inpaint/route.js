@@ -114,9 +114,11 @@ export async function POST(req) {
     const photoPath     = `${tenant.slug}/${ts}-inpaint-original.jpg`;
     const generatedPath = `${tenant.slug}/${ts}-inpaint-generated.jpg`;
 
-    await supabase.storage.from('photos').upload(photoPath, imageBuffer, { contentType: 'image/jpeg' }).catch(err => console.error('Original upload failed:', err.message));
+    const { error: origUploadErr } = await supabase.storage.from('photos').upload(photoPath, imageBuffer, { contentType: 'image/jpeg' });
+    if (origUploadErr) console.error('Original upload failed:', origUploadErr.message);
     const { data: photoUrlData }     = supabase.storage.from('photos').getPublicUrl(photoPath);
-    await supabase.storage.from('generated').upload(generatedPath, generatedBuffer, { contentType: 'image/jpeg' }).catch(err => console.error('Generated upload failed:', err.message));
+    const { error: genUploadErr } = await supabase.storage.from('generated').upload(generatedPath, generatedBuffer, { contentType: 'image/jpeg' });
+    if (genUploadErr) console.error('Generated upload failed:', genUploadErr.message);
     const { data: generatedUrlData } = supabase.storage.from('generated').getPublicUrl(generatedPath);
 
     // ─── Step 6: Log generation + increment quota ────────────

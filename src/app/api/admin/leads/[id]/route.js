@@ -24,7 +24,8 @@ export async function PUT(request, { params }) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Lead status update error:', error);
+    return NextResponse.json({ error: 'Failed to update lead' }, { status: 500 });
   }
 
   return NextResponse.json(data);

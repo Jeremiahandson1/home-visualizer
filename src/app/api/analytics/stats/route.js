@@ -26,7 +26,9 @@ export async function GET(request) {
     weekQuery = weekQuery.eq('tenant_id', tenantId);
   }
 
-  const [{ count: total }, { count: week }] = await Promise.all([totalQuery, weekQuery]);
+  const [totalResult, weekResult] = await Promise.all([totalQuery, weekQuery]);
+  const total = totalResult.count;
+  const week = weekResult.count;
 
   return NextResponse.json({
     totalDesigns: total || 0,

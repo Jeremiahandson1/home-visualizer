@@ -27,7 +27,8 @@ export async function PUT(request, { params }) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Material update error:', error);
+    return NextResponse.json({ error: 'Failed to update material' }, { status: 500 });
   }
 
   return NextResponse.json(data);
@@ -46,7 +47,8 @@ export async function DELETE(request, { params }) {
     .eq('id', params.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Material deletion error:', error);
+    return NextResponse.json({ error: 'Failed to delete material' }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });

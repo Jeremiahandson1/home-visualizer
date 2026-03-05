@@ -33,7 +33,8 @@ export async function POST(request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Share creation error:', error);
+    return NextResponse.json({ error: 'Failed to create share link' }, { status: 500 });
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';

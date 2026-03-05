@@ -20,6 +20,7 @@ import sharp from 'sharp';
  * @returns {string} RGBA mask as base64 PNG (transparent=edit)
  */
 export async function convertMaskForOpenAI(maskBase64) {
+  if (!maskBase64) throw new Error('convertMaskForOpenAI: maskBase64 required');
   const maskBuf = Buffer.from(maskBase64, 'base64');
 
   // Read mask as single-channel grayscale raw pixels
@@ -58,6 +59,9 @@ export async function convertMaskForOpenAI(maskBase64) {
  * @returns {string} Result image as base64 JPEG
  */
 export async function compositeWithMask(originalBase64, generatedBase64, maskBase64, feather = 3) {
+  if (!originalBase64 || !generatedBase64 || !maskBase64) {
+    throw new Error('compositeWithMask: all three base64 inputs required');
+  }
   // Decode images
   const originalBuf = Buffer.from(originalBase64, 'base64');
   const generatedBuf = Buffer.from(generatedBase64, 'base64');

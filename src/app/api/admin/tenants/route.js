@@ -16,23 +16,26 @@ export async function GET() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Tenants query error:', error);
+    return NextResponse.json({ error: 'Failed to fetch tenants' }, { status: 500 });
   }
 
   // Get usage for each tenant this month
-  const { data: usage } = await supabase
+  const { data: usage, error: usageError } = await supabase
     .from('monthly_usage')
     .select('tenant_id, generation_count')
     .eq('month', currentMonth);
 
+  if (usageError) console.error('Usage query failed:', usageError.message);
   const usageMap = {};
   (usage || []).forEach(u => { usageMap[u.tenant_id] = u.generation_count; });
 
   // Get lead counts per tenant
-  const { data: leadCounts } = await supabase
+  const { data: leadCounts, error: leadsError } = await supabase
     .from('leads')
     .select('tenant_id');
 
+  if (leadsError) console.error('Lead counts query failed:', leadsError.message);
   const leadMap = {};
   (leadCounts || []).forEach(l => {
     leadMap[l.tenant_id] = (leadMap[l.tenant_id] || 0) + 1;
@@ -93,7 +96,8 @@ export async function POST(request) {
     if (error.code === '23505') {
       return NextResponse.json({ error: 'A tenant with this slug already exists' }, { status: 409 });
     }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Tenant creation error:', error);
+    return NextResponse.json({ error: 'Failed to create tenant' }, { status: 500 });
   }
 
   return NextResponse.json(data, { status: 201 });

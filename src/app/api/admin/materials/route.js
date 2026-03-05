@@ -26,7 +26,8 @@ export async function GET(request) {
   const { data, error } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Materials query error:', error);
+    return NextResponse.json({ error: 'Failed to fetch materials' }, { status: 500 });
   }
 
   return NextResponse.json(data || []);
@@ -71,7 +72,8 @@ export async function POST(request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Material creation error:', error);
+    return NextResponse.json({ error: 'Failed to create material' }, { status: 500 });
   }
 
   return NextResponse.json(data, { status: 201 });

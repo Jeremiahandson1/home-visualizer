@@ -110,7 +110,12 @@ export async function POST(req) {
       // Try to extract JSON from markdown code block
       const match = content.match(/\{[\s\S]*\}/);
       if (match) {
-        result = JSON.parse(match[0]);
+        try {
+          result = JSON.parse(match[0]);
+        } catch (e2) {
+          console.error('Failed to parse extracted JSON:', match[0]);
+          return NextResponse.json({ error: 'Invalid detection response' }, { status: 500 });
+        }
       } else {
         console.error('Failed to parse detection result:', content);
         return NextResponse.json({ error: 'Invalid detection response' }, { status: 500 });

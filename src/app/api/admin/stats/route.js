@@ -10,15 +10,7 @@ export async function GET() {
   const currentMonth = new Date().toISOString().slice(0, 7);
 
   // Run all queries in parallel
-  const [
-    { count: totalTenants },
-    { count: activeTenants },
-    { count: totalLeads },
-    { count: monthLeads },
-    { data: monthUsage },
-    { data: recentLeads },
-    { data: topTenants },
-  ] = await Promise.all([
+  const results = await Promise.all([
     supabase.from('tenants').select('*', { count: 'exact', head: true }),
     supabase.from('tenants').select('*', { count: 'exact', head: true }).eq('active', true),
     supabase.from('leads').select('*', { count: 'exact', head: true }),
@@ -34,6 +26,14 @@ export async function GET() {
       .order('generation_count', { ascending: false })
       .limit(5),
   ]);
+
+  const totalTenants = results[0].count;
+  const activeTenants = results[1].count;
+  const totalLeads = results[2].count;
+  const monthLeads = results[3].count;
+  const monthUsage = results[4].data;
+  const recentLeads = results[5].data;
+  const topTenants = results[6].data;
 
   const totalGens = (monthUsage || []).reduce((sum, u) => sum + (u.generation_count || 0), 0);
   const totalCost = (monthUsage || []).reduce((sum, u) => sum + (u.total_cost_cents || 0), 0);

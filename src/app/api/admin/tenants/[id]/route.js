@@ -19,11 +19,13 @@ export async function GET(request, { params }) {
   }
 
   // Get lead count and recent leads
-  const [{ count: leadCount }, { data: recentLeads }] = await Promise.all([
+  const [leadCountResult, recentLeadsResult] = await Promise.all([
     supabase.from('leads').select('*', { count: 'exact', head: true }).eq('tenant_id', params.id),
     supabase.from('leads').select('*').eq('tenant_id', params.id)
       .order('created_at', { ascending: false }).limit(20),
   ]);
+  const leadCount = leadCountResult.count;
+  const recentLeads = recentLeadsResult.data;
 
   // Get usage history (last 6 months)
   const { data: usageHistory } = await supabase
@@ -77,7 +79,8 @@ export async function PUT(request, { params }) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Tenant update error:', error);
+    return NextResponse.json({ error: 'Failed to update tenant' }, { status: 500 });
   }
 
   return NextResponse.json(data);
@@ -98,7 +101,8 @@ export async function DELETE(request, { params }) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Tenant deactivation error:', error);
+    return NextResponse.json({ error: 'Failed to deactivate tenant' }, { status: 500 });
   }
 
   return NextResponse.json({ success: true, tenant: data });

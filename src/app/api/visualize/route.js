@@ -166,8 +166,8 @@ export async function POST(request) {
     releaseRateLimit(tenantSlug);
 
     return NextResponse.json({
-      originalUrl: photoUrl.publicUrl,
-      generatedUrl: generatedUrl.publicUrl,
+      originalUrl: photoUrl?.publicUrl || null,
+      generatedUrl: generatedUrl?.publicUrl || null,
       generatedBase64: result.imageBase64,
       generationTimeMs: result.generationTimeMs,
       provider: result.provider,

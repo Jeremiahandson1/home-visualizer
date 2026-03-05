@@ -40,7 +40,8 @@ export async function POST(request) {
         supabase.from('design_sessions')
           .update({ updated_at: new Date().toISOString() })
           .eq('id', existing.id)
-          .then(() => {});
+          .then(() => {})
+          .catch(err => console.error('Session update failed:', err.message));
 
         return NextResponse.json({
           sessionId: existing.id,
@@ -65,7 +66,8 @@ export async function POST(request) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('Session creation failed:', error);
+      return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -78,7 +80,7 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Session error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Session operation failed' }, { status: 500 });
   }
 }
 

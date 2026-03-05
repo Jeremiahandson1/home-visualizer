@@ -29,6 +29,7 @@ async function send(to, subject, html) {
         'Authorization': 'Bearer ' + apiKey,
         'Content-Type': 'application/json',
       },
+      signal: AbortSignal.timeout(15000),
       body: JSON.stringify({ from, to, subject, html }),
     });
     if (!res.ok) {

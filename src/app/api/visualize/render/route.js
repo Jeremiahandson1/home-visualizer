@@ -112,7 +112,7 @@ export async function POST(req) {
     }
 
     if (!generatedBase64) {
-      console.error('No image in response:', JSON.stringify(data).slice(0, 500));
+      console.error('No image in response: unexpected API response structure');
       return NextResponse.json({ error: 'No image generated' }, { status: 500 });
     }
 

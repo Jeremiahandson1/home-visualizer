@@ -58,7 +58,7 @@ export async function POST(request) {
       .single();
 
     if (leadError) {
-      console.error('Failed to store lead:', leadError);
+      console.error('Failed to store lead:', leadError.message || leadError.code);
       return NextResponse.json({ error: 'Failed to save lead' }, { status: 500 });
     }
 
@@ -95,7 +95,7 @@ export async function POST(request) {
           lead: { name, email, phone, address, materialBrand, materialName },
           designUrl,
         }).then(() => ({ to: 'contractor', ok: true }))
-         .catch(err => { console.error('Contractor email failed:', err); return { to: 'contractor', ok: false, error: err.message }; })
+         .catch(err => { console.error('Contractor email failed:', err.message); return { to: 'contractor', ok: false, error: err.message }; })
       );
     }
 
@@ -109,7 +109,7 @@ export async function POST(request) {
           contractorPhone: tenant.phone || '',
           designUrl,
         }).then(() => ({ to: 'homeowner', ok: true }))
-         .catch(err => { console.error('Homeowner email failed:', err); return { to: 'homeowner', ok: false, error: err.message }; })
+         .catch(err => { console.error('Homeowner email failed:', err.message); return { to: 'homeowner', ok: false, error: err.message }; })
       );
     }
 
@@ -142,7 +142,7 @@ export async function POST(request) {
             utm: utm || {},
             referrer: referrer || '',
           }),
-        }).catch(err => console.error('CRM webhook failed:', err))
+        }).catch(err => console.error('CRM webhook failed:', err.message))
       );
     }
 

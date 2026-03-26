@@ -56,7 +56,7 @@ export async function POST(req) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        version: '8389ed8e4b16016c44fcdcc3ad142cf1e182e0a1ecaf0347b3e5254303f2beac',
+        version: '897a70f5a7dbd8a0611413b3b98cf417b45f266bd595c571a22947619d9ae462',
         input: {
           prompt,
           input_image: `data:image/jpeg;base64,${imageBase64}`,

@@ -205,8 +205,11 @@ export async function POST(req) {
         // Map masks back to categories
         const categoryMasks = {};
         maskResults.forEach((result, i) => {
+          const cat = categoryEntries[i][0];
           if (result.status === 'fulfilled' && result.value) {
-            categoryMasks[categoryEntries[i][0]] = result.value;
+            categoryMasks[cat] = result.value;
+          } else {
+            console.error(`SAM 2 mask failed for "${cat}":`, result.status === 'rejected' ? result.reason?.message : 'null result');
           }
         });
 
@@ -216,7 +219,7 @@ export async function POST(req) {
           maskBase64: categoryMasks[s.category] || null,
         }));
 
-        console.log(`SAM 2 masks generated: ${Object.keys(categoryMasks).length}/${categoryEntries.length} categories`);
+        console.log(`SAM 2 masks generated: ${Object.keys(categoryMasks).length}/${categoryEntries.length} categories (${Object.keys(categoryMasks).join(', ')})`);
       } catch (samErr) {
         // SAM 2 failure is non-fatal — surfaces still work without masks
         console.error('SAM 2 mask generation failed (non-fatal):', samErr.message);

@@ -599,13 +599,14 @@ export default function DesignMode({
           {changeCount > 0 && !rendering && (
             <button
               onClick={applyDesign}
-              className="mt-3 w-full py-3 rounded-xl font-bold text-white text-sm transition-all active:scale-[0.98] shadow-lg flex-shrink-0"
+              disabled={detecting}
+              className="mt-3 w-full py-3 rounded-xl font-bold text-white text-sm transition-all active:scale-[0.98] shadow-lg flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: `linear-gradient(135deg, ${primary}, ${primary}DD)`,
                 boxShadow: `0 4px 12px ${primary}40`,
               }}
             >
-              Apply {changeCount} {changeCount === 1 ? 'Change' : 'Changes'}
+              {detecting ? 'Analyzing surfaces...' : `Apply ${changeCount} ${changeCount === 1 ? 'Change' : 'Changes'}`}
             </button>
           )}
 

@@ -198,7 +198,7 @@ async function generateWithFlux(imageBase64, prompt) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        version: '9c14df44894a91b07186af323e1cea7ef09291e1c80d899e51ece2b18e4e44e6',
+        version: '8389ed8e4b16016c44fcdcc3ad142cf1e182e0a1ecaf0347b3e5254303f2beac',
         input: {
           prompt,
           input_image: `data:image/jpeg;base64,${imageBase64}`,

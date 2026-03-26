@@ -68,10 +68,16 @@ export async function POST(req) {
     const start = Date.now();
 
     // Get image dimensions for SAM 2 coordinate mapping
-    const imgBuf = Buffer.from(imageBase64, 'base64');
-    const imgMeta = await sharp(imgBuf).metadata();
-    const imageWidth = imgMeta.width || 1024;
-    const imageHeight = imgMeta.height || 1024;
+    let imageWidth = 1024;
+    let imageHeight = 1024;
+    try {
+      const imgBuf = Buffer.from(imageBase64, 'base64');
+      const imgMeta = await sharp(imgBuf).metadata();
+      imageWidth = imgMeta.width || 1024;
+      imageHeight = imgMeta.height || 1024;
+    } catch (dimErr) {
+      console.error('Failed to read image dimensions (non-fatal):', dimErr.message);
+    }
 
     // ONE GPT-4o vision call to detect all surfaces
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -215,8 +221,8 @@ export async function POST(req) {
     });
 
   } catch (err) {
-    console.error('Detection error:', err);
-    return NextResponse.json({ error: err.message || 'Detection failed' }, { status: 500 });
+    console.error('Detection error:', err?.message, err?.stack?.split('\n').slice(0, 3).join(' | '));
+    return NextResponse.json({ error: 'Detection failed' }, { status: 500 });
   }
 }
 

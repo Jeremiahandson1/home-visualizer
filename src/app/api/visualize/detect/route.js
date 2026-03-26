@@ -260,9 +260,10 @@ async function generateSAM2Mask(imageBase64, surface, imageWidth, imageHeight) {
   // Download mask image and convert to base64
   if (!result) return null;
 
+  // Prefer individual_masks (one per point click) over combined_mask (all points merged)
   const maskUrl = typeof result === 'string' ? result
     : Array.isArray(result) ? result[0]
-    : result?.combined_mask || result?.individual_masks?.[0] || result?.mask || result?.masks?.[0] || null;
+    : result?.individual_masks?.[0] || result?.combined_mask || result?.mask || result?.masks?.[0] || null;
 
   if (!maskUrl || typeof maskUrl !== 'string') {
     console.error(`SAM 2 unexpected output for ${surface.category}:`, JSON.stringify(result).slice(0, 200));
@@ -274,12 +275,23 @@ async function generateSAM2Mask(imageBase64, surface, imageWidth, imageHeight) {
 
   const maskBuf = Buffer.from(await maskRes.arrayBuffer());
 
-  // Ensure mask is grayscale (white = edit zone, black = preserve)
-  const normalizedMask = await sharp(maskBuf)
+  // Convert to binary mask (pure white/black, no partial transparency)
+  // SAM 2 combined_mask can be a colored overlay — threshold it
+  const { data: rawPixels, info } = await sharp(maskBuf)
     .grayscale()
     .resize(imageWidth, imageHeight, { fit: 'fill' })
-    .png()
-    .toBuffer();
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  // Threshold: any pixel > 10 becomes 255 (white = edit), rest 0 (black = keep)
+  const binary = Buffer.alloc(rawPixels.length);
+  for (let i = 0; i < rawPixels.length; i++) {
+    binary[i] = rawPixels[i] > 10 ? 255 : 0;
+  }
+
+  const normalizedMask = await sharp(binary, {
+    raw: { width: info.width, height: info.height, channels: 1 },
+  }).png().toBuffer();
 
   return normalizedMask.toString('base64');
 }

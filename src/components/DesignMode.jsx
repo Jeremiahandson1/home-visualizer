@@ -85,6 +85,10 @@ export default function DesignMode({
   const [progressPct, setProgressPct] = useState(0);
   const [progressLabel, setProgressLabel] = useState('');
   const [elapsedSec, setElapsedSec] = useState(0);
+  const [detectedSurfaces, setDetectedSurfaces] = useState([]);
+  const [categoryMasks, setCategoryMasks] = useState({});
+  const [detecting, setDetecting] = useState(false);
+  const [imageDims, setImageDims] = useState({ w: 1024, h: 1024 });
 
   const imgRef = useRef(null);
   const containerRef = useRef(null);
@@ -98,6 +102,43 @@ export default function DesignMode({
   const categories = (enabledCategories || config?.categories || DEFAULT_CATEGORIES)
     .filter(cat => CATEGORY_CONFIG[cat])
     .sort((a, b) => (CATEGORY_CONFIG[a]?.order || 99) - (CATEGORY_CONFIG[b]?.order || 99));
+
+  // Auto-detect surfaces + generate SAM 2 masks on mount
+  useEffect(() => {
+    if (imageBase64 && detectedSurfaces.length === 0 && !detecting) {
+      detectSurfaces();
+    }
+  }, [imageBase64]);
+
+  async function detectSurfaces() {
+    setDetecting(true);
+    try {
+      const res = await fetch('/api/visualize/detect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64, withMasks: true }),
+      });
+      const data = await res.json();
+      if (res.ok && data.surfaces) {
+        setDetectedSurfaces(data.surfaces);
+        if (data.imageWidth) setImageDims({ w: data.imageWidth, h: data.imageHeight });
+
+        // Index masks by category for quick lookup
+        const masks = {};
+        for (const s of data.surfaces) {
+          if (s.maskBase64 && !masks[s.category]) {
+            masks[s.category] = s.maskBase64;
+          }
+        }
+        setCategoryMasks(masks);
+        console.log(`Detected ${data.surfaceCount} surfaces, ${data.masksGenerated || 0} with SAM 2 masks`);
+      }
+    } catch (err) {
+      console.error('Surface detection failed (non-fatal):', err);
+    } finally {
+      setDetecting(false);
+    }
+  }
 
   useEffect(() => {
     if (!activeCategory && categories.length > 0) {
@@ -218,13 +259,46 @@ export default function DesignMode({
     onRenderStart?.();
 
     try {
-      const res = await fetch('/api/visualize/render', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: currentBase64, changes, tenantSlug }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setRenderError(data.error || 'Render failed'); return; }
+      // Check if we have SAM 2 masks for any of the selected categories
+      const zonesWithMasks = changes
+        .filter(c => categoryMasks[c.category])
+        .map(c => ({
+          zone: c.category,
+          maskBase64: categoryMasks[c.category],
+          materialName: c.materialName,
+          materialBrand: c.materialBrand,
+          materialColor: c.materialColor,
+        }));
+
+      let data;
+
+      if (zonesWithMasks.length > 0) {
+        // USE INPAINT PIPELINE — surgical mask-based editing
+        console.log(`Using SAM 2 masks for ${zonesWithMasks.length}/${changes.length} categories`);
+        const res = await fetch('/api/visualize/inpaint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageBase64: currentBase64,
+            zones: zonesWithMasks,
+            imageWidth: imageDims.w,
+            imageHeight: imageDims.h,
+            tenantSlug,
+          }),
+        });
+        data = await res.json();
+        if (!res.ok) { setRenderError(data.error || 'Render failed'); return; }
+      } else {
+        // FALLBACK — prompt-only render (no masks available)
+        console.log('No SAM 2 masks available, falling back to prompt-only render');
+        const res = await fetch('/api/visualize/render', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageBase64: currentBase64, changes, tenantSlug }),
+        });
+        data = await res.json();
+        if (!res.ok) { setRenderError(data.error || 'Render failed'); return; }
+      }
 
       // Crop render to match original photo's aspect ratio (no stretching)
       let newBase64 = data.generatedBase64;
@@ -253,6 +327,9 @@ export default function DesignMode({
     setIterationCount(0);
     setRenderError(null);
     setShowOriginal(false);
+    // Re-detect surfaces on the original image
+    setDetectedSurfaces([]);
+    setCategoryMasks({});
   }
 
   const changeCount = Object.keys(selectedMaterials).length;
@@ -382,12 +459,22 @@ export default function DesignMode({
         {/* ── RIGHT: Picker panel ─────────────────────── */}
         <div className="w-full lg:w-[30%] lg:min-w-[280px] flex flex-col">
 
+          {/* Detection status */}
+          {detecting && (
+            <div className="flex items-center gap-2 pb-2">
+              <div className="w-3 h-3 border-2 border-t-transparent rounded-full animate-spin"
+                style={{ borderColor: primary, borderTopColor: 'transparent' }} />
+              <span className="text-[11px] text-gray-500">Analyzing surfaces for precise editing...</span>
+            </div>
+          )}
+
           {/* Category tabs */}
           <div className="flex flex-wrap gap-1.5 pb-1">
             {categories.map(cat => {
               const cfg = CATEGORY_CONFIG[cat];
               const isActive = cat === activeCategory;
               const hasProduct = !!selectedMaterials[cat];
+              const hasMask = !!categoryMasks[cat];
 
               return (
                 <button
@@ -399,6 +486,7 @@ export default function DesignMode({
                     color: isActive ? 'white' : (hasProduct ? '#22C55E' : muted),
                     border: `1.5px solid ${isActive ? primary : (hasProduct ? '#22C55E50' : border)}`,
                   }}
+                  title={hasMask ? 'Precise SAM 2 mask available' : 'No mask — will use AI prompt'}
                 >
                   {hasProduct && !isActive && (
                     <svg width="10" height="10" viewBox="0 0 16 16" fill="#22C55E">
@@ -406,6 +494,10 @@ export default function DesignMode({
                     </svg>
                   )}
                   {cfg.label}
+                  {hasMask && !isActive && (
+                    <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: '#3B82F6' }}
+                      title="SAM 2 mask ready" />
+                  )}
                 </button>
               );
             })}

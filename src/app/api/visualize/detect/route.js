@@ -1,12 +1,16 @@
 // ═══════════════════════════════════════════════════════════════
 // POST /api/visualize/detect
-// ONE GPT-4o vision call → identifies ALL exterior surfaces
-// Returns: array of surfaces with category, label, and position
+// TWO-STEP detection:
+//   1. GPT-4o vision → identifies surfaces with x,y positions
+//   2. SAM 2 via Replicate → generates pixel-perfect masks per surface
 //
-// Cost: ~$0.01-0.03 per detection (vision token cost)
+// Returns: array of surfaces with category, label, position, AND maskBase64
+//
+// Cost: ~$0.01-0.03 (vision) + ~$0.01-0.03 per SAM call
 // ═══════════════════════════════════════════════════════════════
 
 import { NextResponse } from 'next/server';
+import sharp from 'sharp';
 
 const DETECTION_PROMPT = `You are an expert exterior home analyst. Study this house photo carefully and identify every visible exterior surface/element.
 
@@ -51,15 +55,23 @@ Return ONLY valid JSON, no markdown, no explanation:
   ]
 }`;
 
+export const maxDuration = 120; // Allow time for GPT-4o + SAM 2 calls
+
 export async function POST(req) {
   try {
-    const { imageBase64 } = await req.json();
+    const { imageBase64, withMasks = true } = await req.json();
 
     if (!imageBase64) {
       return NextResponse.json({ error: 'Missing imageBase64' }, { status: 400 });
     }
 
     const start = Date.now();
+
+    // Get image dimensions for SAM 2 coordinate mapping
+    const imgBuf = Buffer.from(imageBase64, 'base64');
+    const imgMeta = await sharp(imgBuf).metadata();
+    const imageWidth = imgMeta.width || 1024;
+    const imageHeight = imgMeta.height || 1024;
 
     // ONE GPT-4o vision call to detect all surfaces
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -145,17 +157,149 @@ export async function POST(req) {
       categories[s.category]++;
     });
 
+    // ─── Step 2: Generate SAM 2 masks for each unique category ──
+    // Group surfaces by category → pick one representative point per category
+    // This keeps SAM calls minimal (one per category, not one per surface)
+    let surfacesWithMasks = surfaces;
+
+    if (withMasks && process.env.REPLICATE_API_TOKEN) {
+      try {
+        // Get one representative point per category
+        const categoryPoints = {};
+        for (const s of surfaces) {
+          if (!categoryPoints[s.category]) {
+            categoryPoints[s.category] = s;
+          }
+        }
+
+        // Run SAM 2 for each category in parallel (max 6 concurrent)
+        const categoryEntries = Object.entries(categoryPoints);
+        const maskResults = await Promise.allSettled(
+          categoryEntries.map(([category, surface]) =>
+            generateSAM2Mask(imageBase64, surface, imageWidth, imageHeight)
+          )
+        );
+
+        // Map masks back to categories
+        const categoryMasks = {};
+        maskResults.forEach((result, i) => {
+          if (result.status === 'fulfilled' && result.value) {
+            categoryMasks[categoryEntries[i][0]] = result.value;
+          }
+        });
+
+        // Attach mask to each surface based on its category
+        surfacesWithMasks = surfaces.map(s => ({
+          ...s,
+          maskBase64: categoryMasks[s.category] || null,
+        }));
+
+        console.log(`SAM 2 masks generated: ${Object.keys(categoryMasks).length}/${categoryEntries.length} categories`);
+      } catch (samErr) {
+        // SAM 2 failure is non-fatal — surfaces still work without masks
+        console.error('SAM 2 mask generation failed (non-fatal):', samErr.message);
+        surfacesWithMasks = surfaces.map(s => ({ ...s, maskBase64: null }));
+      }
+    }
+
     const elapsed = Date.now() - start;
 
     return NextResponse.json({
-      surfaces,
+      surfaces: surfacesWithMasks,
       categories,
       detectionTimeMs: elapsed,
-      surfaceCount: surfaces.length,
+      surfaceCount: surfacesWithMasks.length,
+      masksGenerated: surfacesWithMasks.filter(s => s.maskBase64).length,
+      imageWidth,
+      imageHeight,
     });
 
   } catch (err) {
     console.error('Detection error:', err);
     return NextResponse.json({ error: err.message || 'Detection failed' }, { status: 500 });
   }
+}
+
+// ─── SAM 2 mask generation via Replicate ──────────────────────
+const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions';
+
+async function generateSAM2Mask(imageBase64, surface, imageWidth, imageHeight) {
+  const apiKey = process.env.REPLICATE_API_TOKEN;
+  if (!apiKey) return null;
+
+  // Convert percentage coordinates to pixel coordinates
+  const pixelX = Math.round((surface.x / 100) * imageWidth);
+  const pixelY = Math.round((surface.y / 100) * imageHeight);
+
+  const createRes = await fetch(REPLICATE_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      version: 'fe97b453a6455861e3bac769b441ca1f1086110da7466dbb65cf1eecfd60dc83',
+      input: {
+        image: `data:image/jpeg;base64,${imageBase64}`,
+        point_coords: [[pixelX, pixelY]],
+        point_labels: [1], // 1 = foreground
+        multimask_output: false,
+      },
+    }),
+  });
+
+  if (!createRes.ok) {
+    const errText = await createRes.text();
+    console.error(`SAM 2 create failed for ${surface.category}:`, createRes.status, errText);
+    return null;
+  }
+
+  const prediction = await createRes.json();
+  const result = await pollSAM2(prediction.urls.get, apiKey);
+
+  // Download mask image and convert to base64
+  if (!result) return null;
+
+  const maskUrl = typeof result === 'string' ? result
+    : Array.isArray(result) ? result[0]
+    : result?.mask || result?.masks?.[0] || null;
+
+  if (!maskUrl || typeof maskUrl !== 'string') {
+    console.error(`SAM 2 unexpected output for ${surface.category}:`, JSON.stringify(result).slice(0, 200));
+    return null;
+  }
+
+  const maskRes = await fetch(maskUrl);
+  if (!maskRes.ok) return null;
+
+  const maskBuf = Buffer.from(await maskRes.arrayBuffer());
+
+  // Ensure mask is grayscale (white = edit zone, black = preserve)
+  const normalizedMask = await sharp(maskBuf)
+    .grayscale()
+    .resize(imageWidth, imageHeight, { fit: 'fill' })
+    .png()
+    .toBuffer();
+
+  return normalizedMask.toString('base64');
+}
+
+async function pollSAM2(url, apiKey) {
+  const maxWait = 45000;
+  const interval = 2000;
+  const start = Date.now();
+
+  while (Date.now() - start < maxWait) {
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${apiKey}` },
+    });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    if (data.status === 'succeeded') return data.output;
+    if (data.status === 'failed' || data.status === 'canceled') return null;
+
+    await new Promise(r => setTimeout(r, interval));
+  }
+  return null;
 }

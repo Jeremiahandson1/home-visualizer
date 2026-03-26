@@ -147,12 +147,19 @@ export async function POST(req) {
         }
       }
     } else if (output && typeof output === 'object') {
-      // Object with mask property
-      if (output.mask) {
+      // SAM 2 returns { combined_mask, individual_masks } format
+      if (output.combined_mask) {
+        const maskBase64 = await fetchMaskAsBase64(output.combined_mask);
+        masks.push({ maskBase64, score: 1.0 });
+      } else if (output.individual_masks && Array.isArray(output.individual_masks)) {
+        for (const url of output.individual_masks) {
+          const maskBase64 = await fetchMaskAsBase64(url);
+          masks.push({ maskBase64, score: 1.0 });
+        }
+      } else if (output.mask) {
         const maskBase64 = await fetchMaskAsBase64(output.mask);
         masks.push({ maskBase64, score: 1.0 });
-      }
-      if (output.masks && Array.isArray(output.masks)) {
+      } else if (output.masks && Array.isArray(output.masks)) {
         for (const url of output.masks) {
           const maskBase64 = await fetchMaskAsBase64(url);
           masks.push({ maskBase64, score: 1.0 });

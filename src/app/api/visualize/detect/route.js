@@ -262,7 +262,7 @@ async function generateSAM2Mask(imageBase64, surface, imageWidth, imageHeight) {
 
   const maskUrl = typeof result === 'string' ? result
     : Array.isArray(result) ? result[0]
-    : result?.mask || result?.masks?.[0] || null;
+    : result?.combined_mask || result?.individual_masks?.[0] || result?.mask || result?.masks?.[0] || null;
 
   if (!maskUrl || typeof maskUrl !== 'string') {
     console.error(`SAM 2 unexpected output for ${surface.category}:`, JSON.stringify(result).slice(0, 200));

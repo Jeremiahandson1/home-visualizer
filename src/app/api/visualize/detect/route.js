@@ -110,14 +110,15 @@ export async function POST(req) {
     if (!res.ok) {
       const errText = await res.text();
       console.error('Detection API error:', res.status, errText);
-      return NextResponse.json({ error: 'Detection failed' }, { status: 500 });
+      return NextResponse.json({ error: 'Detection API error: ' + res.status, debug: errText.slice(0, 200) }, { status: 500 });
     }
 
     const data = await res.json();
     const content = data.content?.[0]?.text;
 
     if (!content) {
-      return NextResponse.json({ error: 'No detection result' }, { status: 500 });
+      console.error('No content in API response:', JSON.stringify(data).slice(0, 300));
+      return NextResponse.json({ error: 'No detection result', debug: JSON.stringify(data).slice(0, 200) }, { status: 500 });
     }
 
     // Parse the JSON response
@@ -222,7 +223,7 @@ export async function POST(req) {
 
   } catch (err) {
     console.error('Detection error:', err?.message, err?.stack?.split('\n').slice(0, 3).join(' | '));
-    return NextResponse.json({ error: 'Detection failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Detection failed: ' + (err?.message || 'unknown'), debug: err?.stack?.split('\n').slice(0, 2).join(' | ') }, { status: 500 });
   }
 }
 

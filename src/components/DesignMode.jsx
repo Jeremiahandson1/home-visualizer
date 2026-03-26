@@ -119,6 +119,7 @@ export default function DesignMode({
         body: JSON.stringify({ imageBase64, withMasks: true }),
       });
       const data = await res.json();
+      if (!res.ok) console.error('Detect error:', data.error, data.debug);
       if (res.ok && data.surfaces) {
         setDetectedSurfaces(data.surfaces);
         if (data.imageWidth) setImageDims({ w: data.imageWidth, h: data.imageHeight });

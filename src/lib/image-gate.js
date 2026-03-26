@@ -9,6 +9,17 @@
 const VISION_URL = 'https://api.anthropic.com/v1/messages';
 const VISION_MODEL = 'claude-haiku-4-5-20251001'; // Cheapest vision model ~$0.001/check
 
+function detectMediaType(base64) {
+  try {
+    const header = Buffer.from(base64.slice(0, 16), 'base64');
+    if (header[0] === 0xFF && header[1] === 0xD8) return 'image/jpeg';
+    if (header[0] === 0x89 && header[1] === 0x50) return 'image/png';
+    if (header[0] === 0x52 && header[1] === 0x49) return 'image/webp';
+    if (header[8] === 0x57 && header[9] === 0x45) return 'image/webp';
+  } catch {}
+  return 'image/jpeg';
+}
+
 /**
  * Server-side image validation before generation.
  * @param {string} imageBase64
@@ -97,7 +108,7 @@ async function checkWithVision(apiKey, imageBase64, allowInterior = false) {
               type: 'image',
               source: {
                 type: 'base64',
-                media_type: 'image/jpeg',
+                media_type: detectMediaType(imageBase64),
                 data: imageBase64,
               },
             },

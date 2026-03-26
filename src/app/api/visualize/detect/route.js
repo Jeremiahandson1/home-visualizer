@@ -12,6 +12,18 @@
 import { NextResponse } from 'next/server';
 import sharp from 'sharp';
 
+// Detect image media type from base64 header bytes
+function detectMediaType(base64) {
+  try {
+    const header = Buffer.from(base64.slice(0, 16), 'base64');
+    if (header[0] === 0xFF && header[1] === 0xD8) return 'image/jpeg';
+    if (header[0] === 0x89 && header[1] === 0x50) return 'image/png';
+    if (header[0] === 0x52 && header[1] === 0x49) return 'image/webp'; // RIFF
+    if (header[8] === 0x57 && header[9] === 0x45) return 'image/webp'; // WEBP
+  } catch {}
+  return 'image/jpeg'; // fallback
+}
+
 const DETECTION_PROMPT = `You are an expert exterior home analyst. Study this house photo carefully and identify every visible exterior surface/element.
 
 For each surface, return its CATEGORY, a short LABEL, and its approximate CENTER POSITION as x,y percentages (0-100) of the image dimensions.
@@ -79,6 +91,9 @@ export async function POST(req) {
       console.error('Failed to read image dimensions (non-fatal):', dimErr.message);
     }
 
+    // Detect image format from base64 header bytes
+    const mediaType = detectMediaType(imageBase64);
+
     // ONE Claude vision call to detect all surfaces
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -97,7 +112,7 @@ export async function POST(req) {
               type: 'image',
               source: {
                 type: 'base64',
-                media_type: 'image/jpeg',
+                media_type: mediaType,
                 data: imageBase64,
               },
             },

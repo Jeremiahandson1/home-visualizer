@@ -6,8 +6,8 @@
 // Falls back to "allow" if vision check fails/unavailable
 // ═══════════════════════════════════════════════════════
 
-const VISION_URL = 'https://api.openai.com/v1/chat/completions';
-const VISION_MODEL = 'gpt-4o-mini'; // Cheapest vision model ~$0.002/check
+const VISION_URL = 'https://api.anthropic.com/v1/messages';
+const VISION_MODEL = 'claude-haiku-4-5-20251001'; // Cheapest vision model ~$0.001/check
 
 /**
  * Server-side image validation before generation.
@@ -22,8 +22,8 @@ export async function validateHomePhoto(imageBase64, opts = {}) {
   const heuristic = runHeuristics(imageBase64);
   if (!heuristic.ok) return heuristic;
 
-  // 2. AI vision check (cheap — ~$0.002)
-  const apiKey = process.env.OPENAI_API_KEY;
+  // 2. AI vision check (cheap — ~$0.001)
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return { ok: true, confidence: 'skipped', reason: 'no_api_key' };
   }
@@ -81,20 +81,26 @@ async function checkWithVision(apiKey, imageBase64, allowInterior = false) {
   const response = await fetch(VISION_URL, {
     method: 'POST',
     headers: {
-      'Authorization': 'Bearer ' + apiKey,
+      'x-api-key': apiKey,
       'Content-Type': 'application/json',
+      'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
       model: VISION_MODEL,
       max_tokens: 100,
+      system: 'You analyze images for a home visualization tool. Respond ONLY with valid JSON, no other text.',
       messages: [
-        {
-          role: 'system',
-          content: 'You analyze images for a home visualization tool. Respond ONLY with valid JSON, no other text.',
-        },
         {
           role: 'user',
           content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: 'image/jpeg',
+                data: imageBase64,
+              },
+            },
             {
               type: 'text',
               text: `Is this a photo of a home space that could be used for a renovation visualization? Respond with JSON only:
@@ -106,13 +112,6 @@ ${interiorRule}
 - Photos of pets, food, people, documents, screenshots = is_home: false
 - Blurry but recognizable as a building or room = is_home: true
 - Close-up of a wall/surface section = is_home: true (they want to visualize that surface)`,
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: 'data:image/jpeg;base64,' + imageBase64,
-                detail: 'low', // Low detail = cheapest, enough for classification
-              },
             },
           ],
         },
@@ -126,7 +125,7 @@ ${interiorRule}
   }
 
   const data = await response.json();
-  const text = data.choices?.[0]?.message?.content || '';
+  const text = data.content?.[0]?.text || '';
 
   // Parse JSON from response
   try {

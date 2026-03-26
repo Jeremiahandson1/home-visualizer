@@ -1,19 +1,21 @@
 // ═══════════════════════════════════════════════════════════════
 // POST /api/visualize/render
-// Hover-style rendering: prompt-based material swaps
-// No SAM masks needed — GPT-image understands "change the trim"
+// Material swap rendering via Flux Kontext (Replicate)
+// No OpenAI dependency — uses Flux for image-to-image editing
 //
-// Cost: ~$0.02-0.08 per render depending on quality
+// Cost: ~$0.03-0.06 per render via Replicate
 // ═══════════════════════════════════════════════════════════════
 
 import { NextResponse } from 'next/server';
 
-export const maxDuration = 60; // 60s timeout — medium quality renders take ~35-45s
+export const maxDuration = 120;
 
 const STRUCTURE_ANCHOR = `CRITICAL: This is a REAL photograph of a house. You are EDITING it, not creating a new image.
 Keep the EXACT same house structure, camera angle, perspective, lighting, sky, landscaping, and proportions.
 ONLY change the specific materials/colors described below. Everything else must remain pixel-identical.
 Maintain the exact same architectural style, roof shape, window positions, and overall composition.`;
+
+const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions';
 
 export async function POST(req) {
   try {
@@ -21,7 +23,7 @@ export async function POST(req) {
       imageBase64,    // Original photo
       changes,        // Array of { category, materialName, materialBrand, materialColor }
       tenantSlug,
-      quality = 'medium',  // 'high' ~90s | 'medium' ~35-45s | 'low' ~15-20s
+      quality = 'medium',
     } = await req.json();
 
     if (!imageBase64 || typeof imageBase64 !== 'string') {
@@ -30,91 +32,63 @@ export async function POST(req) {
     if (!Array.isArray(changes) || !changes.length) {
       return NextResponse.json({ error: 'No changes specified' }, { status: 400 });
     }
-    // Validate each change has required fields
     for (const c of changes) {
       if (!c.category || (!c.materialName && !c.materialBrand)) {
         return NextResponse.json({ error: 'Each change needs category and materialName or materialBrand' }, { status: 400 });
       }
     }
-    const validQualities = ['low', 'medium', 'high'];
-    if (!validQualities.includes(quality)) {
-      return NextResponse.json({ error: 'quality must be low, medium, or high' }, { status: 400 });
+
+    const apiKey = process.env.REPLICATE_API_TOKEN;
+    if (!apiKey) {
+      return NextResponse.json({ error: 'REPLICATE_API_TOKEN not configured' }, { status: 500 });
     }
 
     const start = Date.now();
 
-    // Detect input image dimensions to pick matching output size
-    const outputSize = getOutputSize(imageBase64);
-
     // Build the prompt describing all material changes
     const prompt = buildRenderPrompt(changes);
 
-    // Use OpenAI Responses API with image generation tool
-    // This is smarter than the edits endpoint — it understands architectural elements
-    const res = await fetch('https://api.openai.com/v1/responses', {
+    // Use Flux Kontext Max for image-to-image editing
+    const createRes = await fetch(REPLICATE_API_URL, {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
-        input: [{
-          role: 'user',
-          content: [
-            {
-              type: 'input_image',
-              image_url: `data:image/jpeg;base64,${imageBase64}`,
-            },
-            {
-              type: 'input_text',
-              text: prompt,
-            },
-          ],
-        }],
-        tools: [{
-          type: 'image_generation',
-          quality,  // passed from client, default 'medium'
-          size: outputSize,
-        }],
+        version: '9c14df44894a91b07186af323e1cea7ef09291e1c80d899e51ece2b18e4e44e6',
+        input: {
+          prompt,
+          input_image: `data:image/jpeg;base64,${imageBase64}`,
+          aspect_ratio: 'match_input_image',
+          safety_tolerance: 6,
+          prompt_upsampling: false,
+        },
       }),
     });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error('Render API error:', res.status, errText);
+    if (!createRes.ok) {
+      const errText = await createRes.text();
+      console.error('Flux create error:', createRes.status, errText);
       return NextResponse.json({ error: 'Render failed' }, { status: 500 });
     }
 
-    const data = await res.json();
+    const prediction = await createRes.json();
 
-    // Extract the generated image from the response
-    let generatedBase64 = null;
+    // Poll for completion
+    const resultUrl = await pollPrediction(prediction.urls.get, apiKey);
 
-    // The Responses API nests the image in output array
-    if (data.output) {
-      for (const block of data.output) {
-        if (block.type === 'image_generation_call' && block.result) {
-          generatedBase64 = block.result;
-          break;
-        }
-        // Also check for nested content blocks
-        if (block.content) {
-          for (const item of block.content) {
-            if (item.type === 'image' && item.image_url?.url) {
-              // Extract base64 from data URL if present
-              const match = item.image_url.url.match(/base64,(.+)/);
-              if (match) generatedBase64 = match[1];
-            }
-          }
-        }
-      }
+    if (!resultUrl) {
+      return NextResponse.json({ error: 'Image generation timed out' }, { status: 500 });
     }
 
-    if (!generatedBase64) {
-      console.error('No image in response: unexpected API response structure');
-      return NextResponse.json({ error: 'No image generated' }, { status: 500 });
+    // Download the generated image and convert to base64
+    const imgRes = await fetch(resultUrl);
+    if (!imgRes.ok) {
+      return NextResponse.json({ error: 'Failed to download generated image' }, { status: 500 });
     }
+    const imgBuf = Buffer.from(await imgRes.arrayBuffer());
+    const generatedBase64 = imgBuf.toString('base64');
 
     const elapsed = Date.now() - start;
 
@@ -122,8 +96,7 @@ export async function POST(req) {
       generatedBase64,
       generationTimeMs: elapsed,
       changesApplied: changes.length,
-      provider: 'openai-responses',
-      outputSize,
+      provider: 'flux-kontext',
     });
 
   } catch (err) {
@@ -132,50 +105,37 @@ export async function POST(req) {
   }
 }
 
-// ─── Detect input aspect ratio → pick closest API size ───────
-// Supported: 1024x1024 (square), 1536x1024 (landscape), 1024x1536 (portrait)
-function getOutputSize(base64) {
-  try {
-    const buf = Buffer.from(base64, 'base64');
-    const dims = getJpegDimensions(buf) || getPngDimensions(buf);
+// ─── Poll Replicate prediction until complete ─────────────────
+async function pollPrediction(url, apiKey) {
+  const maxWait = 90000;
+  const interval = 2000;
+  const start = Date.now();
 
-    if (!dims) return '1536x1024'; // Default landscape for house photos
+  while (Date.now() - start < maxWait) {
+    const res = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${apiKey}` },
+    });
+    if (!res.ok) return null;
 
-    const ratio = dims.width / dims.height;
+    const data = await res.json();
 
-    if (ratio > 1.2) return '1536x1024';      // Landscape
-    if (ratio < 0.83) return '1024x1536';      // Portrait
-    return '1024x1024';                         // Square-ish
-  } catch {
-    return '1536x1024'; // Default landscape
-  }
-}
-
-function getJpegDimensions(buf) {
-  if (buf[0] !== 0xFF || buf[1] !== 0xD8) return null; // Not JPEG
-  let offset = 2;
-  while (offset < buf.length - 1) {
-    if (buf[offset] !== 0xFF) break;
-    const marker = buf[offset + 1];
-    // SOF markers (Start of Frame) contain dimensions
-    if ((marker >= 0xC0 && marker <= 0xC3) || (marker >= 0xC5 && marker <= 0xC7) ||
-        (marker >= 0xC9 && marker <= 0xCB) || (marker >= 0xCD && marker <= 0xCF)) {
-      const height = buf.readUInt16BE(offset + 5);
-      const width = buf.readUInt16BE(offset + 7);
-      return { width, height };
+    if (data.status === 'succeeded') {
+      // Flux returns the image URL directly as output
+      const output = data.output;
+      if (typeof output === 'string') return output;
+      if (Array.isArray(output)) return output[0];
+      if (output?.url) return output.url;
+      console.error('Unexpected Flux output:', JSON.stringify(output).slice(0, 200));
+      return null;
     }
-    const len = buf.readUInt16BE(offset + 2);
-    offset += 2 + len;
+    if (data.status === 'failed' || data.status === 'canceled') {
+      console.error('Flux prediction failed:', data.error);
+      return null;
+    }
+
+    await new Promise(r => setTimeout(r, interval));
   }
   return null;
-}
-
-function getPngDimensions(buf) {
-  if (buf[0] !== 0x89 || buf[1] !== 0x50) return null; // Not PNG
-  return {
-    width: buf.readUInt32BE(16),
-    height: buf.readUInt32BE(20),
-  };
 }
 
 // ─── Build prompt describing all material changes ────────────

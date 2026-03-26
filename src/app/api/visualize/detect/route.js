@@ -79,26 +79,26 @@ export async function POST(req) {
       console.error('Failed to read image dimensions (non-fatal):', dimErr.message);
     }
 
-    // ONE GPT-4o vision call to detect all surfaces
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    // ONE Claude vision call to detect all surfaces
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
-        temperature: 0,
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 2000,
-        response_format: { type: 'json_object' },
         messages: [{
           role: 'user',
           content: [
             {
-              type: 'image_url',
-              image_url: {
-                url: `data:image/jpeg;base64,${imageBase64}`,
-                detail: 'high',
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: 'image/jpeg',
+                data: imageBase64,
               },
             },
             { type: 'text', text: DETECTION_PROMPT },
@@ -114,7 +114,7 @@ export async function POST(req) {
     }
 
     const data = await res.json();
-    const content = data.choices?.[0]?.message?.content;
+    const content = data.content?.[0]?.text;
 
     if (!content) {
       return NextResponse.json({ error: 'No detection result' }, { status: 500 });

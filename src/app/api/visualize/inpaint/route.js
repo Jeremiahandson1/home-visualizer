@@ -174,59 +174,85 @@ function buildBatchPrompt(zones) {
   return `${STRUCTURE_ANCHOR}\n\nMake these changes to the photo:\n${changes.join('\n')}\n\nDo NOT change anything else.`;
 }
 
-// ─── OpenAI generation with mask (edits endpoint) ─────────────
+// ─── Flux Kontext generation via Replicate (with or without mask) ──
+const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions';
+
 async function generateWithMask(imageBase64, maskBase64, prompt) {
-  try {
-    const { FormData } = await import('formdata-node');
-    const { Blob }     = await import('buffer');
-    const imageBuf     = Buffer.from(imageBase64, 'base64');
-    const openaiMaskBase64 = await convertMaskForOpenAI(maskBase64);
-    const maskBuf = Buffer.from(openaiMaskBase64, 'base64');
-    const form = new FormData();
-    form.set('image',           new Blob([imageBuf], { type: 'image/png' }), 'image.png');
-    form.set('mask',            new Blob([maskBuf],  { type: 'image/png' }), 'mask.png');
-    form.set('prompt',          prompt);
-    form.set('model',           'gpt-image-1');
-    form.set('size',            '1024x1024');
-    form.set('response_format', 'b64_json');
-    form.set('n',               '1');
-    const res = await fetch('https://api.openai.com/v1/images/edits', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` },
-      body: form,
-    });
-    if (!res.ok) { console.error('OpenAI edits failed:', res.status, await res.text()); return null; }
-    const data = await res.json();
-    return data.data?.[0]?.b64_json || null;
-  } catch (err) {
-    console.error('OpenAI edits error:', err.message);
-    return null;
-  }
+  // Flux Kontext handles image editing — mask is used for compositing after
+  return generateWithFlux(imageBase64, prompt);
 }
 
-// ─── Fallback: generate via Responses API (no mask) ───────────
 async function generateWithoutMask(imageBase64, prompt) {
+  return generateWithFlux(imageBase64, prompt);
+}
+
+async function generateWithFlux(imageBase64, prompt) {
   try {
-    const res = await fetch('https://api.openai.com/v1/responses', {
+    const apiKey = process.env.REPLICATE_API_TOKEN;
+    if (!apiKey) { console.error('REPLICATE_API_TOKEN not set'); return null; }
+
+    const createRes = await fetch(REPLICATE_API_URL, {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
-        input: [{ role: 'user', content: [
-          { type: 'input_image', image_url: `data:image/jpeg;base64,${imageBase64}` },
-          { type: 'input_text',  text: prompt },
-        ]}],
-        tools: [{ type: 'image_generation', quality: 'medium' }],
+        version: '9c14df44894a91b07186af323e1cea7ef09291e1c80d899e51ece2b18e4e44e6',
+        input: {
+          prompt,
+          input_image: `data:image/jpeg;base64,${imageBase64}`,
+          aspect_ratio: 'match_input_image',
+          safety_tolerance: 6,
+          prompt_upsampling: false,
+        },
       }),
     });
-    const data = await res.json();
-    const imgOut = data.output?.find(o => o.type === 'image_generation_call');
-    return imgOut?.result || null;
+
+    if (!createRes.ok) {
+      console.error('Flux create failed:', createRes.status, await createRes.text());
+      return null;
+    }
+
+    const prediction = await createRes.json();
+
+    // Poll for completion
+    const maxWait = 90000;
+    const interval = 2000;
+    const start = Date.now();
+
+    while (Date.now() - start < maxWait) {
+      const res = await fetch(prediction.urls.get, {
+        headers: { 'Authorization': `Bearer ${apiKey}` },
+      });
+      if (!res.ok) return null;
+
+      const data = await res.json();
+      if (data.status === 'succeeded') {
+        const output = data.output;
+        const url = typeof output === 'string' ? output
+          : Array.isArray(output) ? output[0]
+          : output?.url || null;
+
+        if (!url) { console.error('Unexpected Flux output:', JSON.stringify(output).slice(0, 200)); return null; }
+
+        // Download and convert to base64
+        const imgRes = await fetch(url);
+        if (!imgRes.ok) return null;
+        const buf = Buffer.from(await imgRes.arrayBuffer());
+        return buf.toString('base64');
+      }
+      if (data.status === 'failed' || data.status === 'canceled') {
+        console.error('Flux prediction failed:', data.error);
+        return null;
+      }
+
+      await new Promise(r => setTimeout(r, interval));
+    }
+    console.error('Flux prediction timed out');
+    return null;
   } catch (err) {
-    console.error('Responses API fallback error:', err.message);
+    console.error('Flux generation error:', err.message);
     return null;
   }
 }

@@ -47,7 +47,7 @@ async function runSAM2(imageBase64, points, imageWidth, imageHeight) {
         image: `data:image/jpeg;base64,${imageBase64}`,
         point_coords: pointCoords,
         point_labels: pointLabels,
-        multimask_output: false,
+        multimask_output: true,
       },
     }),
   });
@@ -147,15 +147,17 @@ export async function POST(req) {
         }
       }
     } else if (output && typeof output === 'object') {
-      // SAM 2 returns { combined_mask, individual_masks } format
-      if (output.combined_mask) {
-        const maskBase64 = await fetchMaskAsBase64(output.combined_mask);
-        masks.push({ maskBase64, score: 1.0 });
-      } else if (output.individual_masks && Array.isArray(output.individual_masks)) {
+      // SAM 2 returns { combined_mask, individual_masks[] } format
+      // With multimask_output=true, individual_masks has 3 masks (small/medium/large)
+      // We return all and let the client pick the best one
+      if (output.individual_masks && Array.isArray(output.individual_masks)) {
         for (const url of output.individual_masks) {
           const maskBase64 = await fetchMaskAsBase64(url);
           masks.push({ maskBase64, score: 1.0 });
         }
+      } else if (output.combined_mask) {
+        const maskBase64 = await fetchMaskAsBase64(output.combined_mask);
+        masks.push({ maskBase64, score: 1.0 });
       } else if (output.mask) {
         const maskBase64 = await fetchMaskAsBase64(output.mask);
         masks.push({ maskBase64, score: 1.0 });

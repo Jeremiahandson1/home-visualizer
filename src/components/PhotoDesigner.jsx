@@ -205,9 +205,34 @@ export default function PhotoDesigner({
 
       if (segRes.ok) {
         const segData = await segRes.json();
-        if (segData.masks?.[0]?.maskBase64) {
-          // Convert SAM 2 mask (base64 PNG) to ImageData
-          mask = await base64MaskToImageData(segData.masks[0].maskBase64, canvas.width, canvas.height);
+        if (segData.masks?.length > 0) {
+          // SAM 2 with multimask_output returns 3 masks (small/medium/large)
+          // Pick the smallest one — it's most likely just the clicked surface
+          let bestMask = segData.masks[0];
+          if (segData.masks.length > 1) {
+            // Convert all masks, count white pixels, pick smallest
+            const maskImages = await Promise.all(
+              segData.masks.map(m => base64MaskToImageData(m.maskBase64, canvas.width, canvas.height))
+            );
+            let smallestCount = Infinity;
+            let smallestIdx = 0;
+            maskImages.forEach((img, i) => {
+              if (!img) return;
+              let count = 0;
+              for (let p = 0; p < img.data.length; p += 4) {
+                if (img.data[p] > 128) count++;
+              }
+              console.log(`SAM 2 mask ${i}: ${count} pixels (${((count / (canvas.width * canvas.height)) * 100).toFixed(1)}%)`);
+              if (count > 0 && count < smallestCount) {
+                smallestCount = count;
+                smallestIdx = i;
+              }
+            });
+            mask = maskImages[smallestIdx];
+            console.log(`SAM 2: picked mask ${smallestIdx} (smallest with ${smallestCount} pixels)`);
+          } else {
+            mask = await base64MaskToImageData(bestMask.maskBase64, canvas.width, canvas.height);
+          }
           maskWidth = canvas.width;
           maskHeight = canvas.height;
           console.log('SAM 2 mask applied');

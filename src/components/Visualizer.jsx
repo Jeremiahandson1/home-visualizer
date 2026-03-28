@@ -9,7 +9,8 @@ import { EXAMPLE_TRANSFORMATIONS, TESTIMONIALS, getPopularityBadge } from '@/lib
 import CompareSlider from './CompareSlider';
 import ShowerBuilder from './ShowerBuilder';
 import DesignMode from './DesignMode';
-// MagicWand removed — DesignMode is the only mode for exterior
+import PhotoDesigner from './PhotoDesigner';
+// MagicWand removed — DesignMode + PhotoDesigner for exterior
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const RESIZE_MAX_PX = 1024; // Resize to 1024px max before sending
@@ -806,24 +807,19 @@ export default function Visualizer({ config }) {
               </div>
             )}
 
-            {/* ── EXTERIOR — DesignMode is the only mode ──── */}
+            {/* ── EXTERIOR — PhotoDesigner (instant click) + DesignMode (AI render) ──── */}
             {remodel === 'exterior' && (
-              <DesignMode
-                originalSrc={image}
-                imageSrc={iterationBase ? `data:image/jpeg;base64,${iterationBase}` : image}
-                imageBase64={iterationBase || imageRaw}
+              <PhotoDesigner
+                imageSrc={image}
+                imageBase64={imageRaw}
                 tenantSlug={config.slug}
                 config={config}
-                onRenderStart={() => {
-                  trackEvent('generate', config.tenantId, { mode: 'design' });
-                }}
                 onRenderComplete={(newBase64) => {
                   setIterationBase(newBase64);
                   setIterationCount(c => c + 1);
                   setGeneratedImage(`data:image/jpeg;base64,${newBase64}`);
                   setGeneratedBase64(newBase64);
                   setStep('design');
-                  trackEvent('generate_complete', config.tenantId, { mode: 'design' });
                 }}
               />
             )}

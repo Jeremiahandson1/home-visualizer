@@ -99,6 +99,7 @@ export default function Visualizer({ config }) {
   const [uploadError, setUploadError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef(null);
+  const cameraRef = useRef(null);
 
   const [mode, setMode] = useState('products');
   const [remodel, setRemodel] = useState(null); // 'exterior' | 'kitchen' | 'bathroom'
@@ -649,13 +650,22 @@ export default function Visualizer({ config }) {
                 {enabledRemodels.length === 1 && enabledRemodels[0].id === 'exterior'
                   ? 'of your home' : 'of your space'}
               </p>
-              <button
-                className="px-8 py-3 rounded-xl text-white font-bold shadow-lg active:scale-[0.98] transition"
-                style={{ background: primary }}
-                onClick={(e) => { e.stopPropagation(); fileRef.current?.click(); }}
-              >Choose Photo</button>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                <button
+                  className="px-6 py-3 rounded-xl text-white font-bold shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2"
+                  style={{ background: primary }}
+                  onClick={(e) => { e.stopPropagation(); cameraRef.current?.click(); }}
+                >📷 Take Photo</button>
+                <button
+                  className="px-6 py-3 rounded-xl font-bold border-2 active:scale-[0.98] transition flex items-center justify-center gap-2"
+                  style={{ borderColor: primary, color: primary, background: surface }}
+                  onClick={(e) => { e.stopPropagation(); fileRef.current?.click(); }}
+                >🖼️ Upload Photo</button>
+              </div>
             </div>
             <input ref={fileRef} type="file" accept="image/*" className="hidden"
+              onChange={(e) => handleFile(e.target.files[0])} />
+            <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden"
               onChange={(e) => handleFile(e.target.files[0])} />
             {uploadError && <p className="mt-3 text-sm text-red-600 font-medium">{uploadError}</p>}
             <p className="text-xs mt-4" style={{ color: muted + '80' }}>

@@ -72,6 +72,60 @@ const SIDING = [
   { id: 'ct-shake-driftwood',  name: 'Driftwood Shake',    color: '#A89882', accent: '#8B7D68', brand: 'CertainTeed', type: 'Vinyl Shake',      colorFamily: 'beige',  aiHint: 'staggered cedar shake vinyl, weathered driftwood gray-brown' },
   { id: 'ct-shake-moss',       name: 'Moss Shake',         color: '#6B7A5A', accent: '#506040', brand: 'CertainTeed', type: 'Vinyl Shake',      colorFamily: 'green',  aiHint: 'deep moss green cedar shake vinyl, rustic cottage style' },
 
+  // Norandex (Vinyl) — Polar Wall Plus / Sagebrush / Premium
+  { id: 'nor-snow',            name: 'Snow',               color: '#F5F5F0', accent: '#E0E0DB', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'white',  aiHint: 'bright snow white vinyl lap siding, clean crisp white horizontal panels' },
+  { id: 'nor-almond',          name: 'Almond',             color: '#E0D4B8', accent: '#C8BC9C', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'warm almond beige vinyl lap siding, soft creamy tan' },
+  { id: 'nor-heritage-cream',  name: 'Heritage Cream',     color: '#E8DCC0', accent: '#D0C4A8', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'classic heritage cream vinyl siding, warm yellow-cream traditional' },
+  { id: 'nor-wicker',          name: 'Wicker',             color: '#C4AD8A', accent: '#A89570', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'warm wicker tan vinyl lap siding, golden basket-weave inspired tone' },
+  { id: 'nor-pebble',          name: 'Pebble',             color: '#B5B0A8', accent: '#959088', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'soft pebble gray vinyl siding, warm taupe-gray neutral' },
+  { id: 'nor-granite',         name: 'Granite Gray',       color: '#7A7E80', accent: '#5E6264', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'medium granite gray vinyl lap siding, cool sophisticated gray' },
+  { id: 'nor-wedgewood',       name: 'Wedgewood Blue',     color: '#6B8399', accent: '#4D6577', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'blue',   aiHint: 'soft wedgewood blue vinyl siding, classic coastal blue-gray' },
+  { id: 'nor-slate-blue',      name: 'Slate Blue',         color: '#4A6580', accent: '#354858', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'blue',   aiHint: 'deep slate blue vinyl lap siding, rich coastal nautical blue' },
+  { id: 'nor-cypress',         name: 'Cypress Green',      color: '#7A9172', accent: '#5E7456', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'green',  aiHint: 'muted cypress green vinyl siding, natural sage organic green' },
+  { id: 'nor-forest',          name: 'Forest Green',       color: '#2D4A2D', accent: '#1C361C', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'green',  aiHint: 'deep forest green vinyl lap siding, dramatic dark woodland green' },
+  { id: 'nor-birch',           name: 'Birch',              color: '#EFE9DC', accent: '#D8D2C4', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'white',  aiHint: 'soft birch off-white vinyl lap siding, subtle warm undertone' },
+  { id: 'nor-linen',           name: 'Linen',              color: '#E8E0D0', accent: '#D0C8B8', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'warm linen vinyl lap siding, soft cream-beige neutral' },
+  { id: 'nor-buckskin',        name: 'Buckskin',           color: '#B8956A', accent: '#9A7B52', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'rich buckskin tan vinyl lap siding, warm earthy leather tone' },
+  { id: 'nor-sandstone',       name: 'Sandstone',          color: '#C8B898', accent: '#A89A7A', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'sandstone vinyl lap siding, natural warm beige with subtle gold' },
+  { id: 'nor-sterling',        name: 'Sterling',           color: '#A8ACB0', accent: '#888C90', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'light sterling gray vinyl lap siding, cool silvery neutral' },
+  { id: 'nor-storm',           name: 'Storm',              color: '#6B6E70', accent: '#4E5154', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'medium-dark storm gray vinyl lap siding, brooding modern gray' },
+  { id: 'nor-charcoal',        name: 'Charcoal',           color: '#3A3C3E', accent: '#252728', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'black',  aiHint: 'dark charcoal vinyl lap siding, dramatic near-black modern gray' },
+  { id: 'nor-hampton-blue',    name: 'Hampton Blue',       color: '#5E7E9A', accent: '#42627E', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'blue',   aiHint: 'medium hampton blue vinyl lap siding, sophisticated mid-tone blue' },
+  { id: 'nor-maritime-blue',   name: 'Maritime Blue',      color: '#2C4060', accent: '#1A2A44', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'blue',   aiHint: 'deep maritime navy vinyl lap siding, bold dark coastal blue' },
+  { id: 'nor-sage-green',      name: 'Sage Green',         color: '#9AAA8A', accent: '#7C8A6E', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'green',  aiHint: 'soft sage green vinyl lap siding, light muted herbal green' },
+  { id: 'nor-hunter-green',    name: 'Hunter Green',       color: '#1F3A28', accent: '#122A1A', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'green',  aiHint: 'deep hunter green vinyl lap siding, traditional dark forest green' },
+  { id: 'nor-mocha',           name: 'Mocha',              color: '#7A5E48', accent: '#5C4530', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'brown',  aiHint: 'warm mocha brown vinyl lap siding, coffee-toned mid-brown' },
+  { id: 'nor-coffee',          name: 'Coffee',             color: '#5C4530', accent: '#3F2F20', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'brown',  aiHint: 'deep coffee brown vinyl lap siding, dark roasted brown' },
+  { id: 'nor-espresso',        name: 'Espresso',           color: '#3A2818', accent: '#241608', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'brown',  aiHint: 'very dark espresso brown vinyl lap siding, near-black warm brown' },
+  { id: 'nor-cinnabar',        name: 'Cinnabar Red',       color: '#8B3A3A', accent: '#6B2222', brand: 'Norandex',    type: 'Vinyl Lap',        colorFamily: 'red',    aiHint: 'classic cinnabar red vinyl lap siding, deep traditional barn red' },
+
+  // ABTco (Vinyl) — Heartland Reflections / Cottage Lane
+  { id: 'abt-antique-white',   name: 'Antique White',      color: '#F0E8D8', accent: '#D8D0C0', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'white',  aiHint: 'soft antique white vinyl lap siding, slightly warm aged white traditional' },
+  { id: 'abt-linen',           name: 'Linen',              color: '#E8E0D0', accent: '#D0C8B8', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'warm linen vinyl lap siding, soft cream beige neutral' },
+  { id: 'abt-navajo-beige',    name: 'Navajo Beige',       color: '#C8B898', accent: '#AA9A7A', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'warm navajo beige vinyl siding, southwestern earthy tan' },
+  { id: 'abt-driftwood',       name: 'Driftwood',          color: '#A89882', accent: '#8B7D68', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'weathered driftwood gray-brown vinyl lap siding, coastal aged wood tone' },
+  { id: 'abt-pebble',          name: 'Pebble',             color: '#B0ACA4', accent: '#908C84', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'soft pebble warm gray vinyl siding, neutral taupe-gray' },
+  { id: 'abt-cape-cod-gray',   name: 'Cape Cod Gray',      color: '#989EA5', accent: '#787E85', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'cool cape cod gray vinyl lap siding, coastal New England gray' },
+  { id: 'abt-colonial-gray',   name: 'Colonial Gray',      color: '#7E848B', accent: '#62686F', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'classic colonial medium gray vinyl siding, refined traditional gray' },
+  { id: 'abt-chestnut',        name: 'Chestnut',           color: '#6B4E37', accent: '#4D3825', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'brown',  aiHint: 'rich chestnut brown vinyl lap siding, warm wood-toned brown' },
+  { id: 'abt-heritage-red',    name: 'Heritage Red',       color: '#8B3A3A', accent: '#6B2222', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'red',    aiHint: 'classic heritage red vinyl siding, traditional barn red American style' },
+  { id: 'abt-wedgewood',       name: 'Wedgewood Blue',     color: '#6B8399', accent: '#4D6577', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'blue',   aiHint: 'classic wedgewood blue vinyl lap siding, soft coastal blue-gray' },
+  { id: 'abt-snow',            name: 'Snow',               color: '#F5F5F0', accent: '#E0E0DB', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'white',  aiHint: 'bright snow white vinyl lap siding, clean crisp white' },
+  { id: 'abt-bone',            name: 'Bone',               color: '#E8E2D4', accent: '#D0C8B8', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'white',  aiHint: 'warm bone off-white vinyl lap siding, soft natural ivory' },
+  { id: 'abt-almond',          name: 'Almond',             color: '#E0D4B8', accent: '#C8BC9C', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'warm almond beige vinyl lap siding, creamy soft tan' },
+  { id: 'abt-sandstone-beige', name: 'Sandstone Beige',    color: '#C8B898', accent: '#A89A7A', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'sandstone beige vinyl siding, warm earthy neutral' },
+  { id: 'abt-wicker',          name: 'Wicker',             color: '#C4AD8A', accent: '#A89570', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'warm wicker tan vinyl siding, golden basket-weave tone' },
+  { id: 'abt-tan',             name: 'Tan',                color: '#B5A38A', accent: '#988770', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'beige',  aiHint: 'classic medium tan vinyl lap siding, traditional neutral' },
+  { id: 'abt-light-gray',      name: 'Light Gray',         color: '#B0B4B8', accent: '#909498', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'light cool gray vinyl lap siding, soft pale gray' },
+  { id: 'abt-sterling-gray',   name: 'Sterling Gray',      color: '#98A0A8', accent: '#788088', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'sterling cool medium gray vinyl lap siding, modern silver' },
+  { id: 'abt-storm',           name: 'Storm',              color: '#6B6E70', accent: '#4E5154', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'gray',   aiHint: 'dark storm gray vinyl lap siding, moody charcoal-gray' },
+  { id: 'abt-charcoal-gray',   name: 'Charcoal Gray',      color: '#3A3C3E', accent: '#252728', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'black',  aiHint: 'deep charcoal gray vinyl lap siding, dramatic near-black' },
+  { id: 'abt-williamsburg',    name: 'Williamsburg Blue',  color: '#6B7E9A', accent: '#4D627E', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'blue',   aiHint: 'classic williamsburg blue vinyl lap siding, historical colonial blue-gray' },
+  { id: 'abt-slate-blue',      name: 'Slate Blue',         color: '#4A6580', accent: '#354858', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'blue',   aiHint: 'deep slate blue vinyl lap siding, rich coastal blue' },
+  { id: 'abt-sage',            name: 'Sage',               color: '#8A9A7A', accent: '#6C7A5C', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'green',  aiHint: 'muted sage green vinyl lap siding, soft natural herbal green' },
+  { id: 'abt-forest-green',    name: 'Forest Green',       color: '#2D4A2D', accent: '#1C361C', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'green',  aiHint: 'deep forest green vinyl lap siding, dramatic dark woodland green' },
+  { id: 'abt-mocha',           name: 'Mocha',              color: '#7A5E48', accent: '#5C4530', brand: 'ABTco',       type: 'Vinyl Lap',        colorFamily: 'brown',  aiHint: 'warm mocha brown vinyl lap siding, coffee-toned mid-brown' },
+
   // Stone Veneer
   { id: 'boral-fieldstone',    name: 'Fieldstone',         color: '#A09080', accent: '#857560', brand: 'Boral',        type: 'Stone Veneer',     colorFamily: 'beige',  aiHint: 'natural fieldstone veneer, mixed gray-tan irregular stones, rustic texture' },
   { id: 'boral-cedar',         name: 'Cedar Blend',        color: '#B8956A', accent: '#9A7B52', brand: 'Boral',        type: 'Stone Veneer',     colorFamily: 'brown',  aiHint: 'warm cedar-toned stone veneer, golden brown natural stone' },
@@ -708,6 +762,31 @@ export function getTypesForProject(projectId) {
   return [...new Set(mats.map(m => m.type))];
 }
 
+// Color family display order — neutrals first, then chromatic
+const COLOR_FAMILY_SORT_ORDER = ['white', 'beige', 'gray', 'black', 'blue', 'green', 'brown', 'red', 'yellow'];
+
+// Group by brand (preserving first-seen brand order), then within each brand
+// order by color family, then by name. Does not mutate input.
+export function sortByBrandThenColorFamily(materials) {
+  const brandOrder = new Map();
+  for (const m of materials) {
+    if (!brandOrder.has(m.brand)) brandOrder.set(m.brand, brandOrder.size);
+  }
+  const cfIdx = cf => {
+    const i = COLOR_FAMILY_SORT_ORDER.indexOf(cf);
+    return i === -1 ? 99 : i;
+  };
+  return [...materials].sort((a, b) => {
+    const ab = brandOrder.get(a.brand) ?? 99;
+    const bb = brandOrder.get(b.brand) ?? 99;
+    if (ab !== bb) return ab - bb;
+    const acf = cfIdx(a.colorFamily);
+    const bcf = cfIdx(b.colorFamily);
+    if (acf !== bcf) return acf - bcf;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+}
+
 // Filter materials
 export function filterMaterials(projectId, { brand, type, colorFamily, search } = {}) {
   let mats = MATERIALS[projectId] || [];
@@ -722,7 +801,7 @@ export function filterMaterials(projectId, { brand, type, colorFamily, search } 
       m.type.toLowerCase().includes(s)
     );
   }
-  return mats;
+  return sortByBrandThenColorFamily(mats);
 }
 
 // Total count

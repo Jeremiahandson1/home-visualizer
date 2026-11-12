@@ -270,7 +270,7 @@ function SignupPageInner() {
 
               <p className="text-center text-[11px] text-stone-600">
                 {model === 'saas'
-                  ? 'Secure payment via Stripe. 14-day free trial. Cancel anytime.'
+                  ? 'Secure payment via Stripe. 30-day money-back guarantee. Cancel anytime.'
                   : 'Secure one-time payment via Stripe. Source code delivered immediately.'
                 }
               </p>

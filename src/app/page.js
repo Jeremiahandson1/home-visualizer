@@ -374,9 +374,9 @@ export default function HomePage() {
                 href="/signup"
                 className="block w-full py-3.5 rounded-lg font-bold text-sm text-center bg-amber-700 text-white hover:bg-amber-800 transition"
               >
-                Start 14-Day Free Trial →
+                Get Started →
               </Link>
-              <p className="text-center text-xs text-stone-500 mt-3">No credit card required. Cancel anytime.</p>
+              <p className="text-center text-xs text-stone-500 mt-3">30-day money-back guarantee. Cancel anytime.</p>
             </div>
 
             {/* One-Time */}
@@ -506,7 +506,7 @@ export default function HomePage() {
             href="/signup"
             className="bg-amber-700 text-white px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-amber-800 shadow-lg shadow-amber-700/20 transition"
           >
-            Start Your Free Trial →
+            Get Started →
           </Link>
           <Link
             href="/demo"
